@@ -188,6 +188,7 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
                                      lw=1.25,ls='dashed',color='0.6'))
         bovy_plot.bovy_text(0.43,-8.,r'$\mathrm{APOGEE\ color\ cut}$',rotation=90.,
                             size=14.)
+    if _ADDEXTINCT:
         #Add twin y axis
         ax= pyplot.gca()
         def my_formatter(x, pos):
