@@ -164,7 +164,7 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
         colorbar= True
         zlabel= r'$\sigma_{T_{\mathrm{eff}}}$'
         cmap= 'jet'
-        zrange= [0.,500.]
+        zrange= [0.,100.]
     else:
         colorbar= True
         zlabel= None
