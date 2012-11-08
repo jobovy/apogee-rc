@@ -6,6 +6,8 @@ import math
 import numpy
 from scipy import maxentropy, integrate
 import scipy.interpolate
+from extreme_deconvolution import extreme_deconvolution
+import xdtarget
 import isodist, isodist.imf
 try:
     from galpy.util import bovy_plot
@@ -17,7 +19,7 @@ class rcmodel:
     def __init__(self,imfmodel='lognormalChabrier2001',Z=None,
                  interpolate=False,expsfh=False,band='H',
                  dontgather=False,loggmin=None,loggmax=None,
-                 basti=False):
+                 basti=False,ngauss=3,fitlogg=False):
         """
         NAME:
            __init__
@@ -33,11 +35,22 @@ class rcmodel:
            loggmin= if set, cut logg at this minimum
            loggmax= if set, cut logg at this maximum
            basti= if True, use Basti isochrones (if False, use Padova)
+           ngauss= number of Gaussians for XD
+           fitlogg= if True, also fit logg in XD
         OUTPUT:
            object
         HISTORY:
            2012-11-07 - Written - Bovy (IAS)
         """
+        self._band= band
+        self._fitlogg= fitlogg
+        self._ngauss= ngauss
+        self._loggmin= loggmin
+        self._loggmax= loggmax
+        self._expsfh= expsfh
+        self._Z= Z
+        self._imfmodel= imfmodel
+        self._basti= basti
         #Read isochrones
         if basti:
             zs= numpy.array([0.0001,0.0003,0.0006,0.001,0.002,0.004,0.008,
@@ -123,6 +136,34 @@ class rcmodel:
         weights= numpy.array(weights)
         self._sample= sample
         self._weights= weights
+        #Run XD
+        if fitlogg:
+            dim= 3
+        else:
+            dim= 2
+        ydata= numpy.reshape(sample,(len(weights),2))
+        if fitlogg:
+            tmp_ydata= numpy.zeros((len(weights),dim))
+            tmp_ydata[:,0]= ydata[:,0]
+            tmp_ydata[:,1]= ydata[:,1]
+            tmp_ydata[:,2]= logit(loggs,self._loggmin-0.2,self._loggmax+0.2)[:,0]
+            ydata= tmp_ydata
+        ycovar= numpy.zeros((len(weights),dim))
+        xamp= numpy.ones(ngauss)/float(ngauss)
+        datamean= numpy.mean(ydata,axis=0)
+        datacov= numpy.cov(ydata,rowvar=0)
+        datastd= numpy.sqrt(numpy.diag(datacov))
+        xmean= datamean+numpy.random.normal(size=(ngauss,dim))\
+            *numpy.tile(datastd,(ngauss,1))
+        xcovar= numpy.tile(datacov,(ngauss,1,1))*4.
+        l= extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,
+                                 weight=weights)
+        self._loglike= l
+        self._amp= xamp
+        self._mean= xmean
+        self._covar= xcovar
+        self._xdtarg= xdtarget.xdtarget(amp=xamp,mean=xmean,covar=xcovar)
+        return None
         #Histogram
         self._jkmin, self._jkmax= 0.3,1.6
         self._hmin, self._hmax= -11.,2.
@@ -167,7 +208,7 @@ class rcmodel:
         """
         return None
 
-    def mean(self,jk):
+    def mean(self,jk,sjk=0.):
         """
         NAME:
            mean
@@ -175,19 +216,24 @@ class rcmodel:
            return the mean of the M_x distribution at this J-K
         INPUT:
            jk - J-Ks
+           sjk - error in J-K
         OUTPUT:
            mean
         HISTORY:
            2012-11-07 - Written - Bovy (IAS)
         """
-        return self.moment(jk,1)
+        #First collapse
+        coamp, comean, cocovar= self.collapse(jk,sjk=sjk)
+        #Then calculate mean
+        return numpy.sum(coamp*comean)
     
-    def sigma(self,jk):
+    def sigma(self,jk,sjk=0.):
         """
         NAME:
            sigma
         PURPOSE:
            return the standard dev of the M_x distribution at this J-K
+           sjk - error in J-K
         INPUT:
            jk - J-Ks
         OUTPUT:
@@ -195,7 +241,38 @@ class rcmodel:
         HISTORY:
            2012-11-07 - Written - Bovy (IAS)
         """
-        return numpy.sqrt(self.moment(jk,2)-self.mean(jk)**2.)
+        #First collapse
+        coamp, comean, cocovar= self.collapse(jk,sjk=sjk)
+        #Then calculate mean
+        tmean= numpy.sum(coamp*comean)
+        #Then calculate squared
+        tsq= numpy.sum(coamp*(cocovar+comean**2.))
+        return numpy.sqrt(tsq-tmean**2.)
+
+    def collapse(self,jk,sjk=0.):
+        """
+        NAME:
+           collapse
+        PURPOSE:
+           collapse the distribution onto this jk (condition!)
+        INPUT:
+           jk - J-Ks
+           sjk - error in J-K
+        OUTPUT:
+           amp,mean,var
+        HISTORY:
+           2012-11-08 - Written - Bovy (IAS)
+        """
+        if self._fitlogg:
+            raise NotImplementedError("Collapse for fitlogg not implemented yet")
+        #First calculate amplitudes
+        logrelamp= numpy.log(self._amp)-0.5*numpy.log(self._covar[:,0,0])\
+            -0.5*(jk-self._mean[:,0])**2./self._covar[:,0,0]
+        logrelamp-= maxentropy.logsumexp(logrelamp)
+        #Then calculate conditioned means and variances
+        comean= self._mean[:,1]+self._covar[:,0,1]/(self._covar[:,0,0]+sjk**2.)*(jk-self._mean[:,0])
+        cocovar= self._covar[:,1,1]-self._covar[:,0,1]**2./(self._covar[:,0,0]+sjk**2.)
+        return (numpy.exp(logrelamp),comean,cocovar)
 
     def moment(self,jk,m):
         """
@@ -301,3 +378,74 @@ class rcmodel:
                                      xlabel=r'$(J-K_s)_0\ [\mathrm{mag}]$',
                                      ylabel=r'$M_H\ [\mathrm{mag}]$')
     
+    def plot_model(self,nsamples=1000):
+        """
+        NAME:
+           plot_model
+        PURPOSE:
+           plot the model distribution as a a set of samples and Gaussians
+        INPUT:
+        OUTPUT:
+           plot to output device
+        HISTORY:
+           2012-07-08 - Written - Bovy (IAS)
+        """
+        self._xdtarg.sample(nsample=nsamples)
+        if self._band == 'J':
+            ylabel= r'$M_J$'
+            ylim=[0.,-2.]
+        elif self._band == 'H':
+            ylabel= r'$M_H$'
+            ylim=[0.,-2.]
+        elif self._band == 'K':
+            ylabel= r'$M_K$'
+            ylim=[0.,-2.]
+        elif self._band == 'Ks':
+            ylabel= r'$M_{K_s}$'
+            ylim=[0.,-2.]
+        if self._fitlogg:
+            scatter= True
+            plotc= inv_logit(numpy.array(self._xdtarg.samples[:,2]),
+                             self._loggmin-0.2,self._loggmax+0.2)
+            colorbar= True
+            clabel= r'$\log g$'
+            crange=[self._loggmin,self._loggmax]
+            marker= 'o'
+            color= None
+            alpha=0.5
+            s= numpy.ones_like(plotc)*10.,
+        else:
+            scatter= True
+            plotc= 'k'
+            colorbar= False
+            clabel= None
+            crange= [0.,0.]
+            marker= ','
+            color= 'k'
+            alpha=1.
+            s=1.
+        return self._xdtarg.scatterplot(0,1,
+                                        xlabel=r'$J-K_s$',
+                                        ylabel=ylabel,
+                                        xrange=[0.5,0.75],
+                                        yrange=ylim,
+                                        scatter=scatter,
+                                        cmap='jet',
+                                        color=color,
+                                        c=plotc,
+                                        marker=marker,
+                                        s=s,
+                                        colorbar=colorbar,
+                                        clabel=clabel,
+                                        edgecolors='none',
+                                        vmin=crange[0],vmax=crange[1],
+                                        crange=crange,
+                                        alpha=alpha,
+                                        hoggscatter=False)
+def logit(x,xmin,xmax):
+    p= (x-xmin)/(xmax-xmin)
+    return numpy.log(p/(1.-p))
+
+def inv_logit(p,xmin,xmax):
+    x= numpy.exp(p)/(1.+numpy.exp(p))
+    return x*(xmax-xmin)+xmin
