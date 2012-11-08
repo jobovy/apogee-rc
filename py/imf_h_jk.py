@@ -90,6 +90,8 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
                     #weights.append(dmpm[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.))
                     if 'logg' in options.type:
                         quants.append(thisiso['logg'][ii])
+                    elif 'teff' in options.type:
+                        quants.append(10.**(thisiso['logTe'][ii]))
                 else: 
                     continue #no use in continuing here
     #Form array
@@ -153,6 +155,16 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
         zlabel= r'$\sigma_{\log g}$'
         cmap= 'jet'
         zrange= [0.,0.1]
+    elif options.type == 'teffmean':
+        colorbar= True
+        zlabel= r'$\mathrm{average}\ T_{\mathrm{eff}}$'
+        cmap= 'jet'
+        zrange= [3000.,6000.]
+    elif options.type == 'teffsigma':
+        colorbar= True
+        zlabel= r'$\sigma_{T_{\mathrm{eff}}}$'
+        cmap= 'jet'
+        zrange= [0.,500.]
     else:
         colorbar= True
         zlabel= None
