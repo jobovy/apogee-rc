@@ -1,6 +1,9 @@
 ###############################################################################
 # rcmodel.py: isochrone model for the distribution in (J-Ks,M_H)
 #             along the RC
+#
+# MAY NEED:
+# export PYTHONPATH=~/Repos/extreme-deconvolution-ngerrors/py:$PYTHONPATH
 ###############################################################################
 import math
 import numpy
@@ -463,7 +466,7 @@ class rcmodel:
 
     def _determine_ngauss(self,fitlogg=False,loofrac=0.1):
         """Determine the optimal number of Gaussians"""
-        ngauss_s= range(1,20)
+        ngauss_s= range(1,15)
         #First do loo
         perm= numpy.random.permutation(len(self._weights))
         tperm= perm[0:int(numpy.ceil(loofrac*len(self._weights)))]
@@ -494,8 +497,9 @@ class rcmodel:
                                                   _xmean=xmean,
                                                   _xcovar=xcovar)
             loos[ii]= tl*len(lweights)
-        bovy_plot.bovy_plot(ngauss_s,loos,'k-',
-                            xlabel=r'$\# \mathrm{Gaussian components}$',
+        bovy_plot.bovy_plot(ngauss_s,loos,'ko',
+                            yrange=[0.9*numpy.amin(loos),1.1*numpy.amax(loos)],
+                            xlabel=r'$\#\ \mathrm{Gaussian\ components}$',
                             ylabel=r'$\mathrm{loo\ log\ likelihood}$')
         print ngauss_s[numpy.argmax(loos)]
         return ngauss_s[numpy.argmax(loos)]
@@ -541,7 +545,8 @@ class rcmodel:
         else:
             xcovar= _xcovar
         l= extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,
-                                 weight=_weights,likeonly=likeonly)
+                                 weight=_weights,likeonly=likeonly,
+                                 splitnmerge=2,w=0.001)
         return (l, xamp, xmean, xcovar)
 
     def plot(self,log=False,conditional=False,nbins=None):
