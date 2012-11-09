@@ -249,6 +249,58 @@ class rcmodel:
         tsq= numpy.sum(coamp*(cocovar+comean**2.))
         return numpy.sqrt(tsq-tmean**2.)
 
+    def skew(self,jk,sjk=0.):
+        """
+        NAME:
+           skew
+        PURPOSE:
+           return the skew dev of the M_x distribution at this J-K
+           sjk - error in J-K
+        INPUT:
+           jk - J-Ks
+        OUTPUT:
+           skew
+        HISTORY:
+           2012-11-09 - Written - Bovy (IAS)
+        """
+        #First collapse
+        coamp, comean, cocovar= self.collapse(jk,sjk=sjk)
+        #Then calculate mean
+        tmean= numpy.sum(coamp*comean)
+        #Then calculate squared
+        tsq= numpy.sum(coamp*(cocovar+comean**2.))
+        tsigma= numpy.sqrt(tsq-tmean**2.)
+        #then calculate 3rd moment
+        tt= numpy.sum(coamp*(3.*comean*cocovar+comean**3.))
+        return (tt-3.*tmean*tsigma**2.-tmean**3.)/tsigma**3.
+
+    def kurtosis(self,jk,sjk=0.):
+        """
+        NAME:
+           kurtosis
+        PURPOSE:
+           return the kurtosis of the M_x distribution at this J-K
+           sjk - error in J-K
+        INPUT:
+           jk - J-Ks
+        OUTPUT:
+           kurtosis
+        HISTORY:
+           2012-11-09 - Written - Bovy (IAS)
+        """
+        #First collapse
+        coamp, comean, cocovar= self.collapse(jk,sjk=sjk)
+        #Then calculate mean
+        tmean= numpy.sum(coamp*comean)
+        #Then calculate squared
+        tsq= numpy.sum(coamp*(cocovar+comean**2.))
+        tsigma= numpy.sqrt(tsq-tmean**2.)
+        #then calculate 3rd moment
+        tt= numpy.sum(coamp*(3.*comean*cocovar+comean**3.))
+        #then calculate 4th moment
+        tth= numpy.sum(coamp*(3.*cocovar**2.+6.*comean**2.*cocovar+comean**4.))
+        return (tth-4.*tmean*tt+6.*tmean**2.*tsigma**2.+3.*tmean**4.)/tsigma**4.-3.
+
     def collapse(self,jk,sjk=0.):
         """
         NAME:
@@ -399,7 +451,7 @@ class rcmodel:
             ylim=[0.,-2.]
         elif self._band == 'K':
             ylabel= r'$M_K$'
-            ylim=[0.,-2.]
+            ylim=[0.,-3.]
         elif self._band == 'Ks':
             ylabel= r'$M_{K_s}$'
             ylim=[0.,-2.]
