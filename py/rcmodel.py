@@ -19,7 +19,8 @@ class rcmodel:
     def __init__(self,imfmodel='lognormalChabrier2001',Z=None,
                  interpolate=False,expsfh=False,band='H',
                  dontgather=False,loggmin=None,loggmax=None,
-                 basti=False,ngauss=3,fitlogg=False):
+                 basti=False,ngauss=None,fitlogg=False,
+                 loofrac=0.1):
         """
         NAME:
            __init__
@@ -35,7 +36,8 @@ class rcmodel:
            loggmin= if set, cut logg at this minimum
            loggmax= if set, cut logg at this maximum
            basti= if True, use Basti isochrones (if False, use Padova)
-           ngauss= number of Gaussians for XD
+           ngauss= number of Gaussians for XD, if -1, determine best
+           loofrac= (0.1) fraction to loo if determining best
            fitlogg= if True, also fit logg in XD
         OUTPUT:
            object
@@ -136,28 +138,15 @@ class rcmodel:
         weights= numpy.array(weights)
         self._sample= sample
         self._weights= weights
+        self._loggs= loggs
         #Run XD
-        if fitlogg:
-            dim= 3
+        if ngauss > 0:
+            l, xamp, xmean, xcovar= self._run_xd(ngauss=ngauss,fitlogg=fitlogg)
         else:
-            dim= 2
-        ydata= numpy.reshape(sample,(len(weights),2))
-        if fitlogg:
-            tmp_ydata= numpy.zeros((len(weights),dim))
-            tmp_ydata[:,0]= ydata[:,0]
-            tmp_ydata[:,1]= ydata[:,1]
-            tmp_ydata[:,2]= logit(loggs,self._loggmin-0.2,self._loggmax+0.2)[:,0]
-            ydata= tmp_ydata
-        ycovar= numpy.zeros((len(weights),dim))
-        xamp= numpy.ones(ngauss)/float(ngauss)
-        datamean= numpy.mean(ydata,axis=0)
-        datacov= numpy.cov(ydata,rowvar=0)
-        datastd= numpy.sqrt(numpy.diag(datacov))
-        xmean= datamean+numpy.random.normal(size=(ngauss,dim))\
-            *numpy.tile(datastd,(ngauss,1))
-        xcovar= numpy.tile(datacov,(ngauss,1,1))*4.
-        l= extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,
-                                 weight=weights)
+            ngauss= self._determine_ngauss(fitlogg=fitlogg,
+                                             loofrac=loofrac)
+            self._ngauss= ngauss
+            l, xamp, xmean, xcovar= self._run_xd(ngauss=ngauss,fitlogg=fitlogg)
         self._loglike= l
         self._amp= xamp
         self._mean= xmean
@@ -472,46 +461,89 @@ class rcmodel:
         cocovar= self._covar[:,1,1]-self._covar[:,0,1]**2./(self._covar[:,0,0]+sjk**2.)
         return (numpy.exp(logrelamp),comean,cocovar)
 
-    def moment(self,jk,m):
-        """
-        NAME:
-           moment
-        PURPOSE:
-           return the m-th moment of the M_X distribution at this J-K
-        INPUT:
-           jk - J-Ks
-           m - m-th moment
-        OUTPUT:
-           m-th momemtn
-        HISTORY:
-           2012-11-07 - Written - Bovy (IAS)
-        """
-        if self._interpolate:
-            return integrate.quad((lambda x: x**m*self._interpolatedhist(jk,x)),
-                                   -12.,2.)[0]/\
-                                   integrate.quad((lambda x: self._interpolatedhist(jk,x)),
-                                                  -12.,2.)[0]
+    def _determine_ngauss(self,fitlogg=False,loofrac=0.1):
+        """Determine the optimal number of Gaussians"""
+        ngauss_s= range(1,20)
+        #First do loo
+        perm= numpy.random.permutation(len(self._weights))
+        tperm= perm[0:int(numpy.ceil(loofrac*len(self._weights)))]
+        tsample= self._sample[tperm,:]
+        tweights= self._weights[tperm]
+        tloggs= self._loggs[tperm]
+        #loo sample
+        lperm= perm[int(numpy.ceil(loofrac*len(self._weights))):len(self._weights)]
+        lsample= self._sample[lperm,:]
+        lweights= self._weights[lperm]
+        lloggs= self._loggs[lperm]
+        #!!LOO!!
+        loos= numpy.zeros(len(ngauss_s))
+        for ii, ngauss in enumerate(ngauss_s):
+            print ngauss
+            #First run XD
+            l, xamp, xmean, xcovar= self._run_xd(ngauss=ngauss,fitlogg=fitlogg,
+                                                 _sample=tsample,
+                                                 _weights=tweights,
+                                                 _loggs=tloggs)
+            tl, xamp, xmean, xcovar= self._run_xd(ngauss=ngauss,
+                                                  fitlogg=fitlogg,
+                                                  likeonly=True,
+                                                 _sample=lsample,
+                                                 _weights=lweights,
+                                                 _loggs=lloggs,
+                                                  _xamp=xamp,
+                                                  _xmean=xmean,
+                                                  _xcovar=xcovar)
+            loos[ii]= tl*len(lweights)
+        bovy_plot.bovy_plot(ngauss_s,loos,'k-',
+                            xlabel=r'$\# \mathrm{Gaussian components}$',
+                            ylabel=r'$\mathrm{loo\ log\ likelihood}$')
+        print ngauss_s[numpy.argmax(loos)]
+        return ngauss_s[numpy.argmax(loos)]
+
+    def _run_xd(self,ngauss=None,fitlogg=False,
+                _weights=None,_sample=None,_loggs=None,
+                likeonly=False,
+                _xamp=None,_xmean=None,_xcovar=None):
+        """Run XD"""
+        if _weights == None:
+            _weights= self._weights
+        if _sample == None:
+            _sample= self._sample
+        if _loggs == None:
+            _loggs= self._loggs
+        if fitlogg:
+            dim= 3
         else:
-            raise NotImplementedError("not using interpolation is not implemented at this time")
-            jkbin= numpy.floor((jk-self._jkmin)/self._djk)
-            hbin= numpy.floor((h-self._hmin)/self._dh)
-            if isinstance(jk,numpy.ndarray):
-                out= numpy.zeros(len(jk))-numpy.finfo(numpy.dtype(numpy.float64)).max
-                jkbin= jkbin.astype('int')
-                hbin= hbin.astype('int')
-                indx= (jkbin >= 0.)*(hbin >= 0.)*(jkbin < self._nbins)\
-                    *(hbin < self._nbins)
-                out[indx]= self._loghist[jkbin[indx],hbin[indx]]
-                return out
-            else:
-                jkbin= int(jkbin)
-                hbin= int(hbin)
-                if jkbin < 0 or jkbin >= self._nbins:
-                    return -numpy.finfo(numpy.dtype(numpy.float64)).max
-                if hbin < 0 or hbin >= self._nbins:
-                    return -numpy.finfo(numpy.dtype(numpy.float64)).max
-                return self._loghist[jkbin,hbin]
-    
+            dim= 2
+        ydata= numpy.reshape(_sample,(len(_weights),2))
+        if fitlogg:
+            tmp_ydata= numpy.zeros((len(_weights),dim))
+            tmp_ydata[:,0]= ydata[:,0]
+            tmp_ydata[:,1]= ydata[:,1]
+            tmp_ydata[:,2]= logit(_loggs,
+                                  self._loggmin-0.2,self._loggmax+0.2)[:,0]
+            ydata= tmp_ydata
+        ycovar= numpy.zeros((len(_weights),dim))
+        if _xamp is None:
+            xamp= numpy.ones(ngauss)/float(ngauss)
+        else:
+            xamp= _xamp
+        datamean= numpy.mean(ydata,axis=0)
+        datacov= numpy.cov(ydata,rowvar=0)
+        datastd= numpy.sqrt(numpy.diag(datacov))
+        if _xmean is None:
+            xmean= datamean+numpy.random.normal(size=(ngauss,dim))\
+                *numpy.tile(datastd,(ngauss,1))
+        else:
+            xmean= _xmean
+        if _xcovar is None:
+            xcovar= numpy.tile(datacov,(ngauss,1,1))*16.
+        else:
+            xcovar= _xcovar
+        l= extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,
+                                 weight=_weights,likeonly=likeonly)
+        return (l, xamp, xmean, xcovar)
+
     def plot(self,log=False,conditional=False,nbins=None):
         """
         NAME:
