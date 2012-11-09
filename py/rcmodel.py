@@ -4,7 +4,7 @@
 ###############################################################################
 import math
 import numpy
-from scipy import maxentropy, integrate
+from scipy import maxentropy, integrate, special
 import scipy.interpolate
 from extreme_deconvolution import extreme_deconvolution
 import xdtarget
@@ -208,6 +208,152 @@ class rcmodel:
         """
         return None
 
+    def plot_pdf(self,jk,sjk=0.,**kwargs):
+        """
+        NAME:
+           plot_pdf
+        PURPOSE:
+           plot the conditioned PDF
+        INPUT:
+           jk - J-Ks
+           sjk - error in J-K
+           +bovy_plot.bovy_plot kwargs
+        OUTPUT:
+           plot to output
+        HISTORY:
+           2012-11-09 - Written - Bovy (IAS)
+        """
+        if not _BOVY_PLOT_LOADED:
+            raise ImportError("galpy.util.bovy_plot could not be imported")
+        xs, lnpdf= self.calc_pdf(jk,sjk=sjk)
+        if self._band == 'J':
+            xlabel= r'$M_J$'
+            xlim=[0.,-2.]
+        elif self._band == 'H':
+            xlabel= r'$M_H$'
+            xlim=[0.,-2.]
+        elif self._band == 'K':
+            xlabel= r'$M_K$'
+            xlim=[0.,-3.]
+        elif self._band == 'Ks':
+            xlabel= r'$M_{K_s}$'
+            xlim=[0.,-2.]
+        return bovy_plot.bovy_plot(xs,numpy.exp(lnpdf),'k-',
+                                   xrange=xlim,
+                                   yrange=[0.,
+                                           1.1*numpy.amax(numpy.exp(lnpdf))],
+                                   xlabel=xlabel,**kwargs)       
+
+    def calc_pdf(self,jk,sjk=0.,nxs=1001):
+        """
+        NAME:
+           plot_pdf
+        PURPOSE:
+           plot the conditioned PDF
+        INPUT:
+           jk - J-Ks
+           sjk - error in J-K
+           nxs= number of M_X
+        OUTPUT:
+           plot tooutput
+        HISTORY:
+           2012-11-09 - Written - Bovy (IAS)
+        """
+        #First collapse
+        coamp, comean, cocovar= self.collapse(jk,sjk=sjk)
+        #Calculate pdf
+        xs= numpy.linspace(-3.,0.,nxs)
+        lnpdf= numpy.zeros_like(xs)
+        for ii, x in enumerate(xs):
+            this_lnpdf= numpy.log(coamp)-numpy.log(cocovar)-0.5*(x-comean)**2./cocovar
+            lnpdf[ii]=maxentropy.logsumexp(this_lnpdf)
+        lnpdf-= maxentropy.logsumexp(lnpdf)+numpy.log(xs[1]-xs[0])
+        return (xs,lnpdf)
+    
+    def calc_invcumul(self,jk,sjk=0.):
+        """
+        NAME:
+           calc_invcumul
+        PURPOSE:
+           calculate the inverse of the cumulative distribution
+        INPUT:
+           jk - J-Ks
+           sjk - error in J-K
+        OUTPUT:
+           interpolated inverse cumulative distribution
+        HISTORY:
+           2012-11-09 - Written - Bovy (IAS)
+        """
+        #First calculate the PDF
+        xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=10001)
+        pdf= numpy.exp(lnpdf)
+        pdf= numpy.cumsum(pdf)
+        pdf/= pdf[-1]
+        return scipy.interpolate.InterpolatedUnivariateSpline(pdf,xs,k=3)
+
+    def median(self,jk,sjk=0.):
+        """
+        NAME:
+           median
+        PURPOSE:
+           return the median of the M_x distribution at this J-K
+        INPUT:
+           jk - J-Ks
+           sjk - error in J-K
+        OUTPUT:
+           median
+        HISTORY:
+           2012-11-09 - Written - Bovy (IAS)
+        """
+        #First calculate the inverse cumulative distribution
+        interpInvCumul= self.calc_invcumul(jk,sjk=sjk)
+        return interpInvCumul(0.5)
+
+    def quant(self,q,jk,sjk=0.,sigma=True):
+        """
+        NAME:
+           quant
+        PURPOSE:
+           return the quantile of the M_x distribution at this J-K
+        INPUT:
+           q - desired quantile in terms of 'sigma'
+           jk - J-Ks
+           sjk - error in J-K
+           sigma= if False, the quantile is the actual quantile
+        OUTPUT:
+           quantile
+        HISTORY:
+           2012-11-09 - Written - Bovy (IAS)
+        """
+        #First calculate the inverse cumulative distribution
+        interpInvCumul= self.calc_invcumul(jk,sjk=sjk)
+        if not sigma:
+            return interpInvCumul(q)
+        else:
+            if q > 0.:
+                arg= 1.-(1.-special.erf(q/numpy.sqrt(2.)))/2.
+            else:
+                arg= (1.-special.erf(-q/numpy.sqrt(2.)))/2.
+            return interpInvCumul(arg)
+
+    def mode(self,jk,sjk=0.):
+        """
+        NAME:
+           mode
+        PURPOSE:
+           return the moden of the M_x distribution at this J-K
+        INPUT:
+           jk - J-Ks
+           sjk - error in J-K
+        OUTPUT:
+           mode
+        HISTORY:
+           2012-11-09 - Written - Bovy (IAS)
+        """
+        #First calculate the PDF
+        xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=10001)
+        return xs[numpy.argmax(lnpdf)]
+    
     def mean(self,jk,sjk=0.):
         """
         NAME:
@@ -445,16 +591,16 @@ class rcmodel:
         self._xdtarg.sample(nsample=nsamples)
         if self._band == 'J':
             ylabel= r'$M_J$'
-            ylim=[0.,-2.]
+            ylim=[0.,-3.]
         elif self._band == 'H':
             ylabel= r'$M_H$'
-            ylim=[0.,-2.]
+            ylim=[0.,-3.]
         elif self._band == 'K':
             ylabel= r'$M_K$'
             ylim=[0.,-3.]
         elif self._band == 'Ks':
             ylabel= r'$M_{K_s}$'
-            ylim=[0.,-2.]
+            ylim=[0.,-3.]
         if self._fitlogg:
             scatter= True
             plotc= inv_logit(numpy.array(self._xdtarg.samples[:,2]),
