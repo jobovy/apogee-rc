@@ -17,6 +17,7 @@ try:
     _BOVY_PLOT_LOADED= True
 except ImportError:
     _BOVY_PLOT_LOADED= False   
+import dens_kde
 class rcmodel:
     """rcmodel: isochrone model for the distribution in (J-Ks,M_H) along the RC"""
     def __init__(self,imfmodel='lognormalChabrier2001',Z=None,
@@ -140,10 +141,21 @@ class rcmodel:
         loggs= numpy.array(loggs)
         weights= numpy.array(weights)
         #Cut out low weights
-        indx= (weights > 10.**-5.*numpy.sum(weights))
+        if False:
+            indx= (weights > 10.**-5.*numpy.sum(weights))
+        else:
+            indx= numpy.ones(len(weights),dtype='bool')
         self._sample= sample[indx,:]
         self._weights= weights[indx]
         self._loggs= loggs[indx]
+        #Setup KDE
+        self._kde= dens_kde.densKDE(self._sample,w=self._weights,
+                                    h='scott',kernel='biweight',
+                                    variable=True,variablenitt=5,
+                                    variableexp=0.35)
+        self._jkmin, self._jkmax= 0.5,0.75
+        self._hmin, self._hmax= -3.,0.
+        return None
         #Run XD
         if ngauss > 0:
             l, xamp, xmean, xcovar= self._run_xd(ngauss=ngauss,fitlogg=fitlogg)
@@ -163,8 +175,6 @@ class rcmodel:
         self._xdtarg= xdtarget.xdtarget(amp=xamp,mean=xmean,covar=xcovar)
 #        return None
         #Histogram
-        self._jkmin, self._jkmax= 0.5,0.75
-        self._hmin, self._hmax= -3.,0.
         self._nbins= 101#26#49
         self._djk= (self._jkmax-self._jkmin)/float(self._nbins)
         self._dh= (self._hmax-self._hmin)/float(self._nbins)
@@ -220,6 +230,8 @@ class rcmodel:
         HISTORY:
            2012-02-17 - Written - Bovy (IAS)
         """
+        return self._kde(numpy.reshape(numpy.array([jk,h]),
+                                       (1,2)),log=True)
         if self._interpolate:
             return numpy.log(self._interpolatedhist(jk,h))
         else:
@@ -294,7 +306,7 @@ class rcmodel:
            2012-11-09 - Written - Bovy (IAS)
         """
         #First collapse
-        coamp, comean, cocovar= self.collapse(jk,sjk=sjk)
+        #coamp, comean, cocovar= self.collapse(jk,sjk=sjk)
         #Calculate pdf
         xs= numpy.linspace(-3.,0.,nxs)
         lnpdf= numpy.zeros_like(xs)
@@ -624,11 +636,13 @@ class rcmodel:
         #Form histogram grid
         if nbins is None:
             nbins= self._nbins
-        jks= numpy.linspace(self._jkmin+self._djk/2.,
-                            self._jkmax-self._djk/2.,
+        djk= (self._jkmax-self._jkmin)/float(nbins)
+        dh= (self._hmax-self._hmin)/float(nbins)
+        jks= numpy.linspace(self._jkmin+djk/2.,
+                            self._jkmax-djk/2.,
                             nbins)
-        hs= numpy.linspace(self._hmax-self._dh/2.,#we reverse
-                           self._hmin+self._dh/2.,
+        hs= numpy.linspace(self._hmax-dh/2.,#we reverse
+                           self._hmin+dh/2.,
                            nbins)
         plotthis= numpy.zeros((nbins,nbins))
         for ii in range(nbins):

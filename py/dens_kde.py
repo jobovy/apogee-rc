@@ -1,10 +1,12 @@
 # KDE density estimation
+import copy
 import numpy
 from scipy import maxentropy
 class densKDE:
     """Class for KDE density estimation"""
     def __init__(self,data,kernel='biweight',w=None,
-                 scale=True,fit=False,h=1.):
+                 scale=True,fit=False,h=1.,
+                 variable=False,variablenitt=2,variableexp=0.5):
         """
         NAME:
            __init__
@@ -18,21 +20,26 @@ class densKDE:
            scale= (True), if False, don't scale the data
            fit= (False) if True, determine best bandwith h
            h= (1.) bandwidth
+           variable= (False) if True, do variable width
+           variablenitt= number of iterations to settle on variable bandwidth
+           variableexp= (0.5) exponent to use in variable lambda
         OUTPUT:
         HISTORY:
            2012-11-12 - Written - Bovy (IAS)
         """
         self._setup_kernel(kernel)
-        if scale:
-            self._data= self._scale_data(data)
-        else:
-            self._data= data
-        self._ndata= self._data.shape[0]
-        self._dim= self._data.shape[1]
+        self._ndata= data.shape[0]
+        self._dim= data.shape[1]
         if not w is None:
             self._w= w/numpy.sum(w)
         else:
             self._w= numpy.ones(self._ndata)/float(self._ndata)
+        if scale:
+            self._data= self._scale_data(data,self._w)
+        else:
+            self._data= data
+        #For variable
+        self._lambda= numpy.ones((self._ndata,self._dim))
         if fit:
             raise NotImplementedError("fit=True not implemented yet")
         else:
@@ -44,8 +51,10 @@ class densKDE:
                 self._h= h
             if isinstance(h,str) and not 'gauss' in kernel.lower():
                 self._h*= 2. #Larger for finite size kernel
+        if variable:
+            self._setup_variable(variablenitt,variableexp)
 
-    def __call__(self,x,h=None,log=False):
+    def __call__(self,x,h=None,log=False,scale=True):
         """
         NAME:
            __call__
@@ -54,6 +63,7 @@ class densKDE:
         INPUT:
            log= (False) if True, return the log
            h= (None) if set, use this bandwidth
+           scale= (True), if False, don't rescale first
         OUTPUT:
            density (or log)
         HISTORY:
@@ -63,32 +73,47 @@ class densKDE:
             thish= self._h
         else:
             thish= h
-        x= self._prepare_x(x)
-        thiskernel= self._kernel(numpy.tile(x,(self._ndata,1))/thish,
-                                 self._data/thish,
+        x= self._prepare_x(x,scale)
+        thiskernel= self._kernel(numpy.tile(x,(self._ndata,1))/thish/self._lambda,
+                                 self._data/thish/self._lambda,
                                  log=log)
         if log:
             return -self._dim*numpy.log(thish)\
-                +maxentropy.logsumexp(thiskernel+numpy.log(self._w))
+                +maxentropy.logsumexp(thiskernel+numpy.log(self._w)\
+                                          -self._dim*numpy.log(self._lambda[:,0])) #latter assumes that lambda are spherical
         else:
             return 1./thish**self._dim\
-                *numpy.sum(self._w*thiskernel)
+                *numpy.sum(self._w*thiskernel/self._lambda[:,0]**self._dim)
 
-    def _prepare_x(self,x):
+    def _setup_variable(self,nitt,alpha):
+        for ii in range(nitt):
+            logdens= numpy.array([self(self._data[ii,:],log=True,scale=False) for ii in range(self._ndata)])
+            logg= numpy.mean(logdens)
+            self._lambda= numpy.tile(numpy.exp(-alpha*(logdens-logg)),(self._dim,1)).T
+        return None
+
+    def _prepare_x(self,x,scale):
+        x= copy.copy(x) #To avoid changing input
         if isinstance(x,list):
             x= numpy.reshape(numpy.array(x),(1,len(x)))
         elif isinstance(x,(float,numpy.float32,numpy.float64)):
             x= numpy.reshape(numpy.array([x]),(1,1))
-        if self._scaled:
+        else:
+            x= numpy.reshape(x,(1,numpy.prod(x.shape))) #FOR NOW
+        if scale and self._scaled:
+            x-= numpy.tile(self._scalem,(x.shape[0],1))
             x/= numpy.tile(self._scales,(x.shape[0],1))
         return x
 
-    def _scale_data(self,data):
+    def _scale_data(self,data,w):
         """Scale the data"""
         self._scaled= True
-        s= numpy.std(data,axis=0)
+        m= numpy.sum(numpy.tile(w,(self._dim,1)).T*data,axis=0)/numpy.sum(w)
+        s= numpy.sqrt(numpy.sum(numpy.tile(w,(self._dim,1)).T*data**2.,axis=0)/numpy.sum(w)-m**2.)
+        self._scalem= m
         self._scales= s
-        return data/numpy.tile(s,(data.shape[0],1)) #simple scaling by std dev
+        return (data-numpy.tile(m,(self._ndata,1)))\
+            /numpy.tile(s,(self._ndata,1)) #simple scaling by std dev
 
     def _setup_kernel(self,kernel):
         """Parse the kernel input"""
