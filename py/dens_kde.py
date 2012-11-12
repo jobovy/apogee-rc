@@ -90,7 +90,7 @@ class densKDE:
 
     def _setup_variable(self,nitt,alpha):
         for ii in range(nitt):
-            #logdens= numpy.array([self(self._data[ii,:],log=True,scale=False) for ii in range(self._ndata)])
+            #BASTI has 60782 points, so split this up
             logdens= self(self._data,log=True,scale=False)
             logg= numpy.mean(logdens)
             self._lambda= numpy.tile(numpy.exp(-alpha*(logdens-logg)),(self._dim,1)).T

@@ -409,6 +409,31 @@ class rcmodel:
         xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=1001)
         return xs[numpy.argmax(lnpdf)]
     
+    def sigma2sigma(self,jk,sjk=0.):
+        """
+        NAME:
+           sigma2sigma
+        PURPOSE:
+           return the sigma obtained by integrating out to 2 sigma
+        INPUT:
+           jk - J-Ks
+           sjk - error in J-K
+        OUTPUT:
+           2 sigma
+        HISTORY:
+           2012-11-09 - Written - Bovy (IAS)
+        """
+        #First calculate the PDF
+        xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=1001)
+        pdf= numpy.exp(lnpdf)
+        cpdf= numpy.cumsum(pdf)
+        cpdf/= cpdf[-1]
+        q= 2.
+        indx= (cpdf >= (1.-special.erf(q/numpy.sqrt(2.)))/2.)\
+            *(cpdf <= (1.-(1.-special.erf(q/numpy.sqrt(2.)))/2.))
+        m= numpy.sum(pdf[indx]*xs[indx])/numpy.sum(pdf[indx])
+        return numpy.sqrt(numpy.sum(pdf[indx]*xs[indx]**2.)/numpy.sum(pdf[indx])-m**2.)/0.773741 #this factor to get a 'Gaussian' sigma
+    
     def mean(self,jk,sjk=0.):
         """
         NAME:
