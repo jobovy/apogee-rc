@@ -36,7 +36,14 @@ class densKDE:
         if fit:
             raise NotImplementedError("fit=True not implemented yet")
         else:
-            self._h= h
+            if isinstance(h,str) and 'scott' in h.lower():
+                self._h= self._ndata**(-1./(self._dim+4.))
+            elif isinstance(h,str) and 'silver' in h.lower():
+                self._h= (self._ndata*(self._dim+2.)/4.)**(-1./(self._dim+4.))
+            else:
+                self._h= h
+            if isinstance(h,str) and not 'gauss' in kernel.lower():
+                self._h*= 2. #Larger for finite size kernel
 
     def __call__(self,x,h=None,log=False):
         """
