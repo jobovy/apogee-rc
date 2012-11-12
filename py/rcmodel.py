@@ -148,10 +148,11 @@ class rcmodel:
         self._sample= sample[indx,:]
         self._weights= weights[indx]
         self._loggs= loggs[indx]
+        print len(self._weights)
         #Setup KDE
         self._kde= dens_kde.densKDE(self._sample,w=self._weights,
                                     h='scott',kernel='biweight',
-                                    variable=True,variablenitt=5,
+                                    variable=True,variablenitt=3,
                                     variableexp=0.35)
         self._jkmin, self._jkmax= 0.5,0.75
         self._hmin, self._hmax= -3.,0.
@@ -230,8 +231,14 @@ class rcmodel:
         HISTORY:
            2012-02-17 - Written - Bovy (IAS)
         """
-        return self._kde(numpy.reshape(numpy.array([jk,h]),
-                                       (1,2)),log=True)
+        if isinstance(jk,(list,numpy.ndarray)):
+            testxs= numpy.empty((len(jk),2))
+            testxs[:,0]= jk
+            testxs[:,1]= h
+            return self._kde(testxs,log=True)
+        else:
+            return self._kde(numpy.reshape(numpy.array([jk,h]),
+                                           (1,2)),log=True)
         if self._interpolate:
             return numpy.log(self._interpolatedhist(jk,h))
         else:
@@ -293,15 +300,15 @@ class rcmodel:
     def calc_pdf(self,jk,sjk=0.,nxs=1001):
         """
         NAME:
-           plot_pdf
+           calc_pdf
         PURPOSE:
-           plot the conditioned PDF
+           calculate the conditioned PDF
         INPUT:
            jk - J-Ks
            sjk - error in J-K
            nxs= number of M_X
         OUTPUT:
-           plot tooutput
+           (xs,lnpdf)
         HISTORY:
            2012-11-09 - Written - Bovy (IAS)
         """
@@ -309,12 +316,12 @@ class rcmodel:
         #coamp, comean, cocovar= self.collapse(jk,sjk=sjk)
         #Calculate pdf
         xs= numpy.linspace(-3.,0.,nxs)
-        lnpdf= numpy.zeros_like(xs)
-        for ii, x in enumerate(xs):
+        lnpdf= self(jk*numpy.ones(nxs),xs)
+#        for ii, x in enumerate(xs):
 #            this_lnpdf= numpy.log(coamp)-numpy.log(cocovar)-0.5*(x-comean)**2./cocovar
 #            lnpdf[ii]=maxentropy.logsumexp(this_lnpdf)
-            lnpdf[ii]= self(jk,x)
-        lnpdf[numpy.isnan(lnpdf)]= -1000.
+#            lnpdf[ii]= self(jk,x)
+        lnpdf[numpy.isnan(lnpdf)]= -numpy.finfo(numpy.dtype(numpy.float64)).max
         lnpdf-= maxentropy.logsumexp(lnpdf)+numpy.log(xs[1]-xs[0])
         return (xs,lnpdf)
     
@@ -333,7 +340,7 @@ class rcmodel:
            2012-11-09 - Written - Bovy (IAS)
         """
         #First calculate the PDF
-        xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=10001)
+        xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=1001)
         pdf= numpy.exp(lnpdf)
         pdf= numpy.cumsum(pdf)
         pdf/= pdf[-1]
@@ -399,7 +406,7 @@ class rcmodel:
            2012-11-09 - Written - Bovy (IAS)
         """
         #First calculate the PDF
-        xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=10001)
+        xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=1001)
         return xs[numpy.argmax(lnpdf)]
     
     def mean(self,jk,sjk=0.):

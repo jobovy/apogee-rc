@@ -1,7 +1,7 @@
 # KDE density estimation
 import copy
 import numpy
-from scipy import maxentropy
+from galpy.util import logsumexp
 class densKDE:
     """Class for KDE density estimation"""
     def __init__(self,data,kernel='biweight',w=None,
@@ -61,6 +61,7 @@ class densKDE:
         PURPOSE:
             return the density
         INPUT:
+           x - evaluate at this x [nx,dim]
            log= (False) if True, return the log
            h= (None) if set, use this bandwidth
            scale= (True), if False, don't rescale first
@@ -74,32 +75,36 @@ class densKDE:
         else:
             thish= h
         x= self._prepare_x(x,scale)
-        thiskernel= self._kernel(numpy.tile(x,(self._ndata,1))/thish/self._lambda,
-                                 self._data/thish/self._lambda,
+        divh= numpy.tile(thish*self._lambda.T,(x.shape[0],1,1))
+        thiskernel= self._kernel(numpy.tile(x.T,(self._ndata,1,1)).T/divh,
+                                 numpy.tile(self._data.T,(x.shape[0],1,1))/divh,
                                  log=log)
         if log:
             return -self._dim*numpy.log(thish)\
-                +maxentropy.logsumexp(thiskernel+numpy.log(self._w)\
-                                          -self._dim*numpy.log(self._lambda[:,0])) #latter assumes that lambda are spherical
+                +logsumexp(thiskernel+numpy.tile(numpy.log(self._w),(x.shape[0],1))\
+                               -self._dim*numpy.log(self._lambda[:,0]),axis=1) #latter assumes that lambda are spherical
         else:
             return 1./thish**self._dim\
-                *numpy.sum(self._w*thiskernel/self._lambda[:,0]**self._dim)
+                *numpy.sum(numpy.tile(numpy.log(self._w),(x.shape[0],1))\
+                               *thiskernel/self._lambda[:,0]**self._dim,axis=1)
 
     def _setup_variable(self,nitt,alpha):
         for ii in range(nitt):
-            logdens= numpy.array([self(self._data[ii,:],log=True,scale=False) for ii in range(self._ndata)])
+            #logdens= numpy.array([self(self._data[ii,:],log=True,scale=False) for ii in range(self._ndata)])
+            logdens= self(self._data,log=True,scale=False)
             logg= numpy.mean(logdens)
             self._lambda= numpy.tile(numpy.exp(-alpha*(logdens-logg)),(self._dim,1)).T
         return None
 
     def _prepare_x(self,x,scale):
         x= copy.copy(x) #To avoid changing input
-        if isinstance(x,list):
+        if isinstance(x,list): #Assume single data point
             x= numpy.reshape(numpy.array(x),(1,len(x)))
         elif isinstance(x,(float,numpy.float32,numpy.float64)):
             x= numpy.reshape(numpy.array([x]),(1,1))
-        else:
-            x= numpy.reshape(x,(1,numpy.prod(x.shape))) #FOR NOW
+        elif isinstance(x,numpy.ndarray) \
+                and (len(x.shape) ==1):
+            x= numpy.reshape(x,(1,x.shape[0]))
         if scale and self._scaled:
             x-= numpy.tile(self._scalem,(x.shape[0],1))
             x/= numpy.tile(self._scales,(x.shape[0],1))
@@ -127,9 +132,9 @@ class densKDE:
 
 def kernel_biweight(x,y,log=False):
     x, y= preparexy(x,y)
-    r2= numpy.sum((x-y)**2.,axis=1)
-    indx= (r2 < 1.)
-    out= numpy.empty(x.shape[0])
+    r2= numpy.sum((x-y)**2.,axis=1).flatten()
+    indx= (r2 < 1.).flatten()
+    out= numpy.empty((x.shape[0],x.shape[2])).flatten()
     if log:
         out[indx]= numpy.log(3./numpy.pi*(1.-r2[indx])**2.)
     else:
@@ -138,7 +143,7 @@ def kernel_biweight(x,y,log=False):
         out[True-indx]= -numpy.finfo(numpy.dtype(numpy.float64)).max
     else:
         out[True-indx]= 0.
-    return out
+    return numpy.reshape(out,(x.shape[0],x.shape[2]))
 
 def kernel_gauss(x,y,log=False):
     x, y= preparexy(x,y)
