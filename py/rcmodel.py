@@ -139,27 +139,33 @@ class rcmodel:
         sample= numpy.array(sample)
         loggs= numpy.array(loggs)
         weights= numpy.array(weights)
-        self._sample= sample
-        self._weights= weights
-        self._loggs= loggs
+        #Cut out low weights
+        indx= (weights > 10.**-5.*numpy.sum(weights))
+        self._sample= sample[indx,:]
+        self._weights= weights[indx]
+        self._loggs= loggs[indx]
         #Run XD
         if ngauss > 0:
             l, xamp, xmean, xcovar= self._run_xd(ngauss=ngauss,fitlogg=fitlogg)
         else:
-            ngauss= self._determine_ngauss(fitlogg=fitlogg,
-                                             loofrac=loofrac)
+            ngauss, xamp, xmean, xcovar= self._determine_ngauss(fitlogg=fitlogg,
+                                                                loofrac=loofrac)
             self._ngauss= ngauss
-            l, xamp, xmean, xcovar= self._run_xd(ngauss=ngauss,fitlogg=fitlogg)
+            l, xamp, xmean, xcovar= self._run_xd(ngauss=ngauss,fitlogg=fitlogg,
+                                                 _xamp=xamp,
+                                                 _xmean=xmean,
+                                                 _xcovar=xcovar,
+                                                 likeonly=True)
         self._loglike= l
         self._amp= xamp
         self._mean= xmean
         self._covar= xcovar
         self._xdtarg= xdtarget.xdtarget(amp=xamp,mean=xmean,covar=xcovar)
-        return None
+#        return None
         #Histogram
-        self._jkmin, self._jkmax= 0.3,1.6
-        self._hmin, self._hmax= -11.,2.
-        self._nbins= 26#49
+        self._jkmin, self._jkmax= 0.5,0.75
+        self._hmin, self._hmax= -3.,0.
+        self._nbins= 101#26#49
         self._djk= (self._jkmax-self._jkmin)/float(self._nbins)
         self._dh= (self._hmax-self._hmin)/float(self._nbins)
         self._hist, self._edges= numpy.histogramdd(sample,weights=weights,
@@ -180,9 +186,9 @@ class rcmodel:
                                self._hmax-self._dh/2.,
                                self._nbins)
             self._interpolatedhist= scipy.interpolate.RectBivariateSpline(jks,hs,self._hist,
-                                      bbox=[self._jkmin,self._jkmax,
+                                                                          bbox=[self._jkmin,self._jkmax,
                                             self._hmin,self._hmax],
-                                      s=0.)
+                                                                          s=3.)
         return None
 
     def __call__(self,jk,h):
@@ -198,7 +204,43 @@ class rcmodel:
         HISTORY:
            2012-11-07 - Skeleton - Bovy (IAS)
         """
-        return None
+        return self.logpjkh(jk,h)
+
+    def logpjkh(self,jk,h):
+        """
+        NAME:
+           logpjkh
+        PURPOSE:
+           return the probability of the (J-Ks,M_H) pair
+        INPUT:
+           jk - J-Ks
+           h - M_H (absolute magnitude)
+        OUTPUT:
+           log of the probability
+        HISTORY:
+           2012-02-17 - Written - Bovy (IAS)
+        """
+        if self._interpolate:
+            return numpy.log(self._interpolatedhist(jk,h))
+        else:
+            jkbin= numpy.floor((jk-self._jkmin)/self._djk)
+            hbin= numpy.floor((h-self._hmin)/self._dh)
+            if isinstance(jk,numpy.ndarray):
+                out= numpy.zeros(len(jk))-numpy.finfo(numpy.dtype(numpy.float64)).max
+                jkbin= jkbin.astype('int')
+                hbin= hbin.astype('int')
+                indx= (jkbin >= 0.)*(hbin >= 0.)*(jkbin < self._nbins)\
+                    *(hbin < self._nbins)
+                out[indx]= self._loghist[jkbin[indx],hbin[indx]]
+                return out
+            else:
+                jkbin= int(jkbin)
+                hbin= int(hbin)
+                if jkbin < 0 or jkbin >= self._nbins:
+                    return -numpy.finfo(numpy.dtype(numpy.float64)).max
+                if hbin < 0 or hbin >= self._nbins:
+                    return -numpy.finfo(numpy.dtype(numpy.float64)).max
+                return self._loghist[jkbin,hbin]
 
     def plot_pdf(self,jk,sjk=0.,**kwargs):
         """
@@ -257,8 +299,10 @@ class rcmodel:
         xs= numpy.linspace(-3.,0.,nxs)
         lnpdf= numpy.zeros_like(xs)
         for ii, x in enumerate(xs):
-            this_lnpdf= numpy.log(coamp)-numpy.log(cocovar)-0.5*(x-comean)**2./cocovar
-            lnpdf[ii]=maxentropy.logsumexp(this_lnpdf)
+#            this_lnpdf= numpy.log(coamp)-numpy.log(cocovar)-0.5*(x-comean)**2./cocovar
+#            lnpdf[ii]=maxentropy.logsumexp(this_lnpdf)
+            lnpdf[ii]= self(jk,x)
+        lnpdf[numpy.isnan(lnpdf)]= -1000.
         lnpdf-= maxentropy.logsumexp(lnpdf)+numpy.log(xs[1]-xs[0])
         return (xs,lnpdf)
     
@@ -480,6 +524,9 @@ class rcmodel:
         lloggs= self._loggs[lperm]
         #!!LOO!!
         loos= numpy.zeros(len(ngauss_s))
+        xamps= []
+        xmeans= []
+        xcovars= []
         for ii, ngauss in enumerate(ngauss_s):
             print ngauss
             #First run XD
@@ -497,12 +544,19 @@ class rcmodel:
                                                   _xmean=xmean,
                                                   _xcovar=xcovar)
             loos[ii]= tl*len(lweights)
+            xamps.append(xamp)
+            xmeans.append(xmean)
+            xcovars.append(xcovar)
         bovy_plot.bovy_plot(ngauss_s,loos,'ko',
                             yrange=[0.9*numpy.amin(loos),1.1*numpy.amax(loos)],
                             xlabel=r'$\#\ \mathrm{Gaussian\ components}$',
                             ylabel=r'$\mathrm{loo\ log\ likelihood}$')
-        print ngauss_s[numpy.argmax(loos)]
-        return ngauss_s[numpy.argmax(loos)]
+        indx= numpy.argmax(loos)
+        print ngauss_s[indx]
+        return (ngauss_s[numpy.argmax(loos)],
+                xamps[indx],
+                xmeans[indx],
+                xcovars[indx])
 
     def _run_xd(self,ngauss=None,fitlogg=False,
                 _weights=None,_sample=None,_loggs=None,
@@ -541,12 +595,12 @@ class rcmodel:
         else:
             xmean= _xmean
         if _xcovar is None:
-            xcovar= numpy.tile(datacov,(ngauss,1,1))*16.
+            xcovar= numpy.tile(datacov,(ngauss,1,1))*4.
         else:
             xcovar= _xcovar
         l= extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,
                                  weight=_weights,likeonly=likeonly,
-                                 splitnmerge=2,w=0.001)
+                                 splitnmerge=0,w=10.**-6.)
         return (l, xamp, xmean, xcovar)
 
     def plot(self,log=False,conditional=False,nbins=None):
@@ -607,11 +661,30 @@ class rcmodel:
         """
         if not _BOVY_PLOT_LOADED:
             raise ImportError("'galpy.util.bovy_plot' plotting package not found")
-        return bovy_plot.bovy_plot(self._sample[:,0],self._sample[:,1],'k,',
-                                     xrange=[self._jkmin,self._jkmax],
-                                     yrange=[self._hmax,self._hmin],
-                                     xlabel=r'$(J-K_s)_0\ [\mathrm{mag}]$',
-                                     ylabel=r'$M_H\ [\mathrm{mag}]$')
+        if self._band == 'J':
+            ylabel= r'$M_J$'
+            ylim=[0.,-3.]
+        elif self._band == 'H':
+            ylabel= r'$M_H$'
+            ylim=[0.,-3.]
+        elif self._band == 'K':
+            ylabel= r'$M_K$'
+            ylim=[0.,-3.]
+        elif self._band == 'Ks':
+            ylabel= r'$M_{K_s}$'
+            ylim=[0.,-3.]
+        return bovy_plot.bovy_plot(self._sample[:,0],self._sample[:,1],
+                                   xrange=[0.5,0.75],
+                                   yrange=ylim,
+                                   xlabel=r'$(J-K_s)_0\ [\mathrm{mag}]$',
+                                   ylabel=ylabel,
+                                   scatter=True,
+                                   c=self._weights,
+                                   edgecolors='none',
+                                   s=numpy.ones(len(self._weights))*10.,
+                                   alpha=0.5,
+                                   marker='o',
+                                   colorbar=True)
     
     def plot_model(self,nsamples=1000):
         """
