@@ -49,19 +49,28 @@ def plot_vs_jkz(parser):
         vmin, vmax= 0., 0.8
         zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}\ [\mathrm{mag}]$'
     elif options.type == 'mode':
-        vmin, vmax= -2., -0.5
-        zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}\ [\mathrm{mag}]$'
+        vmin, vmax= -1.8, -1.2
+        zlabel= r'$\mathrm{argmax}_{K_s}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
+    if options.basti:
+        zsolar= 0.0198
+    else:
+        zsolar= 0.019
     bovy_plot.bovy_print()
     bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='gray',
                           xrange=[jks[0],jks[-1]],
-                          yrange=[zs[0],zs[-1]],
+                          yrange=[zs[0]/zsolar,zs[-1]/zsolar],
                           vmin=vmin,vmax=vmax,
                           xlabel=r'$J-K_s$',
-                          ylabel=r'$Z$',
+                          ylabel=r'$Z/Z_\odot$',
                           interpolation='nearest',
                           colorbar=True,
                           shrink=0.78,
                           zlabel=zlabel)
+    #Overplot cuts
+    bovy_plot.bovy_plot(jks,rcmodel.jkzcut(jks)/zsolar,
+                        'w--',lw=2.,overplot=True)
+    bovy_plot.bovy_plot(jks,rcmodel.jkzcut(jks,upper=True)/zsolar,
+                        'w--',lw=2.,overplot=True)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
 

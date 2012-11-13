@@ -18,6 +18,20 @@ try:
 except ImportError:
     _BOVY_PLOT_LOADED= False   
 import dens_kde
+def jkzcut(jk,upper=False):
+    """Return the cut in jk-Z"""
+    if upper:
+        alpha= 4.
+        x= 0.4
+        A= 0.022/((0.6-x)**alpha-(0.5-x)**alpha)
+        B= 0.03-A*(0.6-x)**alpha
+        return A*(jk-x)**alpha+B
+    else:
+        alpha= 5.
+        x= 0.225
+        A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
+        B= 0.03-A*(0.73-x)**alpha
+        return A*(jk-x)**alpha+B
 class rcmodel:
     """rcmodel: isochrone model for the distribution in (J-Ks,M_H) along the RC"""
     def __init__(self,imfmodel='lognormalChabrier2001',Z=None,
