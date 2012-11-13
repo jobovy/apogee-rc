@@ -11,7 +11,7 @@ def plot_vs_jkz(parser):
                          0.01,0.0198,0.03,0.04])
     else:
         zs= numpy.arange(0.0005,0.03005,0.0005)
-        zs= numpy.arange(0.0005,0.03005,0.005)
+#        zs= numpy.arange(0.0005,0.03005,0.005)
     if os.path.exists(args[0]):
         savefile= open(args[0],'rb')
         plotthis= pickle.load(savefile)
@@ -19,7 +19,7 @@ def plot_vs_jkz(parser):
         zs= pickle.load(savefile)
         savefile.close()
     else:
-        njks= 31
+        njks= 101
         jks= numpy.linspace(0.5,0.75,njks)
         plotthis= numpy.zeros((njks,len(zs)))
         for ii in range(len(zs)):
@@ -45,17 +45,23 @@ def plot_vs_jkz(parser):
         pickle.dump(zs,savefile)
         savefile.close()
     #Plot
+    if options.type == 'sig':
+        vmin, vmax= 0., 0.8
+        zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}\ [\mathrm{mag}]$'
+    elif options.type == 'mode':
+        vmin, vmax= -2., -0.5
+        zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}\ [\mathrm{mag}]$'
     bovy_plot.bovy_print()
     bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='gray',
                           xrange=[jks[0],jks[-1]],
                           yrange=[zs[0],zs[-1]],
-                          vmin=0.,vmax=0.8,
-                          xlabel=r'$J-Ks$',
+                          vmin=vmin,vmax=vmax,
+                          xlabel=r'$J-K_s$',
                           ylabel=r'$Z$',
                           interpolation='nearest',
                           colorbar=True,
                           shrink=0.78,
-                          zlabel=r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}\ [\mathrm{mag}]$')
+                          zlabel=zlabel)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
 

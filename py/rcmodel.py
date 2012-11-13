@@ -9,8 +9,8 @@ import math
 import numpy
 from scipy import maxentropy, integrate, special
 import scipy.interpolate
-from extreme_deconvolution import extreme_deconvolution
-import xdtarget
+#from extreme_deconvolution import extreme_deconvolution
+#import xdtarget
 import isodist, isodist.imf
 try:
     from galpy.util import bovy_plot
@@ -715,12 +715,24 @@ class rcmodel:
         if conditional: #normalize further
             for ii in range(nbins):
                 plotthis[ii,:]/= numpy.nanmax(plotthis[ii,:])/numpy.nanmax(plotthis)
+        if self._band == 'J':
+            ylabel= r'$M_J$'
+            ylim=[0.,-3.]
+        elif self._band == 'H':
+            ylabel= r'$M_H$'
+            ylim=[0.,-3.]
+        elif self._band == 'K':
+            ylabel= r'$M_K$'
+            ylim=[0.,-3.]
+        elif self._band == 'Ks':
+            ylabel= r'$M_{K_s}$'
+            ylim=[0.,-3.]
         return bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='gist_yarg',
                                      xrange=[self._jkmin,self._jkmax],
-                                     yrange=[self._hmax,self._hmin],
+                                     yrange=ylim,
                                      aspect=(self._jkmax-self._jkmin)/(self._hmax-self._hmin),
                                      xlabel=r'$(J-K_s)_0\ [\mathrm{mag}]$',
-                                     ylabel=r'$M_H\ [\mathrm{mag}]$',
+                                     ylabel=ylabel,
                                      interpolation='nearest')
     
     def plot_samples(self):
