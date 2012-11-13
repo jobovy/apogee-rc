@@ -409,7 +409,7 @@ class rcmodel:
         xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=1001)
         return xs[numpy.argmax(lnpdf)]
     
-    def sigmafwhm(self,jk,sjk=0.):
+    def sigmafwhm(self,jk,sjk=0.,straight=False):
         """
         NAME:
            sigmafwhm
@@ -418,6 +418,7 @@ class rcmodel:
         INPUT:
            jk - J-Ks
            sjk - error in J-K
+           straight= (False) if True, return actual hm points
         OUTPUT:
            FWHM/2.35...
         HISTORY:
@@ -434,7 +435,10 @@ class rcmodel:
         maxxs= xs[(xs > tmode)]
         maxlnpdf= lnpdf[(xs > tmode)]
         maxhm= maxxs[numpy.argmin((maxlnpdf-lnpdf_hm)**2.)]
-        return (maxhm-minhm)/2.*numpy.sqrt(2.*numpy.log(2.))
+        if straight:
+            return (minhm,maxhm)
+        else:
+            return (maxhm-minhm)/2.*numpy.sqrt(2.*numpy.log(2.))
     
     def sigma2sigma(self,jk,sjk=0.):
         """

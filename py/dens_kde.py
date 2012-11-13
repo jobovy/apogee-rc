@@ -89,9 +89,15 @@ class densKDE:
                                *thiskernel/self._lambda[:,0]**self._dim,axis=1)
 
     def _setup_variable(self,nitt,alpha):
+        chunksize= 1000
+        nchunks= self._ndata/chunksize
+        logdens= numpy.empty(self._ndata)
         for ii in range(nitt):
-            #BASTI has 60782 points, so split this up
-            logdens= self(self._data,log=True,scale=False)
+            for jj in range(nchunks):
+                if jj < nchunks-1:
+                    logdens[jj*chunksize:(jj+1)*chunksize]= self(self._data[jj*chunksize:(jj+1)*chunksize],log=True,scale=False)
+                else:
+                    logdens[jj*chunksize:self._ndata]= self(self._data[jj*chunksize:self._ndata],log=True,scale=False)
             logg= numpy.mean(logdens)
             self._lambda= numpy.tile(numpy.exp(-alpha*(logdens-logg)),(self._dim,1)).T
         return None
