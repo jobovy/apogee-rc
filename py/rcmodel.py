@@ -148,7 +148,6 @@ class rcmodel:
         self._sample= sample[indx,:]
         self._weights= weights[indx]
         self._loggs= loggs[indx]
-        print len(self._weights)
         #Setup KDE
         self._kde= dens_kde.densKDE(self._sample,w=self._weights,
                                     h='scott',kernel='biweight',
