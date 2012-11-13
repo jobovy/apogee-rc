@@ -409,6 +409,33 @@ class rcmodel:
         xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=1001)
         return xs[numpy.argmax(lnpdf)]
     
+    def sigmafwhm(self,jk,sjk=0.):
+        """
+        NAME:
+           sigmafwhm
+        PURPOSE:
+           return the sigma of the M_X distribution based on the FWHM
+        INPUT:
+           jk - J-Ks
+           sjk - error in J-K
+        OUTPUT:
+           FWHM/2.35...
+        HISTORY:
+           2012-11-09 - Written - Bovy (IAS)
+        """
+        #First calculate the PDF
+        xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=1001)
+        tmode= xs[numpy.argmax(lnpdf)]
+        lnpdf_mode= numpy.amax(lnpdf)
+        lnpdf_hm= lnpdf_mode-numpy.log(2.)
+        minxs= xs[(xs < tmode)]
+        minlnpdf= lnpdf[(xs < tmode)]
+        minhm= minxs[numpy.argmin((minlnpdf-lnpdf_hm)**2.)]
+        maxxs= xs[(xs > tmode)]
+        maxlnpdf= lnpdf[(xs > tmode)]
+        maxhm= maxxs[numpy.argmin((maxlnpdf-lnpdf_hm)**2.)]
+        return (maxhm-minhm)/2.*numpy.sqrt(2.*numpy.log(2.))
+    
     def sigma2sigma(self,jk,sjk=0.):
         """
         NAME:
