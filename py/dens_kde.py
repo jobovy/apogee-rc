@@ -54,7 +54,7 @@ class densKDE:
         if variable:
             self._setup_variable(variablenitt,variableexp)
 
-    def __call__(self,x,h=None,log=False,scale=True):
+    def __call__(self,x,h=None,log=False,scale=True,sx2=None):
         """
         NAME:
            __call__
@@ -65,6 +65,7 @@ class densKDE:
            log= (False) if True, return the log
            h= (None) if set, use this bandwidth
            scale= (True), if False, don't rescale first
+           sx2= uncertainty variance of x
         OUTPUT:
            density (or log)
         HISTORY:
@@ -76,13 +77,17 @@ class densKDE:
             thish= h
         x= self._prepare_x(x,scale)
         divh= numpy.tile(thish*self._lambda.T,(x.shape[0],1,1))
+        if not sx2 is None:
+            divh= numpy.sqrt(divh**2.
+                             +numpy.tile(sx2.T,(self._ndata,1,1)).T)
         thiskernel= self._kernel(numpy.tile(x.T,(self._ndata,1,1)).T/divh,
                                  numpy.tile(self._data.T,(x.shape[0],1,1))/divh,
                                  log=log)
         if log:
-            return -self._dim*numpy.log(thish)\
-                +logsumexp(thiskernel+numpy.tile(numpy.log(self._w),(x.shape[0],1))\
-                               -self._dim*numpy.log(self._lambda[:,0]),axis=1) #latter assumes that lambda are spherical
+            return logsumexp(thiskernel+numpy.tile(numpy.log(self._w),(x.shape[0],1))\
+#            return -self._dim*numpy.log(thish)\
+                                 -numpy.sum(numpy.log(divh),axis=1),axis=1) #latter assumes that lambda are spherical
+#                               -self._dim*numpy.log(self._lambda[:,0]),axis=1) #latter assumes that lambda are spherical
         else:
             return 1./thish**self._dim\
                 *numpy.sum(numpy.tile(numpy.log(self._w),(x.shape[0],1))\

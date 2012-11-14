@@ -215,22 +215,24 @@ class rcmodel:
                                                                           s=3.)
         return None
 
-    def __call__(self,jk,h):
+    def __call__(self,jk,h,sjk=None):
         """
         NAME:
            __call__
         PURPOSE:
            calls 
         INPUT:
-           -
+           jk - color
+           h - magnitude (set by 'band' in __init__)
+           sjk= if not None, error
         OUTPUT:
            -
         HISTORY:
            2012-11-07 - Skeleton - Bovy (IAS)
         """
-        return self.logpjkh(jk,h)
+        return self.logpjkh(jk,h,sjk=sjk)
 
-    def logpjkh(self,jk,h):
+    def logpjkh(self,jk,h,sjk=None):
         """
         NAME:
            logpjkh
@@ -239,6 +241,7 @@ class rcmodel:
         INPUT:
            jk - J-Ks
            h - M_H (absolute magnitude)
+           sjk= if not None, error
         OUTPUT:
            log of the probability
         HISTORY:
@@ -248,10 +251,20 @@ class rcmodel:
             testxs= numpy.empty((len(jk),2))
             testxs[:,0]= jk
             testxs[:,1]= h
-            return self._kde(testxs,log=True)
+            if not sjk is None:
+                sjk2= numpy.zeros((len(jk),2))
+                sjk2[:,0]= sjk**2.
+            else:
+                sjk2= None
+            return self._kde(testxs,log=True,sx2=sjk2)
         else:
+            if not sjk is None:
+                sjk2= numpy.reshape(numpy.array([sjk**2.,0.]),
+                                    (1,2))
+            else:
+                sjk2= None
             return self._kde(numpy.reshape(numpy.array([jk,h]),
-                                           (1,2)),log=True)
+                                           (1,2)),log=True,sx2=sjk2)
         if self._interpolate:
             return numpy.log(self._interpolatedhist(jk,h))
         else:
@@ -274,7 +287,7 @@ class rcmodel:
                     return -numpy.finfo(numpy.dtype(numpy.float64)).max
                 return self._loghist[jkbin,hbin]
 
-    def plot_pdf(self,jk,sjk=0.,**kwargs):
+    def plot_pdf(self,jk,sjk=None,**kwargs):
         """
         NAME:
            plot_pdf
@@ -310,7 +323,7 @@ class rcmodel:
                                            1.1*numpy.amax(numpy.exp(lnpdf))],
                                    xlabel=xlabel,**kwargs)       
 
-    def calc_pdf(self,jk,sjk=0.,nxs=1001):
+    def calc_pdf(self,jk,sjk=None,nxs=1001):
         """
         NAME:
            calc_pdf
@@ -338,7 +351,7 @@ class rcmodel:
         lnpdf-= maxentropy.logsumexp(lnpdf)+numpy.log(xs[1]-xs[0])
         return (xs,lnpdf)
     
-    def calc_invcumul(self,jk,sjk=0.):
+    def calc_invcumul(self,jk,sjk=None):
         """
         NAME:
            calc_invcumul
@@ -359,7 +372,7 @@ class rcmodel:
         pdf/= pdf[-1]
         return scipy.interpolate.InterpolatedUnivariateSpline(pdf,xs,k=3)
 
-    def median(self,jk,sjk=0.):
+    def median(self,jk,sjk=None):
         """
         NAME:
            median
@@ -377,7 +390,7 @@ class rcmodel:
         interpInvCumul= self.calc_invcumul(jk,sjk=sjk)
         return interpInvCumul(0.5)
 
-    def quant(self,q,jk,sjk=0.,sigma=True):
+    def quant(self,q,jk,sjk=None,sigma=True):
         """
         NAME:
            quant
@@ -404,7 +417,7 @@ class rcmodel:
                 arg= (1.-special.erf(-q/numpy.sqrt(2.)))/2.
             return interpInvCumul(arg)
 
-    def mode(self,jk,sjk=0.):
+    def mode(self,jk,sjk=None):
         """
         NAME:
            mode
@@ -422,7 +435,7 @@ class rcmodel:
         xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=1001)
         return xs[numpy.argmax(lnpdf)]
     
-    def sigmafwhm(self,jk,sjk=0.,straight=False):
+    def sigmafwhm(self,jk,sjk=None,straight=False):
         """
         NAME:
            sigmafwhm
@@ -438,7 +451,7 @@ class rcmodel:
            2012-11-09 - Written - Bovy (IAS)
         """
         #First calculate the PDF
-        xs, lnpdf= self.calc_pdf(jk,sjk=sjk,nxs=1001)
+        xs, lnpdf= self.calc_pdf(jk,sjk=None,nxs=1001)
         tmode= xs[numpy.argmax(lnpdf)]
         lnpdf_mode= numpy.amax(lnpdf)
         lnpdf_hm= lnpdf_mode-numpy.log(2.)
@@ -453,7 +466,7 @@ class rcmodel:
         else:
             return (maxhm-minhm)/2.*numpy.sqrt(2.*numpy.log(2.))
     
-    def sigma2sigma(self,jk,sjk=0.):
+    def sigma2sigma(self,jk,sjk=None):
         """
         NAME:
            sigma2sigma
@@ -478,7 +491,7 @@ class rcmodel:
         m= numpy.sum(pdf[indx]*xs[indx])/numpy.sum(pdf[indx])
         return numpy.sqrt(numpy.sum(pdf[indx]*xs[indx]**2.)/numpy.sum(pdf[indx])-m**2.)/0.773741 #this factor to get a 'Gaussian' sigma
     
-    def mean(self,jk,sjk=0.):
+    def mean(self,jk,sjk=None):
         """
         NAME:
            mean
@@ -497,7 +510,7 @@ class rcmodel:
         #Then calculate mean
         return numpy.sum(coamp*comean)
     
-    def sigma(self,jk,sjk=0.):
+    def sigma(self,jk,sjk=None):
         """
         NAME:
            sigma
@@ -519,7 +532,7 @@ class rcmodel:
         tsq= numpy.sum(coamp*(cocovar+comean**2.))
         return numpy.sqrt(tsq-tmean**2.)
 
-    def skew(self,jk,sjk=0.):
+    def skew(self,jk,sjk=None):
         """
         NAME:
            skew
@@ -544,7 +557,7 @@ class rcmodel:
         tt= numpy.sum(coamp*(3.*comean*cocovar+comean**3.))
         return (tt-3.*tmean*tsigma**2.-tmean**3.)/tsigma**3.
 
-    def kurtosis(self,jk,sjk=0.):
+    def kurtosis(self,jk,sjk=None):
         """
         NAME:
            kurtosis
@@ -571,7 +584,7 @@ class rcmodel:
         tth= numpy.sum(coamp*(3.*cocovar**2.+6.*comean**2.*cocovar+comean**4.))
         return (tth-4.*tmean*tt+6.*tmean**2.*tsigma**2.+3.*tmean**4.)/tsigma**4.-3.
 
-    def collapse(self,jk,sjk=0.):
+    def collapse(self,jk,sjk=None):
         """
         NAME:
            collapse
@@ -691,7 +704,7 @@ class rcmodel:
                                  splitnmerge=0,w=10.**-6.)
         return (l, xamp, xmean, xcovar)
 
-    def plot(self,log=False,conditional=False,nbins=None):
+    def plot(self,log=False,conditional=False,nbins=None,sjk=None):
         """
         NAME:
            plot
@@ -702,6 +715,7 @@ class rcmodel:
            conditional= (default: False) if True, plot conditional distribution
                         of H given J-Ks
            nbins= if set, set the number of bins
+           sjk= error
         OUTPUT:
            plot to output device
         HISTORY:
@@ -723,7 +737,7 @@ class rcmodel:
         plotthis= numpy.zeros((nbins,nbins))
         for ii in range(nbins):
             for jj in range(nbins):
-                plotthis[ii,jj]= self(jks[ii],hs[jj])
+                plotthis[ii,jj]= self(jks[ii],hs[jj],sjk=sjk)
         if not log:
             plotthis= numpy.exp(plotthis)
         if conditional: #normalize further
