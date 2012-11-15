@@ -59,7 +59,7 @@ class rcdist:
                 self._zs= pickle.load(savefile)
                 savefile.close()
             else:
-                raise InputError(args[0]+' file does not exist')
+                raise IOError(args[0]+' file does not exist')
         else:
             self._meanmag= args[0]
             self._jks= args[1]
