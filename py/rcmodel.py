@@ -100,7 +100,7 @@ class rcmodel:
         loggs= []
         maxage= 9.+numpy.log10(11.) #BaSTI goes too old
         for logage in p.logages():
-            if logages > maxage: continue
+            if logage > maxage: continue
             for zz in range(len(Zs)):
                 thisiso= p(logage,Zs[zz],asrecarray=True)
                 #Calculate int_IMF for this IMF model
