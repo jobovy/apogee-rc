@@ -7,8 +7,7 @@ import rcmodel
 def plot_vs_jkz(parser):
     options,args= parser.parse_args()
     if options.basti:
-        zs= numpy.array([0.0001,0.0003,0.0006,0.001,0.002,0.004,0.008,
-                         0.01,0.0198,0.03,0.04])
+        zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
     else:
         zs= numpy.arange(0.0005,0.03005,0.0005)
 #        zs= numpy.arange(0.0005,0.03005,0.005)
