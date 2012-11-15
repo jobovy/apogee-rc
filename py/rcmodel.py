@@ -160,7 +160,7 @@ class rcmodel:
         sample= []
         weights= []
         loggs= []
-        maxage= 9.+numpy.log10(11.) #BaSTI goes too old
+        maxage= 9.+numpy.log10(10.) #BaSTI goes too old
         for logage in p.logages():
             if logage > maxage: continue
             for zz in range(len(Zs)):
@@ -182,23 +182,26 @@ class rcmodel:
                 dN= numpy.roll(int_IMF,-1)-int_IMF
                 for ii in range(1,len(int_IMF)-1):
                     if basti:
-                        JK= 0.972*(thisiso.J[ii]-thisiso.K[ii])-0.011
+                        JK= 0.996*(thisiso.J[ii]-thisiso.K[ii])+0.00923
+                        #JK= 0.972*(thisiso.J[ii]-thisiso.K[ii])-0.011
                     else:
                         JK= thisiso.J[ii]-thisiso.Ks[ii]
                     if band.lower() == 'h':
                         if basti:
+                            raise NotImplementedError("'H' not implemented for BaSTI yet")
                             J= JK+thisiso.K[ii]-0.044
                             H= J-(0.980*(thisiso.J[ii]-thisiso.H[ii])-0.045)
                         else:
                             H= thisiso.H[ii]
                     elif band.lower() == 'j':
                         if basti:
+                            raise NotImplementedError("'J' not implemented for BaSTI yet")
                             J= JK+thisiso.K[ii]-0.044
                         else:
                             H= thisiso.J[ii]
                     elif band.lower() == 'k' or band.lower() == 'ks':
                         if basti:
-                            H= thisiso.K[ii]-0.044
+                            H= thisiso.K[ii]-0.046
                         else:
                             H= thisiso.Ks[ii]
                     if JK < 0.3 \
