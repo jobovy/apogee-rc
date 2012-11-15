@@ -5,7 +5,9 @@
 # MAY NEED:
 # export PYTHONPATH=~/Repos/extreme-deconvolution-ngerrors/py:$PYTHONPATH
 ###############################################################################
+import os, os.path
 import math
+import cPickle as pickle
 import numpy
 from scipy import maxentropy, integrate, special
 import scipy.interpolate
@@ -32,6 +34,66 @@ def jkzcut(jk,upper=False):
         A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
         B= 0.03-A*(0.73-x)**alpha
         return A*(jk-x)**alpha+B
+class rcdist:
+    """Class that holds the RC mean mag"""
+    def __init__(self,*args,**kwargs):
+        """
+        NAME:
+           __init__
+        PURPOSE:
+           initialize rcdist
+        INPUT:
+           Either:
+              - file that holds a pickle
+              - 2D-array [jk,Z], jks, Zs
+        OUTPUT:
+           object
+        HISTORY:
+           2012-11-15 - Written - Bovy (IAS)
+        """
+        if isinstance(args[0],str):
+            if os.path.exists(args[0]):
+                savefile= open(args[0],'rb')
+                self._meanmag= pickle.load(savefile)
+                self._jks= pickle.load(savefile)
+                self._zs= pickle.load(savefile)
+                savefile.close()
+            else:
+                raise InputError(args[0]+' file does not exist')
+        else:
+            self._meanmag= args[0]
+            self._jks= args[1]
+            self._zs= args[2]
+        #Interpolate
+        self._interpMag= scipy.interpolate.RectBivariateSpline(self._jks,
+                                                               self._zs,
+                                                               self._meanmag,
+                                                               kx=3,ky=3,s=0.)
+        return None
+
+    def __call__(self,jk,Z,appmag=None):
+        """
+        NAME:
+           __call__
+        PURPOSE:
+           calls 
+        INPUT:
+           jk - color
+           Z - metal-content
+           appmag - apparent magnitude
+        OUTPUT:
+           Either:
+              - absmag (if appmag is None)
+              - distance in kpc (if appmag given)
+        HISTORY:
+           2012-11-15 - Written - Bovy (IAS)
+        """
+        if appmag is None:
+            return self._interpMag.ev(jk,Z)
+        else:
+            absmag= self._interpMag.ev(jk,Z)
+            return 10.**((appmag-absmag)/5-2.)
+    
 class rcmodel:
     """rcmodel: isochrone model for the distribution in (J-Ks,M_H) along the RC"""
     def __init__(self,imfmodel='lognormalChabrier2001',Z=None,
