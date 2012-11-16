@@ -25,7 +25,8 @@ def plot_vs_jkz(parser):
             print zs[ii]
             rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
                                 band=options.band,basti=options.basti,
-                                imfmodel=options.imfmodel)
+                                imfmodel=options.imfmodel,
+                                parsec=options.parsec)
             for jj in range(njks):
                 if options.type == 'mode':
                     try:
@@ -83,6 +84,12 @@ def plot_vs_jkz(parser):
                         'w--',lw=2.,overplot=True)
     bovy_plot.bovy_plot(jks,rcmodel.jkzcut(jks,upper=True)/zsolar,
                         'w--',lw=2.,overplot=True)
+    if options.basti:
+        bovy_plot.bovy_text(r'$\mathrm{BaSTI}$',title=True,size=16.)
+    elif options.parsec:
+        bovy_plot.bovy_text(r'$\mathrm{PARSEC}$',title=True,size=16.)
+    else:
+        bovy_plot.bovy_text(r'$\mathrm{Padova}$',title=True,size=16.)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
 
@@ -102,6 +109,9 @@ def get_options():
     parser.add_option("--basti",action="store_true", dest="basti",
                       default=False,
                       help="If set, use BaSTI isochrones")
+    parser.add_option("--parsec",action="store_true", dest="parsec",
+                      default=False,
+                      help="If set, PARSEC")
     return parser
     
 if __name__ == '__main__':

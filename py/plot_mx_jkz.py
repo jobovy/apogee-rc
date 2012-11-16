@@ -9,6 +9,7 @@ def plot_mx_jkz(parser):
     options,args= parser.parse_args()
     rc= rcmodel.rcmodel(Z=options.Z,loggmin=1.8,loggmax=2.8,
                         basti=options.basti,band=options.band,
+                        parsec=options.parsec,
                         imfmodel=options.imfmodel)
     #Calculate mode and hm
     njks= 101
@@ -31,6 +32,12 @@ def plot_mx_jkz(parser):
     bovy_plot.bovy_plot(jks,hms[:,1],'-',lw=2.,color='0.85',overplot=True)
     bovy_plot.bovy_text(r'$[\mathrm{M/H}]\ =\ %.2f$' % (isodist.Z2FEH(options.Z)),
                         bottom_left=True,size=14.)
+    if options.basti:
+        bovy_plot.bovy_text(r'$\mathrm{BaSTI}$',title=True,size=16.)
+    elif options.parsec:
+        bovy_plot.bovy_text(r'$\mathrm{PARSEC}$',title=True,size=16.)
+    else:
+        bovy_plot.bovy_text(r'$\mathrm{Padova}$',title=True,size=16.)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
 
@@ -50,6 +57,9 @@ def get_options():
     parser.add_option("--basti",action="store_true", dest="basti",
                       default=False,
                       help="If set, use BaSTI isochrones")
+    parser.add_option("--parsec",action="store_true", dest="parsec",
+                      default=False,
+                      help="If set, PARSEC")
     return parser
     
 if __name__ == '__main__':

@@ -100,6 +100,7 @@ class rcmodel:
                  interpolate=False,expsfh=False,band='H',
                  dontgather=False,loggmin=None,loggmax=None,
                  basti=False,ngauss=None,fitlogg=False,
+                 parsec=False,
                  loofrac=0.1):
         """
         NAME:
@@ -155,7 +156,7 @@ class rcmodel:
         if basti:
             p= isodist.BastiIsochrone(Z=Zs)
         else:
-            p= isodist.PadovaIsochrone(Z=Zs)
+            p= isodist.PadovaIsochrone(Z=Zs,parsec=parsec)
         #Get relevant data
         sample= []
         weights= []
