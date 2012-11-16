@@ -23,7 +23,7 @@ def plot_mx_jkz(parser):
         hms[ii,0]= minhm
         hms[ii,1]= maxhm
     #Now plot
-    if basti:
+    if options.basti:
         zsolar= 0.0198
     rc.plot(nbins=101,conditional=True)
     bovy_plot.bovy_plot(jks,modes,'w-',lw=2.,overplot=True)
