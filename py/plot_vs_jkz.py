@@ -64,6 +64,7 @@ def plot_vs_jkz(parser):
             thisindx= numpy.argmin(numpy.fabs(regularzs[jj]-zs))
             for ii in range(njks):
                 regularplotthis[ii,jj]= plotthis[ii,thisindx]
+        zs= regularzs
         plotthis= regularplotthis
     bovy_plot.bovy_print()
     bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='gray',
