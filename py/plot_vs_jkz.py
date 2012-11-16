@@ -54,6 +54,16 @@ def plot_vs_jkz(parser):
         zsolar= 0.0198
     else:
         zsolar= 0.019
+    if options.basti:#Remap the Zs
+        zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
+        regularzs= numpy.arange(0.0005,0.03005,0.0005)/0.019*0.0198
+        regularplotthis= numpy.zeros((njks,len(regularzs)))
+        for jj in range(len(regularzs)):
+            #Find z
+            thisindx= numpy.argmin(numpy.fabs(regularzs[jj]-zs))
+            for ii in range(njks):
+                regularplotthis[ii,jj]= plotthis[ii,thisindx]
+        plotthis= regularplotthis
     bovy_plot.bovy_print()
     bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='gray',
                           xrange=[jks[0],jks[-1]],
