@@ -3,6 +3,7 @@ import cPickle as pickle
 from optparse import OptionParser
 import numpy
 from galpy.util import bovy_plot
+from matplotlib import pyplot
 import rcmodel
 def plot_vs_jkz(parser):
     options,args= parser.parse_args()
@@ -85,13 +86,25 @@ def plot_vs_jkz(parser):
     bovy_plot.bovy_plot(jks,rcmodel.jkzcut(jks,upper=True)/zsolar,
                         'w--',lw=2.,overplot=True)
     if options.basti:
-        bovy_plot.bovy_text(r'$\mathrm{BaSTI}$',title=True,size=16.)
+        pyplot.annotate(r'$\mathrm{BaSTI}$',
+                        (0.5,1.08),xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=16.)
     elif options.parsec:
-        bovy_plot.bovy_text(r'$\mathrm{PARSEC}$',title=True,size=16.)
+        pyplot.annotate(r'$\mathrm{PARSEC}$',
+                        (0.5,1.08),xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=16.)
     elif options.imfmodel == 'kroupa2003':
-        bovy_plot.bovy_text(r'$\mathrm{Padova, Kroupa\ (2003)\ IMF}$',title=True,size=16.)
+        pyplot.annotate(r'$\mathrm{Padova, Kroupa\ (2003)\ IMF}$',
+                        (0.5,1.08),xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=16.)
     else:
-        bovy_plot.bovy_text(r'$\mathrm{Padova}$',title=True,size=16.)
+        pyplot.annotate(r'$\mathrm{Padova}$',
+                        (0.5,1.08),xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=16.)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
 
