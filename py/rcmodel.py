@@ -100,7 +100,7 @@ class rcmodel:
                  interpolate=False,expsfh=False,band='H',
                  dontgather=False,loggmin=None,loggmax=None,
                  basti=False,ngauss=None,fitlogg=False,
-                 parsec=False,
+                 parsec=False,stage=None,
                  loofrac=0.1):
         """
         NAME:
@@ -117,6 +117,8 @@ class rcmodel:
            loggmin= if set, cut logg at this minimum
            loggmax= if set, cut logg at this maximum
            basti= if True, use Basti isochrones (if False, use Padova)
+           parsec= if True, use PARSEC isochrones
+           stage= if True, only use this evolutionary stage
            ngauss= number of Gaussians for XD, if -1, determine best
            loofrac= (0.1) fraction to loo if determining best
            fitlogg= if True, also fit logg in XD
@@ -165,7 +167,7 @@ class rcmodel:
         for logage in p.logages():
             if logage > maxage: continue
             for zz in range(len(Zs)):
-                thisiso= p(logage,Zs[zz],asrecarray=True)
+                thisiso= p(logage,Zs[zz],asrecarray=True,stage=stage)
                 #Calculate int_IMF for this IMF model
                 if not imfmodel == 'lognormalChabrier2001': #That would be the default
                     if imfmodel == 'exponentialChabrier2001':
