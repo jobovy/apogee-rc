@@ -32,6 +32,7 @@ def calc_avg_rcmks(parser):
         rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
                             band=options.band,basti=options.basti,
                             imfmodel=options.imfmodel,
+                            expsfh=options.expsfh,
                             parsec=options.parsec,
                             stage=options.stage)
         for jj in range(njks):
@@ -59,6 +60,9 @@ def get_options():
     parser.add_option("--basti",action="store_true", dest="basti",
                       default=False,
                       help="If set, use BaSTI isochrones")
+    parser.add_option("--expsfh",action="store_true", dest="expsfh",
+                      default=False,
+                      help="If set, use an exponentially-declining SFH")
     parser.add_option("--parsec",action="store_true", dest="parsec",
                       default=False,
                       help="If set, PARSEC")
