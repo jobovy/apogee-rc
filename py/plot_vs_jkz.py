@@ -57,6 +57,7 @@ def plot_vs_jkz(parser):
     if options.basti:#Remap the Zs
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
         regularzs= numpy.arange(0.0005,0.03005,0.0005)/0.019*0.0198
+        njks= len(jks)
         regularplotthis= numpy.zeros((njks,len(regularzs)))
         for jj in range(len(regularzs)):
             #Find z
