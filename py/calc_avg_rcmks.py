@@ -13,33 +13,35 @@ numpy.log(0.1)-numpy.log(0.36)-0.5*(feh+0.41)**2./0.36**2.])
                                       
 def calc_avg_rcmks(parser):
     options,args= parser.parse_args()
-    rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
-                        band=options.band,basti=options.basti,
-                        imfmodel=options.imfmodel,
-                        parsec=options.parsec)
     njks= 101
     nmks= 101
     jks= numpy.linspace(0.5,0.75,njks)
-    mks= numpy.linspace(0.5,3.,nmks)
+    mks= numpy.linspace(-0.5,-3.,nmks)
     if options.basti:
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
         zsolar= 0.0198
     else:
         zs= numpy.arange(0.0005,0.03005,0.0005)
-        zs= numpy.array([0.01,0.02])
+#        zs= numpy.array([0.01,0.02])
         zsolar= 0.019
     logpz= localzdist(zs,zsolar=zsolar)
     logmkp= numpy.zeros((len(zs),njks,nmks))
     logp= numpy.zeros((len(zs),njks,nmks))
     for ii in range(len(zs)):
+        print zs[ii]
+        rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
+                            band=options.band,basti=options.basti,
+                            imfmodel=options.imfmodel,
+                            parsec=options.parsec,
+                            stage=options.stage)
         for jj in range(njks):
             for kk in range(nmks):
-                logmkp[ii,jj,kk]= logpz[ii]+rc(jks[jj],mks[kk])+numpy.log(mks[kk])
+                logmkp[ii,jj,kk]= logpz[ii]+rc(jks[jj],mks[kk])+numpy.log(-mks[kk])
                 logp[ii,jj,kk]= logpz[ii]+rc(jks[jj],mks[kk])
     avgmk= numpy.exp(maxentropy.logsumexp(logmkp.flatten())\
                          -maxentropy.logsumexp(logp.flatten()))
-    print "Average mk: %f" % avgmk
-    return avgmk
+    print "Average mk: %f" % (-avgmk)
+    return -avgmk
 
 def get_options():
     usage = "usage: %prog [options] savefilename"
@@ -60,8 +62,10 @@ def get_options():
     parser.add_option("--parsec",action="store_true", dest="parsec",
                       default=False,
                       help="If set, PARSEC")
+    parser.add_option("-s",dest='stage',default=None,type='int',
+                      help="Evolutionary stage to use")
     return parser
     
 if __name__ == '__main__':
     parser= get_options()
-    plot_vs_jkz(parser)
+    calc_avg_rcmks(parser)

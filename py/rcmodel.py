@@ -71,7 +71,7 @@ class rcdist:
                                                                kx=3,ky=3,s=0.)
         return None
 
-    def __call__(self,jk,Z,appmag=None):
+    def __call__(self,jk,Z,appmag=None,dk=0.036):
         """
         NAME:
            __call__
@@ -81,6 +81,7 @@ class rcdist:
            jk - color
            Z - metal-content
            appmag - apparent magnitude
+           dk= calibration offset (dm= m-M-dk)
         OUTPUT:
            Either:
               - absmag (if appmag is None)
@@ -89,10 +90,10 @@ class rcdist:
            2012-11-15 - Written - Bovy (IAS)
         """
         if appmag is None:
-            return self._interpMag.ev(jk,Z)
+            return self._interpMag.ev(jk,Z)+dk
         else:
             absmag= self._interpMag.ev(jk,Z)
-            return 10.**((appmag-absmag)/5-2.)
+            return 10.**((appmag-absmag-dk)/5-2.)
     
 class rcmodel:
     """rcmodel: isochrone model for the distribution in (J-Ks,M_H) along the RC"""
@@ -165,9 +166,10 @@ class rcmodel:
         loggs= []
         maxage= 9.+numpy.log10(10.) #BaSTI goes too old
         for logage in p.logages():
-            if logage > maxage: continue
+            if basti and logage > maxage: continue
             for zz in range(len(Zs)):
                 thisiso= p(logage,Zs[zz],asrecarray=True,stage=stage)
+                if len(thisiso.M_ini) == 0: continue
                 #Calculate int_IMF for this IMF model
                 if not imfmodel == 'lognormalChabrier2001': #That would be the default
                     if imfmodel == 'exponentialChabrier2001':
