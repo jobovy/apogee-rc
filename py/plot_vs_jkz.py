@@ -88,6 +88,8 @@ def plot_vs_jkz(parser):
         bovy_plot.bovy_text(r'$\mathrm{BaSTI}$',title=True,size=16.)
     elif options.parsec:
         bovy_plot.bovy_text(r'$\mathrm{PARSEC}$',title=True,size=16.)
+    elif options.imfmodel == 'kroupa2003':
+        bovy_plot.bovy_text(r'$\mathrm{Padova, Kroupa\ (2003)\ IMF}$',title=True,size=16.)
     else:
         bovy_plot.bovy_text(r'$\mathrm{Padova}$',title=True,size=16.)
     bovy_plot.bovy_end_print(options.outfilename)
