@@ -49,7 +49,8 @@ def plot_vs_jkz(parser):
         zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}\ [\mathrm{mag}]$'
     elif options.type == 'mode':
         vmin, vmax= -1.8, -1.2
-        zlabel= r'$\mathrm{argmax}_{K_s}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
+        #zlabel= r'$\mathrm{argmax}_{K_s}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
+        zlabel= r'$\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
     if options.basti:
         zsolar= 0.0198
     else:
