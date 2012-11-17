@@ -164,9 +164,9 @@ class rcmodel:
         sample= []
         weights= []
         loggs= []
-        maxage= 9.+numpy.log10(10.) #BaSTI goes too old
+        maxage= 9.+numpy.log10(10.) #BaSTI goes too old, so does Padova
         for logage in p.logages():
-            if basti and logage > maxage: continue
+            if logage > maxage: continue
             for zz in range(len(Zs)):
                 thisiso= p(logage,Zs[zz],asrecarray=True,stage=stage)
                 if len(thisiso.M_ini) == 0: continue
