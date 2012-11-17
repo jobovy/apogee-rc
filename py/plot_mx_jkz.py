@@ -10,6 +10,7 @@ def plot_mx_jkz(parser):
     rc= rcmodel.rcmodel(Z=options.Z,loggmin=1.8,loggmax=2.8,
                         basti=options.basti,band=options.band,
                         parsec=options.parsec,
+                        expsfh=options.expsfh,
                         imfmodel=options.imfmodel)
     #Calculate mode and hm
     njks= 101
@@ -60,6 +61,9 @@ def get_options():
     parser.add_option("--parsec",action="store_true", dest="parsec",
                       default=False,
                       help="If set, PARSEC")
+    parser.add_option("--expsfh",action="store_true", dest="expsfh",
+                      default=False,
+                      help="If set, use an exponentially-declining SFH")
     return parser
     
 if __name__ == '__main__':
