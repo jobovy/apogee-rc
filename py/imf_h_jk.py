@@ -92,6 +92,10 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
                         quants.append(thisiso['logg'][ii])
                     elif 'teff' in options.type:
                         quants.append(10.**(thisiso['logTe'][ii]))
+                    elif 'M_ini' in options.type:
+                        quants.append(thisiso['M_ini'][ii])
+                    elif 'logage' in options.type:
+                        quants.append(thisiso['logage'][ii]-9.)
                 else: 
                     continue #no use in continuing here
     #Form array
@@ -157,14 +161,34 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
         zrange= [0.,0.1]
     elif options.type == 'teffmean':
         colorbar= True
-        zlabel= r'$\mathrm{average}\ T_{\mathrm{eff}}$'
+        zlabel= r'$\mathrm{average}\ T_{\mathrm{eff}}\ [\mathrm{K}]$'
         cmap= 'jet'
         zrange= [3000.,6000.]
     elif options.type == 'teffsigma':
         colorbar= True
-        zlabel= r'$\sigma_{T_{\mathrm{eff}}}$'
+        zlabel= r'$\sigma_{T_{\mathrm{eff}}}\ [\mathrm{K}]$'
         cmap= 'jet'
         zrange= [0.,100.]
+    elif options.type == 'M_inimean':
+        colorbar= True
+        zlabel= r'$\mathrm{average}\ M_{\mathrm{init}}\ [\mathrm{M_\odot}]$'
+        cmap= 'jet'
+        zrange= [0.,4.]
+    elif options.type == 'M_inisigma':
+        colorbar= True
+        zlabel= r'$\sigma_{M_{\mathrm{init}}}\ [\mathrm{M_\odot}]$'
+        cmap= 'jet'
+        zrange= [0.,0.2]
+    elif options.type == 'logagemean':
+        colorbar= True
+        zlabel= r'$\mathrm{average}\ \log_{10} \mathrm{Age} / \mathrm{1\,Gyr}$'
+        cmap= 'jet'
+        zrange= [-1.,1.]
+    elif options.type == 'logagesigma':
+        colorbar= True
+        zlabel= r'$\sigma_{\log_{10} \mathrm{Age} / \mathrm{1\,Gyr}}$'
+        cmap= 'jet'
+        zrange= [0.,.2]
     else:
         colorbar= True
         zlabel= None
