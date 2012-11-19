@@ -48,12 +48,19 @@ def plot_vs_jkz(parser):
         savefile.close()
     #Plot
     if options.type == 'sig':
-        vmin, vmax= 0., 0.8
-        zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}\ [\mathrm{mag}]$'
+        if options.relative:
+            vmin, vmax= 0.7,1.3
+        else:
+            vmin, vmax= 0., 0.8
+        zlabel= r'$\mathrm{FWHM}/\mathrm{FWHM}_{\mathrm{Padova}}$'
     elif options.type == 'mode':
-        vmin, vmax= -1.8, -1.2
+        if options.relative:
+            vmin, vmax= -0.1,0.1
+            zlabel= r'$\Delta\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
+        else:
+            vmin, vmax= -1.8, -1.2
         #zlabel= r'$\mathrm{argmax}_{K_s}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
-        zlabel= r'$\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
+            zlabel= r'$\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
     if options.basti:
         zsolar= 0.0198
     else:
@@ -70,6 +77,14 @@ def plot_vs_jkz(parser):
                 regularplotthis[ii,jj]= plotthis[ii,thisindx]
         zs= regularzs
         plotthis= regularplotthis
+    if options.relative and os.path.exists(options.infilename):
+        savefile= open(options.infilename,'rb')
+        plotthisrel= pickle.load(savefile)
+        savefile.close()
+        if options.type == 'mode':
+            plotthis-= plotthisrel
+        elif options.type == 'sig':
+            plotthis/= plotthisrel
     bovy_plot.bovy_print()
     bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='gray',
                           xrange=[jks[0],jks[-1]],
@@ -101,6 +116,11 @@ def plot_vs_jkz(parser):
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=16.)
+    elif 'expsfh' in args[0]:
+        pyplot.annotate(r'$\mathrm{Padova, p(\mathrm{Age}) \propto e^{\mathrm{Age}/(8\,\mathrm{Gyr})}}$',
+                        (0.5,1.08),xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=16.)
     else:
         pyplot.annotate(r'$\mathrm{Padova}$',
                         (0.5,1.08),xycoords='axes fraction',
@@ -115,6 +135,8 @@ def get_options():
     #Data options
     parser.add_option("-o",dest='outfilename',default=None,
                       help="Name for plot file")
+    parser.add_option("-i",dest='infilename',default=None,
+                      help="Name of the file that holds the surface that will be subtracted")
     parser.add_option("-t",dest='type',default='sig',
                       help="type of plot ('sig' for sigma, 'mode' for mode)")
     parser.add_option("-b",dest='band',default='Ks',
@@ -131,6 +153,9 @@ def get_options():
     parser.add_option("--parsec",action="store_true", dest="parsec",
                       default=False,
                       help="If set, PARSEC")
+    parser.add_option("-r","--relative",action="store_true", dest="relative",
+                      default=False,
+                      help="If set, plot relative surface")
     return parser
     
 if __name__ == '__main__':
