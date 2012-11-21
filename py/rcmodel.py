@@ -162,19 +162,16 @@ class rcmodel:
             p= isodist.PadovaIsochrone(Z=Zs,parsec=parsec)
         maxage= 9.+numpy.log10(10.) #BaSTI goes too old, so does Padova
         if basti:
-            #Setup KDE for logage distribution
-            #BaSTI is not sampled uniformly in logage, so we empirically 
-            #determine the logage distribution
-            this_logages= p.logages()[(p.logages() < maxage)]
-            this_logages= numpy.reshape(this_logages,(len(this_logages),1))
-            self._bastikde= dens_kde.densKDE(this_logages,
-                                             h=0.35,kernel='biweight')
+            #Force BaSTI to have equal age sampling
+            lages= numpy.log10(numpy.arange(0.5,10.5,0.5))
         #Get relevant data
         sample= []
         weights= []
         loggs= []
         for logage in p.logages():
             if logage > maxage: continue
+            if basti and numpy.sum((logage == lages)) == 0: continue
+            print logage
             for zz in range(len(Zs)):
                 thisiso= p(logage,Zs[zz],asrecarray=True,stage=stage)
                 if len(thisiso.M_ini) == 0: continue
