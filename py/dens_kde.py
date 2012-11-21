@@ -90,7 +90,7 @@ class densKDE:
 #                               -self._dim*numpy.log(self._lambda[:,0]),axis=1) #latter assumes that lambda are spherical
         else:
             return 1./thish**self._dim\
-                *numpy.sum(numpy.tile(numpy.log(self._w),(x.shape[0],1))\
+                *numpy.sum(numpy.tile(self._w,(x.shape[0],1))\
                                *thiskernel/self._lambda[:,0]**self._dim,axis=1)
 
     def _setup_variable(self,nitt,alpha):

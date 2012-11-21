@@ -160,11 +160,19 @@ class rcmodel:
             p= isodist.BastiIsochrone(Z=Zs)
         else:
             p= isodist.PadovaIsochrone(Z=Zs,parsec=parsec)
+        maxage= 9.+numpy.log10(10.) #BaSTI goes too old, so does Padova
+        if basti:
+            #Setup KDE for logage distribution
+            #BaSTI is not sampled uniformly in logage, so we empirically 
+            #determine the logage distribution
+            this_logages= p.logages()[(p.logages() < maxage)]
+            this_logages= numpy.reshape(this_logages,(len(this_logages),1))
+            self._bastikde= dens_kde.densKDE(this_logages,
+                                             h=0.35,kernel='biweight')
         #Get relevant data
         sample= []
         weights= []
         loggs= []
-        maxage= 9.+numpy.log10(10.) #BaSTI goes too old, so does Padova
         for logage in p.logages():
             if logage > maxage: continue
             for zz in range(len(Zs)):
@@ -216,10 +224,16 @@ class rcmodel:
                     if dN[ii] > 0.: 
                         sample.append([JK,H])
                         loggs.append([thisiso.logg[ii]])
-                        if expsfh:
-                            weights.append(dN[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                        if basti:
+                            if expsfh:
+                                weights.append(numpy.exp(self._bastikde(logage,log=True))*dN[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                            else:
+                                weights.append(numpy.exp(self._bastikde(logage,log=True))*dN[ii]*10**(logage-7.))
                         else:
-                            weights.append(dN[ii]*10**(logage-7.))
+                            if expsfh:
+                                weights.append(dN[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                            else:
+                                weights.append(dN[ii]*10**(logage-7.))
                     else: 
                         continue #no use in continuing here   
         #Form array
