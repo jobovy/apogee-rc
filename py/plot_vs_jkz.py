@@ -50,9 +50,10 @@ def plot_vs_jkz(parser):
     if options.type == 'sig':
         if options.relative:
             vmin, vmax= 0.7,1.3
+            zlabel= r'$\mathrm{FWHM}/\mathrm{FWHM}_{\mathrm{Padova}}$'
         else:
             vmin, vmax= 0., 0.8
-        zlabel= r'$\mathrm{FWHM}/\mathrm{FWHM}_{\mathrm{Padova}}$'
+            zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}\ [\mathrm{mag}]$'
     elif options.type == 'mode':
         if options.relative:
             vmin, vmax= -0.1,0.1
