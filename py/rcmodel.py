@@ -163,7 +163,7 @@ class rcmodel:
         maxage= 9.+numpy.log10(10.) #BaSTI goes too old, so does Padova
         if basti:
             #Force BaSTI to have equal age sampling
-            lages= numpy.log10(numpy.arange(0.5,10.5,0.5))
+            lages= numpy.log10(numpy.arange(0.5,10.5,0.5))+9.
         #Get relevant data
         sample= []
         weights= []
@@ -171,7 +171,6 @@ class rcmodel:
         for logage in p.logages():
             if logage > maxage: continue
             if basti and numpy.sum((logage == lages)) == 0: continue
-            print logage
             for zz in range(len(Zs)):
                 thisiso= p(logage,Zs[zz],asrecarray=True,stage=stage)
                 if len(thisiso.M_ini) == 0: continue
