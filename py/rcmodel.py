@@ -221,11 +221,11 @@ class rcmodel:
                     if dN[ii] > 0.: 
                         sample.append([JK,H])
                         loggs.append([thisiso.logg[ii]])
-                        if basti:
+                        if basti: #BaSTI is sampled uniformly in age, not logage
                             if expsfh:
-                                weights.append(numpy.exp(-self._bastikde(logage,log=True)[0,0])*dN[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                                weights.append(dN[ii]*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
                             else:
-                                weights.append(numpy.exp(-self._bastikde(logage,log=True)[0])*dN[ii]*10**(logage-7.))
+                                weights.append(dN[ii])
                         else:
                             if expsfh:
                                 weights.append(dN[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
