@@ -226,9 +226,9 @@ class rcmodel:
                         loggs.append([thisiso.logg[ii]])
                         if basti:
                             if expsfh:
-                                weights.append(numpy.exp(self._bastikde(logage,log=True)[0,0])*dN[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                                weights.append(numpy.exp(-self._bastikde(logage,log=True)[0,0])*dN[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
                             else:
-                                weights.append(numpy.exp(self._bastikde(logage,log=True)[0])*dN[ii]*10**(logage-7.))
+                                weights.append(numpy.exp(-self._bastikde(logage,log=True)[0])*dN[ii]*10**(logage-7.))
                         else:
                             if expsfh:
                                 weights.append(dN[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
