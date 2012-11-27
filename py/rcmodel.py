@@ -163,7 +163,9 @@ class rcmodel:
         maxage= 9.+numpy.log10(10.) #BaSTI goes too old, so does Padova
         if basti:
             #Force BaSTI to have equal age sampling
-            lages= numpy.log10(numpy.arange(0.5,10.5,0.5))+9.
+            lages= list(numpy.log10(numpy.arange(0.1,1.,0.1))+9.)
+            lages.extend(list(numpy.log10(numpy.arange(1.0,10.5,0.5))+9.))
+            lages= numpy.array(lages)
         #Get relevant data
         sample= []
         weights= []
@@ -220,11 +222,17 @@ class rcmodel:
                     if dN[ii] > 0.: 
                         sample.append([JK,H])
                         loggs.append([thisiso.logg[ii]])
-                        if basti: #BaSTI is sampled uniformly in age, not logage
-                            if expsfh:
-                                weights.append(dN[ii]*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                        if basti: #BaSTI is sampled uniformly in age, not logage, but has a finer sampling below 1 Gyr
+                            if logage < 9.:
+                                if expsfh:
+                                    weights.append(dN[ii]/5.*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                                else:
+                                    weights.append(dN[ii]/5.)
                             else:
-                                weights.append(dN[ii])
+                                if expsfh:
+                                    weights.append(dN[ii]*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                                else:
+                                    weights.append(dN[ii])
                         else:
                             if expsfh:
                                 weights.append(dN[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
