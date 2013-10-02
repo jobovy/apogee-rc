@@ -157,6 +157,8 @@ def get_options():
     parser.add_option("-r","--relative",action="store_true", dest="relative",
                       default=False,
                       help="If set, plot relative surface")
+    parser.add_option("--feh",dest='feh',default=0.,type='float',
+                      help="Metallicity range to use")
     return parser
     
 if __name__ == '__main__':
