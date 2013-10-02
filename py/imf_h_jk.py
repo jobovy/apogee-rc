@@ -16,7 +16,7 @@ OUTEXT= 'png'
 _ADDEXTINCT= False
 _ADDCOLORCUT= True
 def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
-             dartmouth=False,kroupa=False):
+             dartmouth=False,kroupa=False,loggash=False):
     #Read isochrones
     if basti:
         zs= numpy.array([0.0001,0.0003,0.0006,0.001,0.002,0.004,0.008,
@@ -75,11 +75,19 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
                     continue
                 if dmpm[ii] > 0.: 
                     if basti:
-                        sample.append([thisiso['J'][ii]-thisiso['K'][ii],
-                                       thisiso['H'][ii]])
+                        if loggash:
+                            sample.append([thisiso['J'][ii]-thisiso['K'][ii],
+                                           thisiso['logg'][ii]])
+                        else:
+                            sample.append([thisiso['J'][ii]-thisiso['K'][ii],
+                                           thisiso['H'][ii]])
                     else:
-                        sample.append([thisiso['J'][ii]-thisiso['Ks'][ii],
-                                       thisiso['H'][ii]])
+                        if loggash:
+                            sample.append([thisiso['J'][ii]-thisiso['Ks'][ii],
+                                           thisiso['logg'][ii]])
+                        else:
+                            sample.append([thisiso['J'][ii]-thisiso['Ks'][ii],
+                                           thisiso['H'][ii]])
                     if dartmouth:
                         if logage > numpy.log10(5.)+9.:
                             weights.append(2.*dmpm[ii]) #Dartmouth are linearly spaced, but spacing is bigger at > 5 Gyr
@@ -103,28 +111,32 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
     weights= numpy.array(weights)
     quants= numpy.array(quants)
     #Histogram
+    if loggash: yrange=[1.5,3.4]
+    elif dwarf: yrange= [2.,9.]
+    else: yrange= [-11.,2.]
     if dwarf:
         hist, edges= numpy.histogramdd(sample,weights=weights,bins=51,
-                                       range=[[0.,1.6],[2.,9.]])
+                                       range=[[0.,1.6],yrange])
         if not options.type == 'dens':
             quanthist, edges= numpy.histogramdd(sample,weights=weights*quants,
                                                 bins=51,
-                                                range=[[0.,1.6],[2.,9.]])
+                                                range=[[0.,1.6],yrange])
             if 'sigma' in options.type:
                 quant2hist, edges= numpy.histogramdd(sample,weights=weights*quants**2.,
                                                      bins=51,
-                                                     range=[[0.,1.6],[2.,9.]])
+                                                     range=[[0.,1.6],yrange])
     else:
         hist, edges= numpy.histogramdd(sample,weights=weights,bins=49,
-                                       range=[[0.3,1.6],[-11.,2]])
+#                                       range=[[0.5,0.8],yrange])
+                                       range=[[0.3,1.6],yrange])
         if not options.type == 'dens':
             quanthist, edges= numpy.histogramdd(sample,weights=weights*quants,
-                                           bins=49,
-                                           range=[[0.3,1.6],[-11.,2]])
+                                                bins=49,
+                                                range=[[0.3,1.6],yrange])
             if 'sigma' in options.type:
                 quant2hist, edges= numpy.histogramdd(sample,weights=weights*quants**2.,
                                                      bins=49,
-                                                     range=[[0.3,1.6],[-11.,2]])
+                                                     range=[[0.3,1.6],yrange])
     if not options.type == 'dens':
         #Determine normalized hist
         normhist= numpy.zeros_like(hist)
@@ -195,16 +207,20 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
         cmap= 'gist_yarg'
         zrange= [numpy.nanmin(hist),numpy.nanmax(hist)]
     shrink=.78
+    if loggash:
+        ylabel= r'$\log g$'
+    else:
+        ylabel=r'$M_H\ [\mathrm{mag}]$'
     bovy_plot.bovy_dens2d(hist.T,origin='lower',cmap=cmap,
                           xrange=[edges[0][0],edges[0][-1]],
                           yrange=[edges[1][-1],edges[1][0]],
                           aspect=(edges[0][-1]-edges[0][0])/float(edges[1][-1]-edges[1][0]),
                           xlabel=r'$(J-K_s)_0\ [\mathrm{mag}]$',
-                          ylabel=r'$M_H\ [\mathrm{mag}]$',
+                          ylabel=ylabel,
                           colorbar=colorbar,zlabel=zlabel,
                           shrink=shrink,vmin=zrange[0],vmax=zrange[1],
                           interpolation='nearest')
-    if _ADDEXTINCT:
+    if _ADDEXTINCT and not loggash:
         #Add extinction arrow
         djk= 0.45
         dh= 1.55/1.5*djk
@@ -215,7 +231,7 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
         bovy_plot.bovy_text(1.05,-2.05,r'$\mathrm{extinction}$',
                             rotation=-math.atan(1.5/1.55*1.3/13.)/math.pi*180.,
                             size=14.)
-    if _ADDCOLORCUT:
+    if _ADDCOLORCUT and not loggash:
         ax=pyplot.gca()
         #Add color cut
         bovy_plot.bovy_plot([0.5,0.5],[-20.,20.],'--',color='0.6',overplot=True)
@@ -283,10 +299,14 @@ def get_options():
                       dest="log",
                       default=False,
                       help="Use a logarithmic grayscale")
+    parser.add_option("--loggash",action="store_true", 
+                      dest="loggash",
+                      default=False,
+                      help="Use logg rather than M_H as the y-axis")
     return parser
 
 if __name__ == '__main__':
     parser= get_options()
     (options,args)= parser.parse_args()
     imf_h_jk(options.plotfile,Z=options.Z,dwarf=options.dwarf,log=options.log,
-             h=options.ho)
+             h=options.ho,loggash=options.loggash)
