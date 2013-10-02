@@ -42,7 +42,7 @@ def plot_logg_jk_apokasc(parser):
             rcms.append(trc)
             sample= numpy.vstack([trc._sample[:,0],trc._loggs[:,0]]).T
             weights= trc._weights
-            hist, edges= numpy.histogramdd(sample,weights=weights,bins=49,
+            hist, edges= numpy.histogramdd(sample,weights=weights,bins=31,
                                            range=[[0.5,0.8],[1.,3.5]])
             hists.append(hist)
             edgess.append(edges)
