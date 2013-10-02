@@ -9,7 +9,7 @@ from matplotlib.ticker import NullFormatter
 import apogee.tools.read as apread
 import rcmodel
 from plot_vs_jkz import get_options
-_DEBUG= True
+_DEBUG= False
 def plot_logg_jk_apokasc(parser):
     options,args= parser.parse_args()
     #Setup Zs
@@ -25,7 +25,9 @@ def plot_logg_jk_apokasc(parser):
         if _DEBUG:
             zs= numpy.arange(0.0005,0.03005,0.005)
         fehs= isodist.Z2FEH(zs,zsolar=0.019)
-        zs= [zs[numpy.fabs(fehs-options.feh) < 0.2][0]]
+        zs= zs[numpy.fabs(fehs-options.feh) < 0.2]
+        if _DEBUG:
+            zs= [zs[numpy.fabs(fehs-options.feh) < 0.2][0]]
         fehs= isodist.Z2FEH(zs,zsolar=0.019)   
         #Load the RC models for each feh individually
         rcms= []
@@ -67,12 +69,9 @@ def plot_logg_jk_apokasc(parser):
     #Plot everything
     bovy_plot.bovy_print()
     bovy_plot.bovy_dens2d(outhist.T,origin='lower',cmap='gist_yarg',
-                          #xrange=[edgess[0][0][0],edgess[0][0][-1]],
-                          #yrange=[edgess[0][1][-1],edgess[0][1][0]],
-                          #aspect=(edgess[0][0][-1]-edgess[0][0][0])/float(edgess[0][1][-1]-edgess[0][1][0]),
-                          xrange=[edgess[0][0],edgess[0][-1]],
-                          yrange=[edgess[1][-1],edgess[1][0]],
-                          aspect=(edgess[0][-1]-edgess[0][0])/float(edgess[1][-1]-edgess[1][0]),
+                          xrange=[edgess[0][0][0],edgess[0][0][-1]],
+                          yrange=[edgess[0][1][-1],edgess[0][1][0]],
+                          aspect=(edgess[0][0][-1]-edgess[0][0][0])/float(edgess[0][1][-1]-edgess[0][1][0]),
                           xlabel=r'$(J-K_s)_0\ [\mathrm{mag}]$',
                           ylabel=r'$\mathrm{Seismic}\ \log g$',
                           shrink=0.78,
