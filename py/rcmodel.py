@@ -169,7 +169,11 @@ class rcmodel:
         #Get relevant data
         sample= []
         weights= []
+        massweights= []
         loggs= []
+        pmasses= []
+        plages= []
+        pjks= []
         for logage in p.logages():
             if logage > maxage: continue
             if basti and numpy.sum((logage == lages)) == 0: continue
@@ -190,7 +194,8 @@ class rcmodel:
                     int_IMF= isodist.imf.lognormalChabrier2001(thisiso.M_ini,int=True)
                 else:
                     int_IMF= thisiso.int_IMF
-                dN= numpy.roll(int_IMF,-1)-int_IMF
+                dN= (numpy.roll(int_IMF,-1)-int_IMF)/(int_IMF[-1]-int_IMF[0])/10**(logage-7.)
+                dmass= thisiso.M_ini*(numpy.roll(int_IMF,-1)-int_IMF)/numpy.sum((thisiso.M_ini*(numpy.roll(int_IMF,-1)-int_IMF))[:-1])/10**(logage-7.)
                 for ii in range(1,len(int_IMF)-1):
                     if basti:
                         JK= 0.996*(thisiso.J[ii]-thisiso.K[ii])+0.00923
@@ -222,28 +227,41 @@ class rcmodel:
                     if dN[ii] > 0.: 
                         sample.append([JK,H])
                         loggs.append([thisiso.logg[ii]])
+                        pmasses.append(thisiso.M_ini[ii])
+                        plages.append(logage)
+                        pjks.append(JK)
                         if basti: #BaSTI is sampled uniformly in age, not logage, but has a finer sampling below 1 Gyr
                             if logage < 9.:
                                 if expsfh:
                                     weights.append(dN[ii]/5.*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                                    massweights.append(dmass[ii]/5.*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
                                 else:
                                     weights.append(dN[ii]/5.)
+                                    massweights.append(dmass[ii]/5.)
                             else:
                                 if expsfh:
                                     weights.append(dN[ii]*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                                    massweights.append(dmass[ii]*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
                                 else:
                                     weights.append(dN[ii])
+                                    massweights.append(dmass[ii])
                         else:
                             if expsfh:
                                 weights.append(dN[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
+                                massweights.append(dmass[ii]*10**(logage-7.)*numpy.exp((10.**(logage-7.))/800.)) #e.g., Binney (2010)
                             else:
                                 weights.append(dN[ii]*10**(logage-7.))
+                                massweights.append(dmass[ii]*10**(logage-7.))
                     else: 
                         continue #no use in continuing here   
         #Form array
         sample= numpy.array(sample)
         loggs= numpy.array(loggs)
+        pmasses= numpy.array(pmasses)
+        plages= numpy.array(plages)-9.
+        pjks= numpy.array(pjks)
         weights= numpy.array(weights)
+        massweights= numpy.array(massweights)
         #Cut out low weights
         if False:
             indx= (weights > 10.**-5.*numpy.sum(weights))
@@ -251,7 +269,11 @@ class rcmodel:
             indx= numpy.ones(len(weights),dtype='bool')
         self._sample= sample[indx,:]
         self._weights= weights[indx]
+        self._massweights= massweights[indx]
         self._loggs= loggs[indx]
+        self._masses= pmasses[indx]
+        self._lages= plages[indx]
+        self._jks= pjks[indx]
         #Setup KDE
         self._kde= dens_kde.densKDE(self._sample,w=self._weights,
                                     h='scott',kernel='biweight',
