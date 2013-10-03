@@ -63,8 +63,12 @@ def astro_sampling(parser):
         pickle.dump(lages,savefile)
         savefile.close()
     #Plot
+    #Fist cut out youngest ages, since they are irrelevant
+    aindx= lages > numpy.log10(0.8)
+    lages= lages[aindx]
+    plotthis= plotthis[:,aindx]
     if options.type == 'mass':
-        vmin, vmax= 0.5, 5.3
+        vmin, vmax= 0.5, 2.3
         vmin2, vmax2= 0.5, 2.
         zlabel= r'$\langle M_{\mathrm{RC}} \rangle \,(M_\odot)$'
         cmap= 'gist_yarg'
