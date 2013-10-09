@@ -28,7 +28,9 @@ def imf_h_jk(plotfile,Z=None,dwarf=False,log=False,h=12.,basti=False,
     if Z is None:
         Zs= zs
     elif not basti and not dartmouth:
-        if Z < 0.01:
+        if Z < 0.0015:
+            Zs= [Z-0.0005,Z,Z+0.0005] #build up statistics
+        elif Z < 0.01:
             Zs= [Z-0.001,Z-0.0005,Z,Z+0.0005,Z+0.001] #build up statistics
         else:
             Zs= [Z-0.0005,Z,Z+0.0005] #build up statistics

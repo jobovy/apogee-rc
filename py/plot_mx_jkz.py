@@ -14,7 +14,7 @@ def plot_mx_jkz(parser):
                         imfmodel=options.imfmodel)
     #Calculate mode and hm
     njks= 101
-    jks= numpy.linspace(0.5,0.75,njks)
+    jks= numpy.linspace(0.5,0.8,njks)
     modes= numpy.array([rc.mode(jk) for jk in jks])
     hms= numpy.zeros((njks,2))
     for ii in range(njks):
@@ -25,16 +25,19 @@ def plot_mx_jkz(parser):
         hms[ii,0]= minhm
         hms[ii,1]= maxhm
     #Now plot
-    if options.basti:
-        zsolar= 0.0198
-    else:
-        zsolar= 0.019
     rc.plot(nbins=101,conditional=True)
     bovy_plot.bovy_plot(jks,modes,'w-',lw=2.,overplot=True)
     bovy_plot.bovy_plot(jks,hms[:,0],'-',lw=2.,color='0.85',overplot=True)
     bovy_plot.bovy_plot(jks,hms[:,1],'-',lw=2.,color='0.85',overplot=True)
-    bovy_plot.bovy_text(r'$[\mathrm{M/H}]\ =\ %.2f$' % (isodist.Z2FEH(options.Z,zsolar=zsolar)),
-                        bottom_left=True,size=14.)
+    #Overplot the cuts in J-Ks for this Z
+    bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z),rcmodel.zjkcut(options.Z)],
+                        [0.,-3.],'k--',lw=2.,overplot=True)
+    bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z,upper=True),rcmodel.zjkcut(options.Z,upper=True)],
+                        [0.,-3.],'k--',lw=2.,overplot=True)
+    if options.Z < 0.01: zstr= r'$Z = %.3f$' % options.Z
+    else: zstr= r'$Z = %.2f$' % options.Z
+    bovy_plot.bovy_text(zstr,
+                        bottom_left=True,size=16.)
     if options.basti:
         bovy_plot.bovy_text(r'$\mathrm{BaSTI}$',title=True,size=16.)
     elif options.parsec:

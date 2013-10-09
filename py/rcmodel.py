@@ -34,6 +34,20 @@ def jkzcut(jk,upper=False):
         A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
         B= 0.03-A*(0.73-x)**alpha
         return A*(jk-x)**alpha+B
+def zjkcut(z,upper=False):
+    """Return the cut in Z-jk"""
+    if upper:
+        alpha= 4.
+        x= 0.4
+        A= 0.022/((0.6-x)**alpha-(0.5-x)**alpha)
+        B= 0.03-A*(0.6-x)**alpha
+        return ((z-B)/A)**(1./alpha)+x
+    else:
+        alpha= 5.
+        x= 0.225
+        A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
+        B= 0.03-A*(0.73-x)**alpha
+        return ((z-B)/A)**(1./alpha)+x
 class rcdist:
     """Class that holds the RC mean mag"""
     def __init__(self,*args,**kwargs):
@@ -141,6 +155,8 @@ class rcmodel:
         if basti:
             zs= numpy.array([0.0001,0.0003,0.0006,0.001,0.002,0.004,0.008,
                              0.01,0.0198,0.03,0.04])
+        elif parsec:
+            zs= numpy.arange(0.0005,0.06005,0.0005)
         else:
             zs= numpy.arange(0.0005,0.03005,0.0005)
         if Z is None:
@@ -279,7 +295,7 @@ class rcmodel:
                                     h='scott',kernel='biweight',
                                     variable=True,variablenitt=3,
                                     variableexp=0.35)
-        self._jkmin, self._jkmax= 0.5,0.75
+        self._jkmin, self._jkmax= 0.5,0.8
         self._hmin, self._hmax= -3.,0.
         return None
         #Run XD
@@ -902,7 +918,7 @@ class rcmodel:
             ylabel= r'$M_{K_s}$'
             ylim=[0.,-3.]
         return bovy_plot.bovy_plot(self._sample[:,0],self._sample[:,1],
-                                   xrange=[0.5,0.75],
+                                   xrange=[0.5,0.8],
                                    yrange=ylim,
                                    xlabel=r'$(J-K_s)_0\ [\mathrm{mag}]$',
                                    ylabel=ylabel,
@@ -963,7 +979,7 @@ class rcmodel:
         return self._xdtarg.scatterplot(0,1,
                                         xlabel=r'$J-K_s$',
                                         ylabel=ylabel,
-                                        xrange=[0.5,0.75],
+                                        xrange=[0.5,0.8],
                                         yrange=ylim,
                                         scatter=scatter,
                                         cmap='jet',

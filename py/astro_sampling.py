@@ -10,6 +10,8 @@ def astro_sampling(parser):
     options,args= parser.parse_args()
     if options.basti:
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
+    elif options.parsec:
+        zs= numpy.arange(0.0005,0.06005,0.0005)
     else:
         zs= numpy.arange(0.0005,0.03005,0.0005)
         #zs= numpy.arange(0.0005,0.03005,0.005)
@@ -37,10 +39,10 @@ def astro_sampling(parser):
                 jk= rc._jks
                 aindx= (rc._lages <= lages[jj]+dlages)\
                     *(rc._lages > lages[jj]-dlages)\
-                    *(jk < 0.75)*(jk > 0.5)\
+                    *(jk < 0.8)*(jk > 0.5)\
                     *(zs[ii] <= rcmodel.jkzcut(jk,upper=True))\
                     *(zs[ii] >= rcmodel.jkzcut(jk))\
-                    *(zs[ii] <= 0.03)
+                    *(zs[ii] <= 0.06)
                 if options.type == 'omega':
                     try:
                         plotthis[ii,jj]= numpy.mean(rc._massweights[aindx])
@@ -85,10 +87,6 @@ def astro_sampling(parser):
         cmap= 'gist_yarg'
         plotthis*= 100.
     print numpy.nanmin(plotthis), numpy.nanmax(plotthis)
-    if options.basti:
-        zsolar= 0.0198
-    else:
-        zsolar= 0.019
     if options.basti:#Remap the Zs
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
         regularzs= numpy.arange(0.0005,0.03005,0.0005)/0.019*0.0198
@@ -105,7 +103,7 @@ def astro_sampling(parser):
     left, bottom, width, height= 0.1, 0.1, 0.8, 0.6
     axBottom= pyplot.axes([left,bottom,width,height])
     fig.sca(axBottom)
-    xlimits= [zs[0]/zsolar,zs[-1]/zsolar]
+    xlimits= [zs[0],zs[-1]]
     ylimits= [lages[0]-dlages,lages[-1]+dlages]
     bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap=cmap,
                           xrange=xlimits,
@@ -132,9 +130,9 @@ def astro_sampling(parser):
     mtrend= numpy.sum(page*plotthis,axis=1)/numpy.sum(page)
     expmtrend= numpy.sum(exppage*plotthis,axis=1)/numpy.sum(exppage)
     exexpmtrend= numpy.sum(exexppage*plotthis,axis=1)/numpy.sum(exexppage)
-    pyplot.plot(zs/zsolar,mtrend,'k-')
-    pyplot.plot(zs/zsolar,expmtrend,'k--')
-    pyplot.plot(zs/zsolar,exexpmtrend,'k-.')
+    pyplot.plot(zs,mtrend,'k-')
+    pyplot.plot(zs,expmtrend,'k--')
+    pyplot.plot(zs,exexpmtrend,'k-.')
     pyplot.ylim(vmin2,vmax2)
     pyplot.xlim(xlimits[0],xlimits[1])
     nullfmt   = NullFormatter()         # no labels
@@ -148,11 +146,6 @@ def astro_sampling(parser):
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=16.)
-    elif options.parsec:
-        pyplot.annotate(r'$\mathrm{PARSEC}$',
-                        (0.5,1.08),xycoords='axes fraction',
-                        horizontalalignment='center',
-                        verticalalignment='top',size=16.)
     elif options.imfmodel == 'kroupa2003':
         pyplot.annotate(r'$\mathrm{Padova, Kroupa\ (2003)\ IMF}$',
                         (0.5,1.08),xycoords='axes fraction',
@@ -163,7 +156,13 @@ def astro_sampling(parser):
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=16.)
-    elif False:
+    elif options.parsec:
+        pass
+        pyplot.annotate(r'$\mathrm{PARSEC}$',
+                        (0.5,1.08),xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=16.)
+    else:
         pyplot.annotate(r'$\mathrm{Padova}$',
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',

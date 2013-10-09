@@ -9,9 +9,10 @@ def plot_vs_jkz(parser):
     options,args= parser.parse_args()
     if options.basti:
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
+    elif options.parsec:
+        zs= numpy.arange(0.0005,0.06005,0.0005)
     else:
         zs= numpy.arange(0.0005,0.03005,0.0005)
-#        zs= numpy.arange(0.0005,0.03005,0.005)
     if os.path.exists(args[0]):
         savefile= open(args[0],'rb')
         plotthis= pickle.load(savefile)
@@ -20,7 +21,7 @@ def plot_vs_jkz(parser):
         savefile.close()
     else:
         njks= 101
-        jks= numpy.linspace(0.5,0.75,njks)
+        jks= numpy.linspace(0.5,0.8,njks)
         plotthis= numpy.zeros((njks,len(zs)))
         for ii in range(len(zs)):
             print zs[ii]
@@ -62,10 +63,6 @@ def plot_vs_jkz(parser):
             vmin, vmax= -1.8, -1.2
         #zlabel= r'$\mathrm{argmax}_{K_s}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
             zlabel= r'$\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
-    if options.basti:
-        zsolar= 0.0198
-    else:
-        zsolar= 0.019
     if options.basti:#Remap the Zs
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
         regularzs= numpy.arange(0.0005,0.03005,0.0005)/0.019*0.0198
@@ -89,18 +86,18 @@ def plot_vs_jkz(parser):
     bovy_plot.bovy_print()
     bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='gray',
                           xrange=[jks[0],jks[-1]],
-                          yrange=[zs[0]/zsolar,zs[-1]/zsolar],
+                          yrange=[zs[0],zs[-1]],
                           vmin=vmin,vmax=vmax,
                           xlabel=r'$J-K_s$',
-                          ylabel=r'$Z/Z_\odot$',
+                          ylabel=r'$Z$',
                           interpolation='nearest',
                           colorbar=True,
                           shrink=0.78,
                           zlabel=zlabel)
     #Overplot cuts
-    bovy_plot.bovy_plot(jks,rcmodel.jkzcut(jks)/zsolar,
+    bovy_plot.bovy_plot(jks,rcmodel.jkzcut(jks),
                         'w--',lw=2.,overplot=True)
-    bovy_plot.bovy_plot(jks,rcmodel.jkzcut(jks,upper=True)/zsolar,
+    bovy_plot.bovy_plot(jks,rcmodel.jkzcut(jks,upper=True),
                         'w--',lw=2.,overplot=True)
     if options.basti:
         pyplot.annotate(r'$\mathrm{BaSTI}$',
@@ -108,6 +105,7 @@ def plot_vs_jkz(parser):
                         horizontalalignment='center',
                         verticalalignment='top',size=16.)
     elif options.parsec:
+        pass
         pyplot.annotate(r'$\mathrm{PARSEC}$',
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
