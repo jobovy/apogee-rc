@@ -24,11 +24,11 @@ def plot_logg_jk_apokasc(parser):
         zs= numpy.arange(0.0005,0.03005,0.0005)
         if _DEBUG:
             zs= numpy.arange(0.0005,0.03005,0.005)
-        fehs= isodist.Z2FEH(zs,zsolar=0.019)
+        fehs= isodist.Z2FEH(zs,zsolar=0.017)#0.017 for APOGEE analysis
         zs= zs[numpy.fabs(fehs-options.feh) < 0.2]
         if _DEBUG:
             zs= [zs[numpy.fabs(fehs-options.feh) < 0.2][0]]
-        fehs= isodist.Z2FEH(zs,zsolar=0.019)   
+        fehs= isodist.Z2FEH(zs,zsolar=0.017)   
         #Load the RC models for each feh individually
         rcms= []
         hists= []

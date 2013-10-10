@@ -32,7 +32,7 @@ def make_rcsample(savefilename):
                                              ('RC_GALR', float),
                                              ('RC_GALPHI', float),
                                              ('RC_GALZ', float)])
-    rcd= rcmodel.rcdist('../../rcdist-apogee/data/rcmodel_mode_jkz_ks.sav')
+    rcd= rcmodel.rcdist('../../rcdist-apogee/data/rcmodel_mode_jkz_ks_parsec.sav')
     jk= data['J0']-data['K0']
     z= isodist.FEH2Z(data['METALS'])
     data['RC_DIST']= rcd(jk,z,appmag=data['K0'])

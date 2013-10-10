@@ -15,11 +15,15 @@ def calc_avg_rcmks(parser):
     options,args= parser.parse_args()
     njks= 101
     nmks= 101
-    jks= numpy.linspace(0.5,0.75,njks)
+    jks= numpy.linspace(0.5,0.8,njks)
     mks= numpy.linspace(-0.5,-3.,nmks)
     if options.basti:
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
         zsolar= 0.0198
+    elif options.parsec:
+        zs= numpy.arange(0.0005,0.06005,0.0005)
+#        zs= numpy.array([0.01,0.02])
+        zsolar= 0.019
     else:
         zs= numpy.arange(0.0005,0.03005,0.0005)
 #        zs= numpy.array([0.01,0.02])
