@@ -2,7 +2,8 @@ import os, os.path
 import cPickle as pickle
 from optparse import OptionParser
 import numpy
-from galpy.util import bovy_plot
+from galpy.util import bovy_plot, multi
+import multiprocessing
 from matplotlib import pyplot
 import rcmodel
 def plot_vs_jkz(parser):
@@ -23,24 +24,14 @@ def plot_vs_jkz(parser):
         njks= 101
         jks= numpy.linspace(0.5,0.8,njks)
         plotthis= numpy.zeros((njks,len(zs)))
+        args= (zs,options,njks,jks)
+        multOut= multi.parallel_map((lambda x: indiv_calc(x,
+                                                          *args)),
+                                    range(len(zs)),
+                                    numcores=numpy.amin([64,len(zs),
+                                                         multiprocessing.cpu_count()]))
         for ii in range(len(zs)):
-            print zs[ii]
-            rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
-                                band=options.band,basti=options.basti,
-                                imfmodel=options.imfmodel,
-                                expsfh=options.expsfh,
-                                parsec=options.parsec)
-            for jj in range(njks):
-                if options.type == 'mode':
-                    try:
-                        plotthis[jj,ii]= rc.mode(jks[jj])
-                    except ValueError:
-                        plotthis[jj,ii]= numpy.nan
-                elif options.type == 'sig':
-                    try:
-                        plotthis[jj,ii]= rc.sigmafwhm(jks[jj])
-                    except ValueError:
-                        plotthis[jj,ii]= numpy.nan
+            plotthis[:,ii]= multOut[ii]
         #Save
         savefile= open(args[0],'wb')
         pickle.dump(plotthis,savefile)
@@ -127,6 +118,27 @@ def plot_vs_jkz(parser):
                         verticalalignment='top',size=16.)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
+
+def indiv_calc(ii,zs,options,njks,jks):
+    print zs[ii]
+    rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
+                        band=options.band,basti=options.basti,
+                        imfmodel=options.imfmodel,
+                        expsfh=options.expsfh,
+                        parsec=options.parsec)
+    out= numpy.empty(njks)
+    for jj in range(njks):
+        if options.type == 'mode':
+            try:
+                out[jj]= rc.mode(jks[jj])
+            except ValueError:
+                out[jj]= numpy.nan
+        elif options.type == 'sig':
+            try:
+                out[jj]= rc.sigmafwhm(jks[jj])
+            except ValueError:
+                out[jj]= numpy.nan
+    return out
 
 def get_options():
     usage = "usage: %prog [options] savefilename"

@@ -41,13 +41,19 @@ def zjkcut(z,upper=False):
         x= 0.4
         A= 0.022/((0.6-x)**alpha-(0.5-x)**alpha)
         B= 0.03-A*(0.6-x)**alpha
-        return ((z-B)/A)**(1./alpha)+x
+        try:
+            return ((z-B)/A)**(1./alpha)+x
+        except ValueError:
+            return 0.5
     else:
         alpha= 5.
         x= 0.225
         A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
         B= 0.03-A*(0.73-x)**alpha
-        return ((z-B)/A)**(1./alpha)+x
+        try:
+            return ((z-B)/A)**(1./alpha)+x
+        except ValueError:
+            return 0.8
 class rcdist:
     """Class that holds the RC mean mag"""
     def __init__(self,*args,**kwargs):

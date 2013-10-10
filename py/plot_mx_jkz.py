@@ -4,6 +4,7 @@ from optparse import OptionParser
 import numpy
 import isodist
 from galpy.util import bovy_plot
+from matplotlib import pyplot
 import rcmodel
 def plot_mx_jkz(parser):
     options,args= parser.parse_args()
@@ -25,6 +26,11 @@ def plot_mx_jkz(parser):
         hms[ii,0]= minhm
         hms[ii,1]= maxhm
     #Now plot
+    bovy_plot.bovy_print(text_fontsize=20.,
+                         legend_fontsize=24.,
+                         xtick_labelsize=18.,
+                         ytick_labelsize=18.,
+                         axes_labelsize=24.)
     rc.plot(nbins=101,conditional=True)
     bovy_plot.bovy_plot(jks,modes,'w-',lw=2.,overplot=True)
     bovy_plot.bovy_plot(jks,hms[:,0],'-',lw=2.,color='0.85',overplot=True)
@@ -37,13 +43,17 @@ def plot_mx_jkz(parser):
     if options.Z < 0.01: zstr= r'$Z = %.3f$' % options.Z
     else: zstr= r'$Z = %.2f$' % options.Z
     bovy_plot.bovy_text(zstr,
-                        bottom_left=True,size=16.)
+                        bottom_right=True,size=20.)
     if options.basti:
-        bovy_plot.bovy_text(r'$\mathrm{BaSTI}$',title=True,size=16.)
+        bovy_plot.bovy_text(r'$\mathrm{BaSTI}$',title=True,size=20.)
     elif options.parsec:
-        bovy_plot.bovy_text(r'$\mathrm{PARSEC}$',title=True,size=16.)
+        pyplot.annotate(r'$\mathrm{PARSEC}$',(0.5,1.08),
+                        xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=20.)
+        #bovy_plot.bovy_text(r'$\mathrm{PARSEC}$',title=True,size=20.)
     else:
-        bovy_plot.bovy_text(r'$\mathrm{Padova}$',title=True,size=16.)
+        bovy_plot.bovy_text(r'$\mathrm{Padova}$',title=True,size=20.)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
 
