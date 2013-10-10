@@ -3,12 +3,14 @@ import cPickle as pickle
 from optparse import OptionParser
 import numpy
 from scipy import maxentropy
+from galpy.util import multi, save_pickles
 import isodist
 import rcmodel
 def localzdist(z,zsolar=0.019):
+    #From 2 Gaussian XD fit to Casagrande et al. (2011)
     feh= isodist.Z2FEH(z,zsolar=zsolar)
-    logfehdist= maxentropy.logsumexp([numpy.log(0.9)-numpy.log(0.14)-0.5*(feh+0.13)**2./0.14**2.,
-numpy.log(0.1)-numpy.log(0.36)-0.5*(feh+0.41)**2./0.36**2.])
+    logfehdist= maxentropy.logsumexp([numpy.log(0.8)-numpy.log(0.15)-0.5*(feh-0.016)**2./0.15**2.,
+                                      numpy.log(0.2)-numpy.log(0.22)-0.5*(feh+0.15)**2./0.22**2.])
     return logfehdist-numpy.log(z)
                                       
 def calc_avg_rcmks(parser):
@@ -19,7 +21,7 @@ def calc_avg_rcmks(parser):
     mks= numpy.linspace(-0.5,-3.,nmks)
     if options.basti:
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
-        zsolar= 0.0198
+        zsolar= 0.019
     elif options.parsec:
         zs= numpy.arange(0.0005,0.06005,0.0005)
 #        zs= numpy.array([0.01,0.02])
@@ -28,25 +30,44 @@ def calc_avg_rcmks(parser):
         zs= numpy.arange(0.0005,0.03005,0.0005)
 #        zs= numpy.array([0.01,0.02])
         zsolar= 0.019
-    logpz= localzdist(zs,zsolar=zsolar)
-    logmkp= numpy.zeros((len(zs),njks,nmks))
-    logp= numpy.zeros((len(zs),njks,nmks))
-    for ii in range(len(zs)):
-        print zs[ii]
-        rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
-                            band=options.band,basti=options.basti,
-                            imfmodel=options.imfmodel,
-                            expsfh=options.expsfh,
-                            parsec=options.parsec,
-                            stage=options.stage)
-        for jj in range(njks):
-            for kk in range(nmks):
-                logmkp[ii,jj,kk]= logpz[ii]+rc(jks[jj],mks[kk])+numpy.log(-mks[kk])
-                logp[ii,jj,kk]= logpz[ii]+rc(jks[jj],mks[kk])
+    if not os.path.exists(options.outfilename):
+        logpz= localzdist(zs,zsolar=zsolar)
+        logmkp= numpy.zeros((len(zs),njks,nmks))
+        logp= numpy.zeros((len(zs),njks,nmks))      
+        funcargs= (zs,options,njks,jks,nmks,mks,logpz)
+        multOut= multi.parallel_map((lambda x: indiv_calc(x,
+                                                          *funcargs)),
+                                    range(len(zs)),
+                                    numcores=numpy.amin([64,len(zs),
+                                                         multiprocessing.cpu_count()]))
+        for ii in range(len(zs)):
+            logmkp[ii,:,:]= out[ii][0,:,:]
+            logp[ii,:,:]= out[ii][1,:,:]
+        save_pickles(options.outfilename,logmkp,logp)
+    else:
+        savefile= open(options.outfilename,'rb')
+        logmkp= pickle.load(savefile)
+        logp= pickle.load(savefile)
+        savefile.close()
     avgmk= numpy.exp(maxentropy.logsumexp(logmkp.flatten())\
                          -maxentropy.logsumexp(logp.flatten()))
     print "Average mk: %f" % (-avgmk)
     return -avgmk
+
+def indiv_calc(x,zs,options.njks,jks,nmks,mks,logpz):
+    print zs[ii]
+    out= numpy.empty((2,njks,nmks))
+    rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
+                        band=options.band,basti=options.basti,
+                        imfmodel=options.imfmodel,
+                        expsfh=options.expsfh,
+                        parsec=options.parsec,
+                        stage=options.stage)
+    for jj in range(njks):
+        for kk in range(nmks):
+            out[0,jj,kk]= logpz[ii]+rc(jks[jj],mks[kk])+numpy.log(-mks[kk])
+            out[1,jj,kk]= logpz[ii]+rc(jks[jj],mks[kk])
+    return out
 
 def get_options():
     usage = "usage: %prog [options] savefilename"
