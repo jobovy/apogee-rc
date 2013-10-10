@@ -23,33 +23,43 @@ import dens_kde
 def jkzcut(jk,upper=False):
     """Return the cut in jk-Z"""
     if upper:
-        alpha= 4.
+        alpha= 3.
         x= 0.4
-        A= 0.022/((0.6-x)**alpha-(0.5-x)**alpha)
-        B= 0.03-A*(0.6-x)**alpha
+        #A= 0.022/((0.6-x)**alpha-(0.5-x)**alpha)
+        #B= 0.03-A*(0.6-x)**alpha
+        A= 0.054/((0.685-x)**alpha-(0.5-x)**alpha)
+        B= 0.06-A*(0.685-x)**alpha
+        #print A, B, alpha
         return A*(jk-x)**alpha+B
     else:
-        alpha= 5.
+        alpha= 6.
         x= 0.225
-        A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
-        B= 0.03-A*(0.73-x)**alpha
+        #A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
+        #B= 0.03-A*(0.73-x)**alpha
+        A= 0.058/((0.77-x)**alpha-(0.5-x)**alpha)
+        B= 0.06-A*(0.77-x)**alpha
+        #print A, B, alpha
         return A*(jk-x)**alpha+B
 def zjkcut(z,upper=False):
     """Return the cut in Z-jk"""
     if upper:
-        alpha= 4.
+        alpha= 3.
         x= 0.4
-        A= 0.022/((0.6-x)**alpha-(0.5-x)**alpha)
-        B= 0.03-A*(0.6-x)**alpha
+        #A= 0.022/((0.6-x)**alpha-(0.5-x)**alpha)
+        #B= 0.03-A*(0.6-x)**alpha
+        A= 0.054/((0.685-x)**alpha-(0.5-x)**alpha)
+        B= 0.06-A*(0.685-x)**alpha
         try:
             return ((z-B)/A)**(1./alpha)+x
         except ValueError:
             return 0.5
     else:
-        alpha= 5.
+        alpha= 6.
         x= 0.225
-        A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
-        B= 0.03-A*(0.73-x)**alpha
+        #A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
+        #B= 0.03-A*(0.73-x)**alpha
+        A= 0.058/((0.77-x)**alpha-(0.5-x)**alpha)
+        B= 0.06-A*(0.77-x)**alpha
         try:
             return ((z-B)/A)**(1./alpha)+x
         except ValueError:

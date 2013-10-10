@@ -2,7 +2,7 @@ import os, os.path
 import cPickle as pickle
 from optparse import OptionParser
 import numpy
-from galpy.util import bovy_plot, multi
+from galpy.util import bovy_plot, multi, save_pickles
 import multiprocessing
 from matplotlib import pyplot
 import rcmodel
@@ -24,20 +24,16 @@ def plot_vs_jkz(parser):
         njks= 101
         jks= numpy.linspace(0.5,0.8,njks)
         plotthis= numpy.zeros((njks,len(zs)))
-        args= (zs,options,njks,jks)
+        funcargs= (zs,options,njks,jks)
         multOut= multi.parallel_map((lambda x: indiv_calc(x,
-                                                          *args)),
+                                                          *funcargs)),
                                     range(len(zs)),
                                     numcores=numpy.amin([64,len(zs),
                                                          multiprocessing.cpu_count()]))
         for ii in range(len(zs)):
             plotthis[:,ii]= multOut[ii]
         #Save
-        savefile= open(args[0],'wb')
-        pickle.dump(plotthis,savefile)
-        pickle.dump(jks,savefile)
-        pickle.dump(zs,savefile)
-        savefile.close()
+        save_pickles(args[0],plotthis,jks,zs)
     #Plot
     if options.type == 'sig':
         if options.relative:
@@ -56,7 +52,7 @@ def plot_vs_jkz(parser):
             zlabel= r'$\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
     if options.basti:#Remap the Zs
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
-        regularzs= numpy.arange(0.0005,0.03005,0.0005)/0.019*0.0198
+        regularzs= numpy.arange(0.0005,0.04005,0.0005)
         njks= len(jks)
         regularplotthis= numpy.zeros((njks,len(regularzs)))
         for jj in range(len(regularzs)):
@@ -70,6 +66,10 @@ def plot_vs_jkz(parser):
         savefile= open(options.infilename,'rb')
         plotthisrel= pickle.load(savefile)
         savefile.close()
+        if options.basti:
+            plotthisrel= plotthisrel[:,:80]
+        elif not options.parsec:
+            plotthisrel= plotthisrel[:,:60]
         if options.type == 'mode':
             plotthis-= plotthisrel
         elif options.type == 'sig':
@@ -95,23 +95,22 @@ def plot_vs_jkz(parser):
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=16.)
-    elif options.parsec:
-        pass
-        pyplot.annotate(r'$\mathrm{PARSEC}$',
+    elif not options.parsec:
+        pyplot.annotate(r'$\mathrm{Padova}$',
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=16.)
     elif options.imfmodel == 'kroupa2003':
-        pyplot.annotate(r'$\mathrm{Padova, Kroupa\ (2003)\ IMF}$',
+        pyplot.annotate(r'$\mathrm{Kroupa\ (2003)\ IMF}$',
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=16.)
     elif 'expsfh' in args[0]:
-        pyplot.annotate(r'$\mathrm{Padova, p(\mathrm{Age}) \propto e^{\mathrm{Age}/(8\,\mathrm{Gyr})}}$',
+        pyplot.annotate(r'$\mathrm{p(\mathrm{Age}) \propto e^{\mathrm{Age}/(8\,\mathrm{Gyr})}}$',
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=16.)
-    else:
+    elif False:
         pyplot.annotate(r'$\mathrm{Padova}$',
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',

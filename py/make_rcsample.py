@@ -19,8 +19,8 @@ def make_rcsample(savefilename):
     jk= data['J0']-data['K0']
     z= isodist.FEH2Z(data['METALS'])
     logg= data['LOGG']
-    indx= (jk < 0.75)*(jk > 0.5)\
-        *(z <= 0.03)\
+    indx= (jk < 0.8)*(jk > 0.5)\
+        *(z <= 0.06)\
         *(z <= rcmodel.jkzcut(jk,upper=True))\
         *(z >= rcmodel.jkzcut(jk))\
         *(logg >= 1.8)\

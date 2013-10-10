@@ -45,7 +45,11 @@ def plot_mx_jkz(parser):
     bovy_plot.bovy_text(zstr,
                         bottom_right=True,size=20.)
     if options.basti:
-        bovy_plot.bovy_text(r'$\mathrm{BaSTI}$',title=True,size=20.)
+        pyplot.annotate(r'$\mathrm{BaSTI}$',(0.5,1.08),
+                        xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=20.)
+        #bovy_plot.bovy_text(r'$\mathrm{BaSTI}$',title=True,size=20.)
     elif options.parsec:
         pyplot.annotate(r'$\mathrm{PARSEC}$',(0.5,1.08),
                         xycoords='axes fraction',
@@ -53,7 +57,11 @@ def plot_mx_jkz(parser):
                         verticalalignment='top',size=20.)
         #bovy_plot.bovy_text(r'$\mathrm{PARSEC}$',title=True,size=20.)
     else:
-        bovy_plot.bovy_text(r'$\mathrm{Padova}$',title=True,size=20.)
+        pyplot.annotate(r'$\mathrm{Padova}$',(0.5,1.08),
+                        xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=20.)
+        #bovy_plot.bovy_text(r'$\mathrm{Padova}$',title=True,size=20.)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
 
