@@ -1,6 +1,7 @@
 import os, os.path
 import cPickle as pickle
 from optparse import OptionParser
+import multiprocessing
 import numpy
 from scipy import maxentropy
 from galpy.util import multi, save_pickles
@@ -41,20 +42,34 @@ def calc_avg_rcmks(parser):
                                     numcores=numpy.amin([64,len(zs),
                                                          multiprocessing.cpu_count()]))
         for ii in range(len(zs)):
-            logmkp[ii,:,:]= out[ii][0,:,:]
-            logp[ii,:,:]= out[ii][1,:,:]
+            logmkp[ii,:,:]= multOut[ii][0,:,:]
+            logp[ii,:,:]= multOut[ii][1,:,:]
         save_pickles(options.outfilename,logmkp,logp)
     else:
         savefile= open(options.outfilename,'rb')
         logmkp= pickle.load(savefile)
         logp= pickle.load(savefile)
         savefile.close()
+    indx= numpy.isnan(logp)
+    logp[indx]= -numpy.finfo(numpy.dtype(numpy.float64)).max
+    logmkp[indx]= -numpy.finfo(numpy.dtype(numpy.float64)).max
+    #Average the peak, so calculate the peak
+    for ii in range(len(zs)):
+        for jj in range(njks):
+            maxmkindx= numpy.argmax(logp[ii,jj,:])
+            totlogp= maxentropy.logsumexp(logp[ii,jj,:])
+            logmkp[ii,jj,:]= logmkp[ii,jj,maxmkindx]-logp[ii,jj,maxmkindx]+totlogp
+            logp[ii,jj,:]= totlogp
     avgmk= numpy.exp(maxentropy.logsumexp(logmkp.flatten())\
                          -maxentropy.logsumexp(logp.flatten()))
+    solindx= numpy.argmin(numpy.fabs(zs-0.017))
+    avgmksolar= numpy.exp(maxentropy.logsumexp(logmkp[solindx,:,:].flatten())\
+                              -maxentropy.logsumexp(logp[solindx,:,:].flatten()))
     print "Average mk: %f" % (-avgmk)
+    print "Average mk if solar: %f" % (-avgmksolar)
     return -avgmk
 
-def indiv_calc(x,zs,options.njks,jks,nmks,mks,logpz):
+def indiv_calc(ii,zs,options,njks,jks,nmks,mks,logpz):
     print zs[ii]
     out= numpy.empty((2,njks,nmks))
     rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
@@ -64,6 +79,11 @@ def indiv_calc(x,zs,options.njks,jks,nmks,mks,logpz):
                         parsec=options.parsec,
                         stage=options.stage)
     for jj in range(njks):
+        if zs[ii] > rcmodel.jkzcut(jks[jj],upper=True) \
+                or zs[ii] < rcmodel.jkzcut(jks[jj]):
+            out[0,jj,:]= -numpy.finfo(numpy.dtype(numpy.float64)).max
+            out[1,jj,:]= -numpy.finfo(numpy.dtype(numpy.float64)).max
+            continue
         for kk in range(nmks):
             out[0,jj,kk]= logpz[ii]+rc(jks[jj],mks[kk])+numpy.log(-mks[kk])
             out[1,jj,kk]= logpz[ii]+rc(jks[jj],mks[kk])

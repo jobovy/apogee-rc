@@ -75,14 +75,14 @@ def astro_sampling(parser):
         zlabel= r'$\langle M_{\mathrm{RC}} \rangle \,(M_\odot)$'
         cmap= 'gist_yarg'
     elif options.type == 'omega':
-        vmin, vmax= 0.,.06
-        vmin2, vmax2= 0.,.03
+        vmin, vmax= 0.,.03
+        vmin2, vmax2= 0.,.015
         zlabel= r'$\mathrm{Mass\ fraction\ in\ RC\ stars\ (\%)}$'
         cmap= 'gist_yarg'
         plotthis*= 100.
     elif options.type == 'numfrac':
-        vmin, vmax= 0.,0.014
-        vmin2, vmax2= 0.,0.01
+        vmin, vmax= 0.,0.005
+        vmin2, vmax2= 0.,0.004
         zlabel= r'$\mathrm{Number\ fraction\ in\ RC\ stars\ (\%)}$'
         cmap= 'gist_yarg'
         plotthis*= 100.
@@ -158,10 +158,10 @@ def astro_sampling(parser):
                         verticalalignment='top',size=16.)
     elif options.parsec:
         pass
-        pyplot.annotate(r'$\mathrm{PARSEC}$',
-                        (0.5,1.08),xycoords='axes fraction',
-                        horizontalalignment='center',
-                        verticalalignment='top',size=16.)
+        #pyplot.annotate(r'$\mathrm{PARSEC}$',
+        #                (0.5,1.08),xycoords='axes fraction',
+        #                horizontalalignment='center',
+        #                verticalalignment='top',size=16.)
     else:
         pyplot.annotate(r'$\mathrm{Padova}$',
                         (0.5,1.08),xycoords='axes fraction',
