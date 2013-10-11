@@ -70,6 +70,59 @@ def plot_metallicity(basesavefilename):
              vmin=-0.1,vmax=0.1,submediany=True)
     #bovy_plot.bovy_text(r'$|Z| < 250\,\mathrm{pc}$',bottom_left=True,size=18.)
     bovy_plot.bovy_end_print(basesavefilename+'_RPHI.'+_EXT)
+    # vs. alpha
+    #First read the sample
+    data= apread.rcsample()
+    #Cut
+    indx= (numpy.fabs(data['RC_GALZ']) < 0.1)*(data['METALS'] > -1000.)
+    data= data[indx]
+    bovy_plot.bovy_print()
+    bovy_plot.bovy_plot(data['METALS'],data['ALPHAFE'],'k.',ms=2.,
+                        xlabel=r'$[\mathrm{Fe/H}]\,(\mathrm{dex})$',
+                        ylabel=r'$[\alpha/\mathrm{Fe}]\,(\mathrm{dex})$',
+                        xrange=[-1.,0.5],
+                        yrange=[-0.15,0.35],
+                        onedhists=True,bins=31)
+    bovy_plot.bovy_text(r'$|Z| < 100\,\mathrm{pc}$',top_right=True,size=18.)
+    bovy_plot.bovy_text(r'$\mathrm{raw\ sample\ counts}$',
+                        bottom_left=True,size=18.)  
+    bovy_plot.bovy_end_print(basesavefilename+'_alpha.'+_EXT)
+    # vs. alpha
+    #First read the sample
+    data= apread.rcsample()
+    #Cut
+    indx= (numpy.fabs(data['RC_GALZ']) > 0.5)*\
+        (numpy.fabs(data['RC_GALZ']) < 1.)*\
+        (data['METALS'] > -1000.)
+    data= data[indx]
+    bovy_plot.bovy_print()
+    bovy_plot.bovy_plot(data['METALS'],data['ALPHAFE'],'k.',ms=2.,
+                        xlabel=r'$[\mathrm{Fe/H}]\,(\mathrm{dex})$',
+                        ylabel=r'$[\alpha/\mathrm{Fe}]\,(\mathrm{dex})$',
+                        xrange=[-1.,0.5],
+                        yrange=[-0.15,0.35],onedhists=True,bins=31)
+    bovy_plot.bovy_text(r'$0.5\,\mathrm{kpc} < |Z| < 1\,\mathrm{kpc}$',top_right=True,size=18.)
+    bovy_plot.bovy_text(r'$\mathrm{raw\ sample\ counts}$',
+                        bottom_left=True,size=18.)  
+    bovy_plot.bovy_end_print(basesavefilename+'_alpha_0.5z1.'+_EXT)
+    # vs. alpha
+    #First read the sample
+    data= apread.rcsample()
+    #Cut
+    indx= (numpy.fabs(data['RC_GALZ']) > 1.)*\
+        (numpy.fabs(data['RC_GALZ']) < 2.)*\
+        (data['METALS'] > -1000.)
+    data= data[indx]
+    bovy_plot.bovy_print()
+    bovy_plot.bovy_plot(data['METALS'],data['ALPHAFE'],'k.',ms=2.,
+                        xlabel=r'$[\mathrm{Fe/H}]\,(\mathrm{dex})$',
+                        ylabel=r'$[\alpha/\mathrm{Fe}]\,(\mathrm{dex})$',
+                        xrange=[-1.,0.5],
+                        yrange=[-0.15,0.35],onedhists=True,bins=21)
+    bovy_plot.bovy_text(r'$1\,\mathrm{kpc} < |Z| < 2\,\mathrm{kpc}$',top_right=True,size=18.)
+    bovy_plot.bovy_text(r'$\mathrm{raw\ sample\ counts}$',
+                        bottom_left=True,size=18.)  
+    bovy_plot.bovy_end_print(basesavefilename+'_alpha_1z2.'+_EXT)
 
 def linfit(x,slope,zeropoint):
     return slope*(x-8.)+zeropoint
