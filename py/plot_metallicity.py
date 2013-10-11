@@ -43,7 +43,7 @@ def plot_metallicity(basesavefilename):
                         bestfit[0][0]*((rs+0.5*(rs[1]-rs[0])-8.))+bestfit[0][1],
                         'k--',overplot=True)
     bovy_plot.bovy_text(r'$|Z| < 50\,\mathrm{pc}$',top_right=True,size=18.)
-    bovy_plot.bovy_text(r'$[\mathrm{Fe/H}] = %.2f\,(R-8\,\mathrm{kpc}) + %.2f$' % (bestfit[0][0],bestfit[0][1]),
+    bovy_plot.bovy_text(r'$[\mathrm{Fe/H}] = %.2f\,\frac{\mathrm{dex}}{\mathrm{kpc}}\,(R-8\,\mathrm{kpc}) + %.2f$' % (bestfit[0][0],bestfit[0][1]),
                         bottom_left=True,size=18.)
     bovy_plot.bovy_end_print(basesavefilename+'_radialgradient.'+_EXT)
     #Now plot azimuthal stuff
