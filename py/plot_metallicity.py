@@ -123,6 +123,33 @@ def plot_metallicity(basesavefilename):
     bovy_plot.bovy_text(r'$\mathrm{raw\ sample\ counts}$',
                         bottom_left=True,size=18.)  
     bovy_plot.bovy_end_print(basesavefilename+'_alpha_1z2.'+_EXT)
+    # vs. alpha
+    #First read the sample
+    data= apread.rcsample()
+    #Cut
+    indx= (((data['APOGEE_TARGET1'] & 2**11) != 0)\
+               +((data['APOGEE_TARGET1'] & 2**12) != 0)\
+               +((data['APOGEE_TARGET1'] & 2**13) != 0))*\
+               (data['METALS'] > -1000.)
+    data= data[indx]
+    hist, edges= numpy.histogramdd(numpy.array([data['METALS'],
+                                                data['ALPHAFE']]).T,
+                                   bins=[15,10],
+                                   range=[[-1.,0.5],[-0.15,0.35]])
+    bovy_plot.bovy_print()
+    bovy_plot.bovy_dens2d(hist.T,contours=False,shrink=0.78,
+                          cmap='gist_yarg',origin='lower',
+                          xrange=[-1.,0.5],yrange=[-0.15,0.35],
+                          vmin=50.,vmax=1000.,
+                          xlabel=r'$[\mathrm{Fe/H}]\,(\mathrm{dex})$',
+                          ylabel=r'$[\alpha/\mathrm{Fe}]\,(\mathrm{dex})$',
+                          interpolation='nearest',
+                          colorbar=True)
+    bovy_plot.bovy_text(r'$\mathrm{main\ sample}$',
+                        top_right=True,size=18.)
+    bovy_plot.bovy_text(r'$\mathrm{raw\ sample\ counts}$',
+                        bottom_left=True,size=18.)  
+    bovy_plot.bovy_end_print(basesavefilename+'_alpha_main.'+_EXT)
 
 def linfit(x,slope,zeropoint):
     return slope*(x-8.)+zeropoint
