@@ -116,7 +116,7 @@ def astro_sampling(parser):
                           overplot=True)
     extent= xlimits+ylimits
     pyplot.axis(extent)
-    bovy_plot._add_axislabels(r'$Z/Z_\odot$',
+    bovy_plot._add_axislabels(r'$Z$',
                               r'$\log_{10}\,\mathrm{Age} / 1\,\mathrm{Gyr}$')
     bovy_plot._add_ticks()
     left, bottom, width, height= 0.1, 0.68, 0.64, 0.2
