@@ -16,7 +16,7 @@ if __name__ == '__main__':
     cohorts= ['short','medium','long']
     for cohort in cohorts:
         bovy_plot.bovy_print(fig_width=8.,fig_height=4.)
-        apo.plot_obs_progress(cohort=cohort)
+        apo.plot_obs_progress(cohort=cohort,add_cohort_label=True)
         bovy_plot.bovy_end_print('../tex-catalog/obsprogress-%s.%s' % (cohort,_EXT))
     #Now plot the color-magnitude diagram
     bovy_plot.bovy_print()
