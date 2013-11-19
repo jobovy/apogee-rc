@@ -30,9 +30,9 @@ if __name__ == '__main__':
     apo.plot_selfunc_xy(type='rz',vmax=15.)
     bovy_plot.bovy_end_print('../tex-catalog/sfrz.%s' % _EXT)
     #Now calculate the KS probabilities and plot the histogram
-    ksshort= apo.check_consistency('all','short')
-    ksmedium= apo.check_consistency('all','medium')
-    kslong= apo.check_consistency('all','long')
+    ksshort= apo.check_consistency('short','short')
+    ksmedium= apo.check_consistency('medium','medium')
+    kslong= apo.check_consistency('long','long')
     xrange= [0.,1.]
     bovy_plot.bovy_print()
     bovy_plot.bovy_hist(ksshort,range=xrange,bins=21,
