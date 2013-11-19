@@ -127,10 +127,8 @@ def plot_metallicity(basesavefilename):
     #First read the sample
     data= apread.rcsample()
     #Cut
-    indx= (((data['APOGEE_TARGET1'] & 2**11) != 0)\
-               +((data['APOGEE_TARGET1'] & 2**12) != 0)\
-               +((data['APOGEE_TARGET1'] & 2**13) != 0))*\
-               (data['METALS'] > -1000.)
+    indx= (data['STAT'] == 1)*\
+        (data['METALS'] > -1000.)
     data= data[indx]
     hist, edges= numpy.histogramdd(numpy.array([data['METALS'],
                                                 data['ALPHAFE']]).T,

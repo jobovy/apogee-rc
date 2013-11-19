@@ -52,9 +52,14 @@ def make_rcsample(savefilename):
     #Determine statistical sample and add flag
     apo= apogee.select.apogeeSelect()
     statIndx= apo.determine_statistical(data)
+    mainIndx= indx= (((data['APOGEE_TARGET1'] & 2**11) != 0)+((data['APOGEE_TARGET1'] & 2**12) != 0)+((data['APOGEE_TARGET1'] & 2**13) != 0))\
+        *((data['APOGEE_TARGET1'] & 2**7) == 0)\
+        *((data['APOGEE_TARGET1'] & 2**8) == 0)\
+        *((data['APOGEE_TARGET1'] & 2**17) == 0)\
+        *((data['APOGEE_TARGET2'] & 2**9) == 0)
     data= esutil.numpy_util.add_fields(data,[('STAT',int)])
     data['STAT']= 0
-    data['STAT'][statIndx]= 1
+    data['STAT'][statIndx*mainIndx]= 1
     #Get proper motions
     pmfile= savefilename.split('.')[0]+'_pms.fits'
     if os.path.exists(pmfile):
