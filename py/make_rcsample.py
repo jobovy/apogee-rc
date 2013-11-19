@@ -9,6 +9,7 @@ import astropy.coordinates as coord
 from galpy.util import bovy_coords
 import isodist
 import apogee.tools.read as apread
+import apogee.select.apogeeSelect
 import rcmodel
 _ADDHAYDENDIST= False
 _ERASESTR= "                                                                                "
@@ -48,6 +49,12 @@ def make_rcsample(savefilename):
     data['RC_GALR']= R
     data['RC_GALPHI']= phi
     data['RC_GALZ']= Z
+    #Determine statistical sample and add flag
+    apo= apogee.select.apogeeSelect()
+    statIndx= apo.determine_statistical(data)
+    data= esutil.numpy_util.add_fields(data,[('STAT',int)])
+    data['STAT']= 0
+    data['STAT'][statIndx]= 1
     #Get proper motions
     pmfile= savefilename.split('.')[0]+'_pms.fits'
     if os.path.exists(pmfile):
