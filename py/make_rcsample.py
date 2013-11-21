@@ -57,7 +57,7 @@ def make_rcsample(savefilename):
         *((data['APOGEE_TARGET1'] & 2**8) == 0)\
         *((data['APOGEE_TARGET1'] & 2**17) == 0)\
         *((data['APOGEE_TARGET2'] & 2**9) == 0)
-    data= esutil.numpy_util.add_fields(data,[('STAT',int)])
+    data= esutil.numpy_util.add_fields(data,[('STAT',numpy.int32)])
     data['STAT']= 0
     data['STAT'][statIndx*mainIndx]= 1
     #Get proper motions
@@ -120,7 +120,7 @@ def make_rcsample(savefilename):
                                              ('PMDEC', numpy.float),
                                              ('PMRA_ERR', numpy.float),
                                              ('PMDEC_ERR', numpy.float),
-                                             ('PMMATCH',int)])
+                                             ('PMMATCH',numpy.int32)])
     data['PMMATCH']= 0
     h=esutil.htm.HTM()
     m1,m2,d12 = h.match(pmdata['RA'],pmdata['DEC'],
@@ -130,7 +130,7 @@ def make_rcsample(savefilename):
     data['PMDEC'][m2]= pmdata['PMDEC'][m1]
     data['PMRA_ERR'][m2]= pmdata['PMRA_ERR'][m1]
     data['PMDEC_ERR'][m2]= pmdata['PMDEC_ERR'][m1]
-    data['PMMATCH'][m2]= pmdata['PMMATCH'][m1].astype(int)
+    data['PMMATCH'][m2]= pmdata['PMMATCH'][m1].astype(numpy.int32)
     pmindx= data['PMMATCH'] == 1
     data['PMRA'][True-pmindx]= -9999.99
     data['PMDEC'][True-pmindx]= -9999.99
@@ -224,7 +224,7 @@ def make_rcsample(savefilename):
                                              ('PMDEC_PPMXL', numpy.float),
                                              ('PMRA_ERR_PPMXL', numpy.float),
                                              ('PMDEC_ERR_PPMXL', numpy.float),
-                                             ('PMMATCH_PPMXL',int)])
+                                             ('PMMATCH_PPMXL',numpy.int32)])
     data['PMMATCH_PPMXL']= 0
     h=esutil.htm.HTM()
     m1,m2,d12 = h.match(pmdata['RA'],pmdata['DEC'],
@@ -234,7 +234,7 @@ def make_rcsample(savefilename):
     data['PMDEC_PPMXL'][m2]= pmdata['PMDEC'][m1]
     data['PMRA_ERR_PPMXL'][m2]= pmdata['PMRA_ERR'][m1]
     data['PMDEC_ERR_PPMXL'][m2]= pmdata['PMDEC_ERR'][m1]
-    data['PMMATCH_PPMXL'][m2]= pmdata['PMMATCH'][m1].astype(int)
+    data['PMMATCH_PPMXL'][m2]= pmdata['PMMATCH'][m1].astype(numpy.int32)
     pmindx= data['PMMATCH_PPMXL'] == 1
     data['PMRA_PPMXL'][True-pmindx]= -9999.99
     data['PMDEC_PPMXL'][True-pmindx]= -9999.99
