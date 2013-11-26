@@ -168,6 +168,8 @@ def get_options():
                       help="If set, plot relative surface")
     parser.add_option("--feh",dest='feh',default=0.,type='float',
                       help="Metallicity range to use")
+    parser.add_option("--zsolar",dest='zsolar',default=0.017,type='float',
+                      help="Solar Z")
     return parser
     
 if __name__ == '__main__':
