@@ -170,6 +170,12 @@ def get_options():
                       help="Metallicity range to use")
     parser.add_option("--zsolar",dest='zsolar',default=0.017,type='float',
                       help="Solar Z")
+    parser.add_option("--allapogee",action="store_true", dest="allapogee",
+                      default=False,
+                      help="If set, plot astro_sampling for all of APOGEE")
+    parser.add_option("--redapogee",action="store_true", dest="redapogee",
+                      default=False,
+                      help="If set, plot astro_sampling for APOGEE J-Ks > 0.8")
     return parser
     
 if __name__ == '__main__':

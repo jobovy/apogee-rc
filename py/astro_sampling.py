@@ -31,18 +31,29 @@ def astro_sampling(parser):
         plotthis= numpy.zeros((len(zs),nages))
         for ii in range(len(zs)):
             print zs[ii]
-            rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
-                                band=options.band,basti=options.basti,
-                                imfmodel=options.imfmodel,
-                                parsec=options.parsec)
+            if options.allapogee or options.redapogee:
+                rc= rcmodel.rcmodel(Z=zs[ii],loggmax=3.5,
+                                    band=options.band,basti=options.basti,
+                                    imfmodel=options.imfmodel,
+                                    parsec=options.parsec)
+            else:
+                rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
+                                    band=options.band,basti=options.basti,
+                                    imfmodel=options.imfmodel,
+                                    parsec=options.parsec)
             for jj in range(nages):
                 jk= rc._jks
                 aindx= (rc._lages <= lages[jj]+dlages)\
-                    *(rc._lages > lages[jj]-dlages)\
-                    *(jk < 0.8)*(jk > 0.5)\
-                    *(zs[ii] <= rcmodel.jkzcut(jk,upper=True))\
-                    *(zs[ii] >= rcmodel.jkzcut(jk))\
-                    *(zs[ii] <= 0.06)
+                    *(rc._lages > lages[jj]-dlages)
+                if options.allapogee:
+                    aindx*= (jk > 0.5)
+                elif options.redapogee:
+                    aindx*= (jk > 0.8)
+                else:
+                    aindx*= (jk < 0.8)*(jk > 0.5)\
+                        *(zs[ii] <= rcmodel.jkzcut(jk,upper=True))\
+                        *(zs[ii] >= rcmodel.jkzcut(jk))\
+                        *(zs[ii] <= 0.06)
                 if options.type == 'omega':
                     try:
                         plotthis[ii,jj]= numpy.mean(rc._massweights[aindx])
