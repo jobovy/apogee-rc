@@ -112,8 +112,8 @@ def astro_sampling(parser):
         cmap= 'gist_yarg'
         plotthis*= 100.
     elif options.type == 'massperrc':
-        vmin, vmax= 0.,100.
-        vmin2, vmax2= 0.,100.
+        vmin, vmax= 6500.,164000.
+        vmin2, vmax2= 0.,10000.
         zlabel= r'$\mathrm{Stellar\ population\ mass\ per\ RC\ star}$'
         cmap= 'gist_yarg'
     print numpy.nanmin(plotthis), numpy.nanmax(plotthis)
