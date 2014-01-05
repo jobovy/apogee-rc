@@ -22,6 +22,10 @@ def astro_sampling(parser):
         lages= pickle.load(savefile)
         savefile.close()
         dlages= (lages[1]-lages[0])
+        if options.type == 'massperrc':
+            savefile= open(args[1],'rb')
+            plotthis/= pickle.load(savefile)
+            savefile.close()
     else:
         nages= 31
         if options.type == 'omega' or options.type == 'numfrac':
@@ -97,6 +101,11 @@ def astro_sampling(parser):
         zlabel= r'$\mathrm{Number\ fraction\ in\ RC\ stars\ (\%)}$'
         cmap= 'gist_yarg'
         plotthis*= 100.
+    elif options.type == 'massperrc':
+        vmin, vmax= 0.,100.
+        vmin2, vmax2= 0.,100.
+        zlabel= r'$\mathrm{Stellar\ population\ mass\ per\ RC\ star}$'
+        cmap= 'gist_yarg'
     print numpy.nanmin(plotthis), numpy.nanmax(plotthis)
     if options.basti:#Remap the Zs
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
