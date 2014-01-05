@@ -12,6 +12,7 @@ def astro_sampling(parser):
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
     elif options.parsec:
         zs= numpy.arange(0.0005,0.06005,0.0005)
+        #zs= numpy.arange(0.0005,0.06005,0.005)
     else:
         zs= numpy.arange(0.0005,0.03005,0.0005)
         #zs= numpy.arange(0.0005,0.03005,0.005)
@@ -28,7 +29,8 @@ def astro_sampling(parser):
             savefile.close()
     else:
         nages= 31
-        if options.type == 'omega' or options.type == 'numfrac':
+        if options.type == 'omega' or options.type == 'numfrac' \
+                or options.coarseage:
             nages= 16
         lages= numpy.linspace(-1.,1.,nages)
         dlages= (lages[1]-lages[0])
@@ -92,7 +94,15 @@ def astro_sampling(parser):
     elif options.type == 'omega':
         vmin, vmax= 0.,.03
         vmin2, vmax2= 0.,.015
-        zlabel= r'$\mathrm{Mass\ fraction\ in\ RC\ stars\ (\%)}$'
+        if options.allapogee:
+            vmin, vmax= 0.,.035
+            zlabel= r'$\mathrm{Mass\ fraction\ in}\ (J-K_s)_0 > 0.5\ \mathrm{giants\ (\%)}$'
+        elif options.redapogee:
+            vmin, vmax= 0.,.005
+            vmin2, vmax2= 0.,.003
+            zlabel= r'$\mathrm{Mass\ fraction\ in}\ (J-K_s)_0 > 0.8\ \mathrm{giants\ (\%)}$'
+        else:
+            zlabel= r'$\mathrm{Mass\ fraction\ in\ RC\ stars\ (\%)}$'
         cmap= 'gist_yarg'
         plotthis*= 100.
     elif options.type == 'numfrac':

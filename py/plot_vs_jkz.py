@@ -176,6 +176,9 @@ def get_options():
     parser.add_option("--redapogee",action="store_true", dest="redapogee",
                       default=False,
                       help="If set, plot astro_sampling for APOGEE J-Ks > 0.8")
+    parser.add_option("--coarseage",action="store_true", dest="coarseage",
+                      default=False,
+                      help="If set, use a coarse age distribution for the average RC mass")
     return parser
     
 if __name__ == '__main__':
