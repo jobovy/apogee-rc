@@ -157,9 +157,14 @@ def astro_sampling(parser):
     exppage= 10.**lages*numpy.exp((10.**(lages+2.))/800.) #e.g., Binney (2010)
     exexppage= 10.**lages*numpy.exp((10.**(lages+2.))/100.) #e.g., Binney (2010)
     page= 10.**lages
-    mtrend= numpy.sum(page*plotthis,axis=1)/numpy.sum(page)
-    expmtrend= numpy.sum(exppage*plotthis,axis=1)/numpy.sum(exppage)
-    exexpmtrend= numpy.sum(exexppage*plotthis,axis=1)/numpy.sum(exexppage)
+    if options.type == 'massperrc':
+        mtrend= 1./numpy.sum(page*1./plotthis,axis=1)/numpy.sum(page)
+        expmtrend= 1./numpy.sum(exppage*1./plotthis,axis=1)/numpy.sum(exppage)
+        exexpmtrend= 1./numpy.sum(exexppage*1./plotthis,axis=1)/numpy.sum(exexppage)
+    else:
+        mtrend= numpy.sum(page*plotthis,axis=1)/numpy.sum(page)
+        expmtrend= numpy.sum(exppage*plotthis,axis=1)/numpy.sum(exppage)
+        exexpmtrend= numpy.sum(exexppage*plotthis,axis=1)/numpy.sum(exexppage)
     pyplot.plot(zs,mtrend,'k-')
     pyplot.plot(zs,expmtrend,'k--')
     pyplot.plot(zs,exexpmtrend,'k-.')
