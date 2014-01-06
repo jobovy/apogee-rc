@@ -27,6 +27,14 @@ def astro_sampling(parser):
             savefile= open(args[1],'rb')
             plotthis/= pickle.load(savefile)
             savefile.close()
+        if options.type == 'mass' and len(args) == 3:
+            #Also load mass_coarseage and omega
+            savefile= open(args[1],'rb')
+            masscoarse= pickle.load(savefile)
+            savefile.close()
+            savefile= open(args[1],'rb')
+            omega= pickle.load(savefile)
+            savefile.close()
     else:
         nages= 31
         if options.type == 'omega' or options.type == 'numfrac' \
@@ -114,7 +122,7 @@ def astro_sampling(parser):
     elif options.type == 'massperrc':
         vmin, vmax= 0.,50000.
         vmin2, vmax2= 0.,25000.
-        zlabel= r'$\mathrm{Stellar\ population\ mass\ per\ RC\ star}$'
+        zlabel= r'$\mathrm{Stellar\ population\ mass\ per\ RC\ star}\,(M_\odot)$'
         cmap= 'gist_yarg'
     print numpy.nanmin(plotthis), numpy.nanmax(plotthis)
     if options.basti:#Remap the Zs
@@ -153,14 +161,19 @@ def astro_sampling(parser):
     axTop= pyplot.axes([left,bottom,width,height])
     fig.sca(axTop)
     #Plot the average over SFH
+    lages= numpy.linspace(-1.,1.,16)
     mtrend= numpy.zeros(len(zs))
     exppage= 10.**lages*numpy.exp((10.**(lages+2.))/800.) #e.g., Binney (2010)
     exexppage= 10.**lages*numpy.exp((10.**(lages+2.))/100.) #e.g., Binney (2010)
     page= 10.**lages
     if options.type == 'massperrc':
-        mtrend= 1./numpy.sum(page*1./plotthis,axis=1)/numpy.sum(page)
-        expmtrend= 1./numpy.sum(exppage*1./plotthis,axis=1)/numpy.sum(exppage)
-        exexpmtrend= 1./numpy.sum(exexppage*1./plotthis,axis=1)/numpy.sum(exexppage)
+        mtrend= 1./(numpy.sum(page*1./plotthis,axis=1)/numpy.sum(page))
+        expmtrend= 1./(numpy.sum(exppage*1./plotthis,axis=1)/numpy.sum(exppage))
+        exexpmtrend= 1./(numpy.sum(exexppage*1./plotthis,axis=1)/numpy.sum(exexppage))
+    elif options.type == 'mass' and len(args) == 3:
+        mtrend= 1./(numpy.sum(page*1./(omega/masscoarse),axis=1)/numpy.sum(page))*numpy.sum(page*omega,axis=1)/numpy.sum(page)
+        expmtrend= 1./(numpy.sum(exppage*1./(omega/masscoarse),axis=1)/numpy.sum(exppage))*numpy.sum(exppage*omega,axis=1)/numpy.sum(exppage)
+        exexpmtrend= 1./(numpy.sum(exexppage*1./(omega/masscoarse),axis=1)/numpy.sum(exexppage))*numpy.sum(exexppage*omega,axis=1)/numpy.sum(exexppage)
     else:
         mtrend= numpy.sum(page*plotthis,axis=1)/numpy.sum(page)
         expmtrend= numpy.sum(exppage*plotthis,axis=1)/numpy.sum(exppage)
