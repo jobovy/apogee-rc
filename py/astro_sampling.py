@@ -1,7 +1,7 @@
 import os, os.path
 import cPickle as pickle
 import numpy
-from galpy.util import bovy_plot
+from galpy.util import bovy_plot, multi
 from matplotlib import pyplot
 from matplotlib.ticker import NullFormatter
 import rcmodel
@@ -43,46 +43,11 @@ def astro_sampling(parser):
         lages= numpy.linspace(-1.,1.,nages)
         dlages= (lages[1]-lages[0])
         plotthis= numpy.zeros((len(zs),nages))
+        multOut= multi.parallel_map(lambda x: _calc_one(zs[x],options,nages,lages,dlages),
+                                    range(len(zs)),
+                                    numcores=32)
         for ii in range(len(zs)):
-            print zs[ii]
-            if options.allapogee or options.redapogee:
-                rc= rcmodel.rcmodel(Z=zs[ii],loggmax=3.5,
-                                    band=options.band,basti=options.basti,
-                                    imfmodel=options.imfmodel,
-                                    parsec=options.parsec)
-            else:
-                rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
-                                    band=options.band,basti=options.basti,
-                                    imfmodel=options.imfmodel,
-                                    parsec=options.parsec)
-            for jj in range(nages):
-                jk= rc._jks
-                aindx= (rc._lages <= lages[jj]+dlages)\
-                    *(rc._lages > lages[jj]-dlages)
-                if options.allapogee:
-                    aindx*= (jk > 0.5)
-                elif options.redapogee:
-                    aindx*= (jk > 0.8)
-                else:
-                    aindx*= (jk < 0.8)*(jk > 0.5)\
-                        *(zs[ii] <= rcmodel.jkzcut(jk,upper=True))\
-                        *(zs[ii] >= rcmodel.jkzcut(jk))\
-                        *(zs[ii] <= 0.06)
-                if options.type == 'omega':
-                    try:
-                        plotthis[ii,jj]= numpy.mean(rc._massweights[aindx])
-                    except ValueError:
-                        plotthis[ii,jj]= numpy.nan
-                elif options.type == 'numfrac':
-                    try:
-                        plotthis[ii,jj]= numpy.mean(rc._weights[aindx])
-                    except ValueError:
-                        plotthis[ii,jj]= numpy.nan
-                elif options.type == 'mass':
-                    try:
-                        plotthis[ii,jj]= numpy.sum(rc._masses[aindx]*rc._weights[aindx])/numpy.sum(rc._weights[aindx])
-                    except ValueError:
-                        plotthis[ii,jj]= numpy.nan
+            plotthis[ii,:]= multOut[ii]
         #Save
         savefile= open(args[0],'wb')
         pickle.dump(plotthis,savefile)
@@ -161,7 +126,7 @@ def astro_sampling(parser):
     axTop= pyplot.axes([left,bottom,width,height])
     fig.sca(axTop)
     #Plot the average over SFH
-    lages= numpy.linspace(-1.,1.,16)
+    lages= numpy.linspace(-1.,1.,16)[aindx]
     mtrend= numpy.zeros(len(zs))
     exppage= 10.**lages*numpy.exp((10.**(lages+2.))/800.) #e.g., Binney (2010)
     exexppage= 10.**lages*numpy.exp((10.**(lages+2.))/100.) #e.g., Binney (2010)
@@ -218,6 +183,49 @@ def astro_sampling(parser):
     bovy_plot.bovy_end_print(options.outfilename)
     return None
 
+def _calc_one(z,options,nages,lages,dlages):
+    print z
+    if options.allapogee or options.redapogee:
+        rc= rcmodel.rcmodel(Z=z,loggmax=3.5,
+                            band=options.band,basti=options.basti,
+                            imfmodel=options.imfmodel,
+                            parsec=options.parsec)
+    else:
+        rc= rcmodel.rcmodel(Z=z,loggmin=1.8,loggmax=2.8,
+                            band=options.band,basti=options.basti,
+                            imfmodel=options.imfmodel,
+                            parsec=options.parsec)
+    out= numpy.zeros(nages)
+    for jj in range(nages):
+        jk= rc._jks
+        aindx= (rc._lages <= lages[jj]+dlages)\
+            *(rc._lages > lages[jj]-dlages)
+        if options.allapogee:
+            aindx*= (jk > 0.5)
+        elif options.redapogee:
+            aindx*= (jk > 0.8)
+        else:
+            aindx*= (jk < 0.8)*(jk > 0.5)\
+                *(z <= rcmodel.jkzcut(jk,upper=True))\
+                *(z >= rcmodel.jkzcut(jk))\
+                *(z <= 0.06)
+        if options.type == 'omega':
+            try:
+                out[jj]= numpy.mean(rc._massweights[aindx])
+            except ValueError:
+                out[jj]= numpy.nan
+        elif options.type == 'numfrac':
+            try:
+                out[jj]= numpy.mean(rc._weights[aindx])
+            except ValueError:
+                out[jj]= numpy.nan
+        elif options.type == 'mass':
+            try:
+                out[jj]= numpy.sum(rc._masses[aindx]*rc._weights[aindx])/numpy.sum(rc._weights[aindx])
+            except ValueError:
+                out[jj]= numpy.nan
+    return out
+                
 if __name__ == '__main__':
     parser= get_options()
     astro_sampling(parser)
