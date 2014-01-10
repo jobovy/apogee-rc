@@ -89,6 +89,10 @@ def astro_sampling(parser):
         vmin2, vmax2= 0.,25000.
         zlabel= r'$\mathrm{Stellar\ population\ mass\ per\ RC\ star}\,(M_\odot)$'
         cmap= 'gist_yarg'
+        if options.redapogee:
+            vmin, vmax= 0.,100000.
+            vmin2, vmax2= 0.,200000.
+            zlabel= r'$\mathrm{Mass\ fraction\ in}\ (J-K_s)_0 > 0.8\ \mathrm{giants\ (\%)}$'
     print numpy.nanmin(plotthis), numpy.nanmax(plotthis)
     if options.basti:#Remap the Zs
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
