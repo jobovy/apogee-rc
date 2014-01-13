@@ -3,10 +3,10 @@ import os, os.path
 import numpy
 import fitsio
 import esutil
+from galpy.util import bovy_coords
 from astroquery.vizier import Vizier
 from astropy import units as u
 import astropy.coordinates as coord
-from galpy.util import bovy_coords
 import isodist
 import apogee.tools.read as apread
 import apogee.select.apogeeSelect
