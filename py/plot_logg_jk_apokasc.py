@@ -66,6 +66,14 @@ def plot_logg_jk_apokasc(parser):
         outhist[ii,:]/= numpy.nanmax(outhist[ii,:])/numpy.nanmax(outhist)
         rev= copy.copy(outhist[ii,::-1]) #reverse, but in one go does not always work
         outhist[ii,:]= rev
+    if True:
+        #Reload apokasc data
+        data= apread.apokasc()
+        indx= (data['KASC_RG_LOGG_SCALE_2'] > 1.)\
+            *(data['KASC_RG_LOGG_SCALE_2'] < 3.5)\
+            *(data['METALS'] > options.feh-0.2)\
+            *(data['METALS'] <= options.feh+0.2)
+        data= data[indx]
     #Plot everything
     bovy_plot.bovy_print()
     bovy_plot.bovy_dens2d(outhist.T,origin='lower',cmap='gist_yarg',
@@ -77,9 +85,25 @@ def plot_logg_jk_apokasc(parser):
                           shrink=0.78,
                           interpolation='nearest')
     #Overplot APOKASC data
-    bovy_plot.bovy_plot(data['J0']-data['K0'],
-                        data['KASC_RG_LOGG_SCALE_2'],'bo',overplot=True,
-                        mec='none',ms=3.)
+    noseismo= data['SEISMO EVOL'] == 'UNKNOWN'
+    if numpy.sum(noseismo) > 0:
+        bovy_plot.bovy_plot(data['J0'][noseismo]-data['K0'][noseismo],
+                            data['KASC_RG_LOGG_SCALE_2'][noseismo],'bo',
+                            overplot=True,
+                            mec='none',ms=3.)
+    clumpseismo= data['SEISMO EVOL'] == 'CLUMP'
+    if numpy.sum(clumpseismo) > 0:
+        bovy_plot.bovy_plot(data['J0'][clumpseismo]-data['K0'][clumpseismo],
+                            data['KASC_RG_LOGG_SCALE_2'][clumpseismo],'yo',
+                            overplot=True,
+                            mec='none',ms=4.5)
+    noclumpseismo= (data['SEISMO EVOL'] == 'RGB') \
+        + (data['SEISMO EVOL'] == 'DWARF/SUBGIANT')
+    if numpy.sum(noclumpseismo) > 0:
+        bovy_plot.bovy_plot(data['J0'][noclumpseismo]-data['K0'][noclumpseismo],
+                            data['KASC_RG_LOGG_SCALE_2'][noclumpseismo],'ro',
+                            overplot=True,
+                            mec='none',ms=3.)
     bovy_plot.bovy_text(r'$%.1f < [\mathrm{M/H}] \leq %.1f$' % (options.feh-0.2,options.feh+0.2),
                         top_left=True,size=14.)
     bovy_plot.bovy_end_print(options.outfilename)
