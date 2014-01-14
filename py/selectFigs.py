@@ -71,11 +71,14 @@ if __name__ == '__main__':
                                    'k-',
                                    xlabel=r'$\mathrm{KS\ probability\ that\ the\ spectroscopic\ sample}$'+'\n'+r'$\mathrm{was\ drawn\ from\ the\ photometric\ sample}$'+'\n'+r'$\times\ \mathrm{the\ model\ selection\ function}$',
                                    ylabel=r'$\mathrm{cumulative\ distribution}$',
-                                   yrange=[0.,1.])                                
+                                   yrange=[0.,1.],
+                                   zorder=3)
     linemedium= bovy_plot.bovy_plot(sorted(ksmedium),
                                     numpy.linspace(1./len(ksmedium),1.,len(ksmedium)),
-                                    'k--',overplot=True)
+                                    'k--',overplot=True,zorder=2)
     linelong= bovy_plot.bovy_plot(sorted(kslong),
                                   numpy.linspace(1./len(kslong),1.,len(kslong)),
-                                  'k-.',overplot=True)
+                                  'k-.',overplot=True,zorder=1)
+    bovy_plot.bovy_plot([0.,1.],[0.,1.],'-',color='0.5',lw=2.,overplot=True,
+                        zorder=0)
     bovy_plot.bovy_end_print('../tex-catalog/sfks_cumul.%s' % _EXT)

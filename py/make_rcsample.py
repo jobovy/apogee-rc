@@ -5,6 +5,7 @@ import fitsio
 import esutil
 from galpy.util import bovy_coords
 from astroquery.vizier import Vizier
+import astroquery
 from astropy import units as u
 import astropy.coordinates as coord
 import isodist
@@ -52,14 +53,17 @@ def make_rcsample(savefilename):
     #Determine statistical sample and add flag
     apo= apogee.select.apogeeSelect()
     statIndx= apo.determine_statistical(data)
-    mainIndx= indx= (((data['APOGEE_TARGET1'] & 2**11) != 0)+((data['APOGEE_TARGET1'] & 2**12) != 0)+((data['APOGEE_TARGET1'] & 2**13) != 0))\
-        *((data['APOGEE_TARGET1'] & 2**7) == 0)\
-        *((data['APOGEE_TARGET1'] & 2**8) == 0)\
-        *((data['APOGEE_TARGET1'] & 2**17) == 0)\
-        *((data['APOGEE_TARGET2'] & 2**9) == 0)
-    data= esutil.numpy_util.add_fields(data,[('STAT',numpy.int32)])
+    mainIndx= apread.mainIndx(data)
+    data= esutil.numpy_util.add_fields(data,[('STAT',numpy.int32),
+                                             ('INVSF',float)])
     data['STAT']= 0
     data['STAT'][statIndx*mainIndx]= 1
+    for ii in range(len(data)):
+        if (statIndx*mainIndx)[ii]:
+            data['INVSF'][ii]= 1./apo(data['LOCATION_ID'][ii],
+                                      data['H'][ii])
+        else:
+            data['INVSF']= -1.
     #Get proper motions
     pmfile= savefilename.split('.')[0]+'_pms.fits'
     if os.path.exists(pmfile):
@@ -80,7 +84,14 @@ def make_rcsample(savefilename):
             co= coord.ICRSCoordinates(ra=data['RA'][ii],
                                       dec=data['DEC'][ii],
                                       unit=(u.degree, u.degree))
-            tab= v.query_region(co,rad,catalog='I/322') #UCAC-4 catalog
+            trying= True
+            while trying:
+                try:
+                    tab= v.query_region(co,rad,catalog='I/322') #UCAC-4 catalog
+                except astroquery.exceptions.TimeoutError:
+                    pass
+                else:
+                    trying= False
             if len(tab) == 0:
                 pmdata.PMMATCH[ii]= 0
                 print "Didn't find a match for %i ..." % ii
@@ -95,7 +106,14 @@ def make_rcsample(savefilename):
                 jj= 1
                 while len(tab[0]['pmRA']) > 1 and jj < 4: 
                     trad= u.Quantity((4.-jj)/3600.,u.degree)
-                    tab= v.query_region(co,trad,catalog='I/322') #UCAC-4 catalog
+                    trying= True
+                    while trying:
+                        try:
+                            tab= v.query_region(co,trad,catalog='I/322') #UCAC-4 catalog
+                        except astroquery.exceptions.TimeoutError:
+                            pass
+                        else:
+                            trying= False
                     jj+= 1
                 if len(tab) == 0:
                     pmdata.PMMATCH[ii]= 0
@@ -183,7 +201,14 @@ def make_rcsample(savefilename):
             co= coord.ICRSCoordinates(ra=data['RA'][ii],
                                       dec=data['DEC'][ii],
                                       unit=(u.degree, u.degree))
-            tab= v.query_region(co,rad,catalog='I/317') #PPMXL catalog
+            trying= True
+            while trying:
+                try:
+                    tab= v.query_region(co,rad,catalog='I/317') #PPMXL catalog
+                except astroquery.exceptions.TimeoutError:
+                    pass
+                else:
+                    trying= False
             if len(tab) == 0:
                 pmdata.PMMATCH[ii]= 0
                 print "Didn't find a match for %i ..." % ii
