@@ -63,7 +63,7 @@ def make_rcsample(savefilename):
             data['INVSF'][ii]= 1./apo(data['LOCATION_ID'][ii],
                                       data['H'][ii])
         else:
-            data['INVSF']= -1.
+            data['INVSF'][ii]= -1.
     #Get proper motions
     pmfile= savefilename.split('.')[0]+'_pms.fits'
     if os.path.exists(pmfile):
