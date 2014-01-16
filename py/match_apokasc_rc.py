@@ -1,7 +1,9 @@
 import numpy
 import esutil
 from galpy.util import bovy_plot
+import isodist
 import apogee.tools.read as apread
+import rcmodel
 def match_apokasc_rc():
     #First read apokasc
     kascdata= apread.apokasc()
@@ -74,4 +76,40 @@ if __name__ == '__main__':
                         onedhistxnormed=True,onedhistynormed=True,
                         onedhistcolor='k',zorder=0,bins=30)
     bovy_plot.bovy_end_print('apokasc_rclogg_metalsafe.png')
-
+    bloggindx= (data['LOGG'] >= 1.8)*(data['LOGG'] <= 2.8)
+    gloggindx= (data['KASC_RG_LOGG_SCALE_2'] < 1.8)+(data['KASC_RG_LOGG_SCALE_2'] > 2.8)
+    print "Current contamination in logg range %i / % i = %i%%" % (numpy.sum(bloggindx*gloggindx),len(data),float(numpy.sum(bloggindx*gloggindx))*100./len(data))
+    nlogg= data['KASC_RG_LOGG_SCALE_2']+numpy.random.normal(size=len(data))*0.2
+    bloggindx= (nlogg >= 1.8)*(nlogg <= 2.8)
+    print "Future contamination w/ good logg (unbiased, errors 0.2) in logg range %i / % i = %i%%" % (numpy.sum(bloggindx*gloggindx),len(data),float(numpy.sum(bloggindx*gloggindx))*100./len(data))
+    print "Future contamination w/ good logg (unbiased, errors 0.2) for just RC in logg range %i / % i = %i%%" % (numpy.sum(bloggindx*gloggindx*rcindx),numpy.sum(rcindx),float(numpy.sum(bloggindx*gloggindx*rcindx))*100./numpy.sum(rcindx))
+    #Select stars to be in the RC from the APOKASC data, then check against 
+    #evolutionary state
+    jk= data['J0']-data['K0']
+    z= isodist.FEH2Z(data['METALS'],zsolar=0.017)
+    logg= data['KASC_RG_LOGG_SCALE_2']+numpy.random.normal(size=len(data))*0. #can adjust this to look at errors
+    indx= (jk < 0.8)*(jk >= 0.5)\
+        *(z <= 0.06)\
+        *(z <= rcmodel.jkzcut(jk,upper=True))\
+        *(z >= rcmodel.jkzcut(jk))\
+        *(logg >= 1.8)\
+        *(logg <= 2.8)            
+    rckascdata= data[indx]
+    seismo= True-((rckascdata['SEISMO EVOL'] == 'UNKNOWN'))
+    norcseismo= (rckascdata['SEISMO EVOL'] == 'RGB') \
+        + (rckascdata['SEISMO EVOL'] == 'DWARF/SUBGIANT')
+    print "%i / %i = %i%% APOKASC non-CLUMP stars out of all RC stars would be included with good logg" % (numpy.sum(norcseismo),numpy.sum(seismo),float(numpy.sum(norcseismo))/numpy.sum(seismo)*100.)
+    #Select stars to be in the RC from the APOKASC data, using the selection criteria of Williams et al. then check against 
+    #evolutionary state
+    jk= data['J0']-data['K0']
+    z= isodist.FEH2Z(data['METALS'],zsolar=0.017)
+    logg= data['KASC_RG_LOGG_SCALE_2']+numpy.random.normal(size=len(data))*0.4 #can adjust this to look at errors
+    #logg= data['LOGG']
+    indx= (jk < 0.8)*(jk >= 0.55)\
+        *(logg >= 1.8)\
+        *(logg <= 3.0)            
+    rckascdata= data[indx]
+    seismo= True-((rckascdata['SEISMO EVOL'] == 'UNKNOWN'))
+    norcseismo= (rckascdata['SEISMO EVOL'] == 'RGB') \
+        + (rckascdata['SEISMO EVOL'] == 'DWARF/SUBGIANT')
+    print "%i / %i = %i%% APOKASC non-CLUMP stars out of all RC stars would be included with good logg for the Williams et al. selection" % (numpy.sum(norcseismo),numpy.sum(seismo),float(numpy.sum(norcseismo))/numpy.sum(seismo)*100.)
