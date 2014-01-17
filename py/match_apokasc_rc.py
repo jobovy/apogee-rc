@@ -136,3 +136,13 @@ if __name__ == '__main__':
     norcseismo= (rckascdata['SEISMO EVOL'] == 'RGB') \
         + (rckascdata['SEISMO EVOL'] == 'DWARF/SUBGIANT')
     print "%i / %i = %i%% APOKASC non-CLUMP stars out of all RC stars would be included with good logg for the Williams et al. selection" % (numpy.sum(norcseismo),numpy.sum(seismo),float(numpy.sum(norcseismo))/numpy.sum(seismo)*100.)
+
+"""Some similar clump and no clump stars:
+Teff= 4723, metallicity ~0.05
+http://data.sdss3.org/irSpectrumDetail?locid=4406&commiss=0&apogeeid=2M19051753%2B4936070
+http://data.sdss3.org/irSpectrumDetail?locid=4406&commiss=0&apogeeid=2M19064470%2B4900300
+
+Teff=~4760, metallicity =~ -0.05
+http://data.sdss3.org/irSpectrumDetail?locid=4407&commiss=0&apogeeid=2M19072538%2B3915428
+http://data.sdss3.org/irSpectrumDetail?locid=4410&commiss=0&apogeeid=2M19015687%2B4048241
+"""
