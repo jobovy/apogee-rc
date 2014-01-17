@@ -51,6 +51,29 @@ if __name__ == '__main__':
                         onedhists=True,onedhistxnormed=True,
                         onedhistynormed=True,onedhistec='k',bins=20)
     bovy_plot.bovy_end_print('apokasc_rc_metalsafe.png')
+    #Also look at where these lie in J-Ks vs. logg
+    bovy_plot.bovy_print()
+    bovy_plot.bovy_plot(data['J0'][rcnoclumpseismo]-data['K0'][rcnoclumpseismo],
+                        data['KASC_RG_LOGG_SCALE_2'][rcnoclumpseismo],
+                        'ro',
+                        xrange=[0.5,0.8],
+                        yrange=[3.5,1.],
+                        xlabel=r'$(J-K_s)_0\,(\mathrm{mag})$',
+                        ylabel=r'$\mathrm{Seismic}\ \log g$',
+                        zorder=2,ms=4.5,mec='none',
+                        onedhists=False,onedhistxnormed=True,
+                        onedhistynormed=True,onedhistec='r',bins=20)
+    bovy_plot.bovy_plot(data['J0'][rcclumpseismo]-data['K0'][rcclumpseismo],
+                        data['KASC_RG_LOGG_SCALE_2'][rcclumpseismo],
+                        'bo',mec='none',overplot=True,zorder=1,
+                        onedhists=False,onedhistxnormed=True,
+                        onedhistynormed=True,onedhistec='b',bins=20) 
+    bovy_plot.bovy_plot(data['J0'][rcindx]-data['K0'][rcindx],
+                        data['KASC_RG_LOGG_SCALE_2'][rcindx],
+                        'k.',overplot=True,zorder=0,
+                        onedhists=False,onedhistxnormed=True,
+                        onedhistynormed=True,onedhistec='k',bins=20) 
+    bovy_plot.bovy_end_print('apokasc_rc_loggjk.png')
     #Statistics using simple seismo logg cut
     clumplogg= (data['KASC_RG_LOGG_SCALE_2'] > 1.8)\
         *(data['KASC_RG_LOGG_SCALE_2'] < 2.8)
