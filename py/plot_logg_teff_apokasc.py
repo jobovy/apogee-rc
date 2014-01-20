@@ -4,8 +4,6 @@ import copy
 import numpy
 from galpy.util import bovy_plot, save_pickles
 import isodist
-from matplotlib import pyplot
-from matplotlib.ticker import NullFormatter
 import apogee.tools.read as apread
 import rcmodel
 from plot_vs_jkz import get_options
