@@ -69,6 +69,9 @@ def loggteffcut(teff,z,upper=True):
         return 1.8
     else:
         feh= isodist.Z2FEH(z,zsolar=0.017)
+        this_teff=(4760.-4607.)/(-0.4)*feh+4607.
+        return 0.0018*(teff-this_teff)+2.5
+    #Old cuts that the previous was based on
         if feh > 0.2:
             return (3.05-2.45)/(4800.-4500.)*(teff-4800.)+3.05
         elif feh > -0.2 and feh <= 0.2:

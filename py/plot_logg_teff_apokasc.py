@@ -19,7 +19,7 @@ def plot_logg_teff_apokasc(parser):
         data= pickle.load(savefile)
         savefile.close()
     else:
-        zs= numpy.arange(0.0005,0.03005,0.0005)
+        zs= numpy.arange(0.0005,0.06005,0.0005)
         if _DEBUG:
             zs= numpy.arange(0.0005,0.03005,0.005)
         fehs= isodist.Z2FEH(zs,zsolar=0.017)#0.017 for APOGEE analysis
@@ -64,6 +64,10 @@ def plot_logg_teff_apokasc(parser):
         outhist[ii,:]/= numpy.nanmax(outhist[ii,:])/numpy.nanmax(outhist)
         rev= copy.copy(outhist[ii,::-1]) #reverse, but in one go does not always work
         outhist[ii,:]= rev
+    #Reverse Teff histogram as well
+    for ii in range(len(outhist[0,:])):
+        rev= copy.copy(outhist[::-1,ii]) #reverse, but in one go does not always work
+        outhist[:,ii]= rev
     if False:
         #Reload apokasc data
         data= apread.apokasc()
@@ -75,13 +79,22 @@ def plot_logg_teff_apokasc(parser):
     #Plot everything
     bovy_plot.bovy_print()
     bovy_plot.bovy_dens2d(outhist.T,origin='lower',cmap='gist_yarg',
-                          xrange=[edgess[0][0][0],edgess[0][0][-1]],
+                          xrange=[edgess[0][0][-1],edgess[0][0][0]],
                           yrange=[edgess[0][1][-1],edgess[0][1][0]],
                           aspect=(edgess[0][0][-1]-edgess[0][0][0])/float(edgess[0][1][-1]-edgess[0][1][0]),
                           xlabel=r'$T_{\mathrm{eff}}\,(\mathrm{K})$',
                           ylabel=r'$\mathrm{Seismic}\ \log g$',
                           shrink=0.78,
                           interpolation='nearest')
+    #Overplot cuts   
+    teffs= numpy.linspace(rcmodel.teffloggcut(1.8,
+                                             isodist.FEH2Z(options.feh,
+                                                           zsolar=0.017)),
+                         5200.,2)
+    bovy_plot.bovy_plot(teffs,[rcmodel.loggteffcut(teff,isodist.FEH2Z(options.feh,
+                                                                      zsolar=0.017),upper=True) for teff in teffs],'--',color='purple',lw=2.,overplot=True)
+    bovy_plot.bovy_plot(teffs,[rcmodel.loggteffcut(teff,isodist.FEH2Z(options.feh,
+                                                                      zsolar=0.017),upper=False) for teff in teffs],'--',lw=2.,color='purple',overplot=True)
     #Overplot APOKASC data
     noseismo= data['SEISMO EVOL'] == 'UNKNOWN'
     if numpy.sum(noseismo) > 0:
