@@ -9,7 +9,7 @@ import os, os.path
 import math
 import cPickle as pickle
 import numpy
-from scipy import maxentropy, integrate, special
+from scipy import misc, integrate, special
 import scipy.interpolate
 #from extreme_deconvolution import extreme_deconvolution
 #import xdtarget
@@ -496,7 +496,7 @@ class rcmodel:
 #            lnpdf[ii]=maxentropy.logsumexp(this_lnpdf)
 #            lnpdf[ii]= self(jk,x)
         lnpdf[numpy.isnan(lnpdf)]= -numpy.finfo(numpy.dtype(numpy.float64)).max
-        lnpdf-= maxentropy.logsumexp(lnpdf)+numpy.log(xs[1]-xs[0])
+        lnpdf-= misc.logsumexp(lnpdf)+numpy.log(xs[1]-xs[0])
         return (xs,lnpdf)
     
     def calc_invcumul(self,jk,sjk=None):
@@ -751,7 +751,7 @@ class rcmodel:
         #First calculate amplitudes
         logrelamp= numpy.log(self._amp)-0.5*numpy.log(self._covar[:,0,0])\
             -0.5*(jk-self._mean[:,0])**2./self._covar[:,0,0]
-        logrelamp-= maxentropy.logsumexp(logrelamp)
+        logrelamp-= misc.logsumexp(logrelamp)
         #Then calculate conditioned means and variances
         comean= self._mean[:,1]+self._covar[:,0,1]/(self._covar[:,0,0]+sjk**2.)*(jk-self._mean[:,0])
         cocovar= self._covar[:,1,1]-self._covar[:,0,1]**2./(self._covar[:,0,0]+sjk**2.)
