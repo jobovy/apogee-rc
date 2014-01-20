@@ -203,6 +203,7 @@ class rcmodel:
         weights= []
         massweights= []
         loggs= []
+        teffs= []
         pmasses= []
         plages= []
         pjks= []
@@ -259,6 +260,7 @@ class rcmodel:
                     if dN[ii] > 0.: 
                         sample.append([JK,H])
                         loggs.append([thisiso.logg[ii]])
+                        teffs.append([10.**thisiso.logTe[ii]])
                         pmasses.append(thisiso.M_ini[ii])
                         plages.append(logage)
                         pjks.append(JK)
@@ -289,6 +291,7 @@ class rcmodel:
         #Form array
         sample= numpy.array(sample)
         loggs= numpy.array(loggs)
+        teffs= numpy.array(teffs)
         pmasses= numpy.array(pmasses)
         plages= numpy.array(plages)-9.
         pjks= numpy.array(pjks)
@@ -303,6 +306,7 @@ class rcmodel:
         self._weights= weights[indx]
         self._massweights= massweights[indx]
         self._loggs= loggs[indx]
+        self._teffs= teffs[indx]
         self._masses= pmasses[indx]
         self._lages= plages[indx]
         self._jks= pjks[indx]
