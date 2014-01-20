@@ -9,7 +9,7 @@ import os, os.path
 import math
 import cPickle as pickle
 import numpy
-from scipy import misc, integrate, special
+from scipy import misc, integrate, special, optimize
 import scipy.interpolate
 #from extreme_deconvolution import extreme_deconvolution
 #import xdtarget
@@ -72,9 +72,9 @@ def loggteffcut(teff,z,upper=True):
         if feh > 0.2:
             return (3.05-2.45)/(4800.-4500.)*(teff-4800.)+3.05
         elif feh > -0.2 and feh <= 0.2:
-            pass
+            return (3.05-2.45)/(4800.-4500.)*(teff-4800.)+3.05
         elif feh > -0.6 and feh <= -0.2:
-            pass
+            return (3.1-2.5)/(5100.-4750.)*(teff-5100.)+3.1
         elif feh <= -0.6:
             return (2.9-2.5)/(5200.-4980.)*(teff-5200.)+2.9
 
