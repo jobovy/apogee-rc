@@ -64,6 +64,25 @@ def zjkcut(z,upper=False):
             return ((z-B)/A)**(1./alpha)+x
         except ValueError:
             return 0.8
+def loggteffcut(teff,z,upper=True):
+    if not upper:
+        return 1.8
+    else:
+        feh= isodist.Z2FEH(z,zsolar=0.017)
+        if feh > 0.2:
+            return (3.05-2.45)/(4800.-4500.)*(teff-4800.)+3.05
+        elif feh > -0.2 and feh <= 0.2:
+            pass
+        elif feh > -0.6 and feh <= -0.2:
+            pass
+        elif feh <= -0.6:
+            return (2.9-2.5)/(5200.-4980.)*(teff-5200.)+2.9
+
+def teffloggcut(logg,z):
+    out= optimize.brentq(lambda x: loggteffcut(x,z,upper=True)-logg,
+                         4000.,5200.)
+    return out
+
 class rcdist:
     """Class that holds the RC mean mag"""
     def __init__(self,*args,**kwargs):
