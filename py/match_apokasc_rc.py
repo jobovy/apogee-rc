@@ -123,6 +123,7 @@ if __name__ == '__main__':
         *(z >= rcmodel.jkzcut(jk))\
         *(logg >= 1.8)\
         *(logg <= rcmodel.loggteffcut(data['TEFF'],z,upper=True))
+    #indx*= ((data['TEFF']-4800.)/1000.+2.75) > logg
     #*(logg <= 2.8)            
     rckascdata= data[indx]
     seismo= True-((rckascdata['SEISMO EVOL'] == 'UNKNOWN'))
