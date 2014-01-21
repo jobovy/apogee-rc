@@ -168,7 +168,7 @@ class rcmodel:
            expsfh= if True, use an exponentially-declining star-formation history
            dontgather= if True, don't gather surrounding Zs
            loggmin= if set, cut logg at this minimum
-           loggmax= if set, cut logg at this maximum
+           loggmax= if set, cut logg at this maximum, if custom, then this is the function of teff and z from above
            basti= if True, use Basti isochrones (if False, use Padova)
            parsec= if True, use PARSEC isochrones
            stage= if True, only use this evolutionary stage
@@ -276,7 +276,8 @@ class rcmodel:
                         else:
                             H= thisiso.Ks[ii]
                     if JK < 0.3 \
-                            or (not loggmax is None and thisiso['logg'][ii] > loggmax) \
+                            or (isinstance(loggmax,str) and loggmax == 'custom' and thisiso['logg'][ii] > loggteffcut(10.**thisiso['logTe'][ii],Zs[zz],upper=True)) \
+                            or (not isinstance(loggmax,str) and not loggmax is None and thisiso['logg'][ii] > loggmax) \
                             or (not loggmin is None and thisiso['logg'][ii] < loggmin):
                         continue
                     if dN[ii] > 0.: 
@@ -334,9 +335,10 @@ class rcmodel:
         self._jks= pjks[indx]
         #Setup KDE
         self._kde= dens_kde.densKDE(self._sample,w=self._weights,
-                                    h='scott',kernel='biweight',
+                                    h=2.*self._sample.shape[0]**(-1./5.),#h='scott',
+                                    kernel='biweight',
                                     variable=True,variablenitt=3,
-                                    variableexp=0.35)
+                                    variableexp=0.5)
         self._jkmin, self._jkmax= 0.5,0.8
         self._hmin, self._hmax= -3.,0.
         return None

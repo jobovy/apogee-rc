@@ -53,6 +53,10 @@ class densKDE:
                 self._h*= 2. #Larger for finite size kernel
         if variable:
             self._setup_variable(variablenitt,variableexp)
+        print self._ndata
+        print self._h
+        print self._lambda
+        return None
 
     def __call__(self,x,h=None,log=False,scale=True,sx2=None):
         """

@@ -6,6 +6,11 @@ from galpy.util import bovy_plot, multi, save_pickles
 import multiprocessing
 from matplotlib import pyplot
 import rcmodel
+_NEW= True
+if _NEW:
+    loggmax= 'custom'
+else:
+    loggmax= 2.8
 def plot_vs_jkz(parser):
     options,args= parser.parse_args()
     if options.basti:
@@ -120,7 +125,7 @@ def plot_vs_jkz(parser):
 
 def indiv_calc(ii,zs,options,njks,jks):
     print zs[ii]
-    rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
+    rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=loggmax,
                         band=options.band,basti=options.basti,
                         imfmodel=options.imfmodel,
                         expsfh=options.expsfh,

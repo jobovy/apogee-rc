@@ -6,9 +6,14 @@ import isodist
 from galpy.util import bovy_plot
 from matplotlib import pyplot
 import rcmodel
+_NEW= True
+if _NEW:
+    loggmax='custom'
+else:
+    loggmax= 2.8
 def plot_mx_jkz(parser):
     options,args= parser.parse_args()
-    rc= rcmodel.rcmodel(Z=options.Z,loggmin=1.8,loggmax=2.8,
+    rc= rcmodel.rcmodel(Z=options.Z,loggmin=1.8,loggmax=loggmax,
                         basti=options.basti,band=options.band,
                         parsec=options.parsec,
                         expsfh=options.expsfh,
