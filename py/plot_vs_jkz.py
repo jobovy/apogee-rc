@@ -42,17 +42,17 @@ def plot_vs_jkz(parser):
     #Plot
     if options.type == 'sig':
         if options.relative:
-            vmin, vmax= 0.7,1.3
+            vmin, vmax= 0.8,1.2
             zlabel= r'$\mathrm{FWHM}/\mathrm{FWHM}_{\mathrm{fiducial}}$'
         else:
-            vmin, vmax= 0., 0.8
+            vmin, vmax= 0., 0.4
             zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}\ [\mathrm{mag}]$'
     elif options.type == 'mode':
         if options.relative:
-            vmin, vmax= -0.1,0.1
+            vmin, vmax= -0.05,0.05
             zlabel= r'$\Delta\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
         else:
-            vmin, vmax= -1.8, -1.2
+            vmin, vmax= -1.8, -1.5
         #zlabel= r'$\mathrm{argmax}_{K_s}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
             zlabel= r'$\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
     if options.basti:#Remap the Zs
@@ -80,7 +80,9 @@ def plot_vs_jkz(parser):
         elif options.type == 'sig':
             plotthis/= plotthisrel
     bovy_plot.bovy_print()
-    bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='gray',
+    if options.type == 'sig':
+        plotthis[numpy.isnan(plotthis)]= vmax
+    bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='jet',
                           xrange=[jks[0],jks[-1]],
                           yrange=[zs[0],zs[-1]],
                           vmin=vmin,vmax=vmax,

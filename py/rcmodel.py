@@ -27,17 +27,17 @@ def jkzcut(jk,upper=False):
         x= 0.4
         #A= 0.022/((0.6-x)**alpha-(0.5-x)**alpha)
         #B= 0.03-A*(0.6-x)**alpha
-        A= 0.054/((0.685-x)**alpha-(0.5-x)**alpha)
-        B= 0.06-A*(0.685-x)**alpha
-        #print A, B, alpha
+        A= 0.054/((0.68-x)**alpha-(0.5-x)**alpha)
+        B= 0.06-A*(0.68-x)**alpha
+        print A, B, alpha
         return A*(jk-x)**alpha+B
     else:
-        alpha= 6.
-        x= 0.225
+        alpha= 9.
+        x= 0.05
         #A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
         #B= 0.03-A*(0.73-x)**alpha
-        A= 0.058/((0.77-x)**alpha-(0.5-x)**alpha)
-        B= 0.06-A*(0.77-x)**alpha
+        A= 0.058/((0.765-x)**alpha-(0.5-x)**alpha)
+        B= 0.06-A*(0.765-x)**alpha
         #print A, B, alpha
         return A*(jk-x)**alpha+B
 def zjkcut(z,upper=False):
@@ -47,19 +47,19 @@ def zjkcut(z,upper=False):
         x= 0.4
         #A= 0.022/((0.6-x)**alpha-(0.5-x)**alpha)
         #B= 0.03-A*(0.6-x)**alpha
-        A= 0.054/((0.685-x)**alpha-(0.5-x)**alpha)
-        B= 0.06-A*(0.685-x)**alpha
+        A= 0.054/((0.68-x)**alpha-(0.5-x)**alpha)
+        B= 0.06-A*(0.68-x)**alpha
         try:
             return ((z-B)/A)**(1./alpha)+x
         except ValueError:
             return 0.5
     else:
-        alpha= 6.
-        x= 0.225
+        alpha= 9.
+        x= 0.05
         #A= 0.028/((0.73-x)**alpha-(0.5-x)**alpha)
         #B= 0.03-A*(0.73-x)**alpha
-        A= 0.058/((0.77-x)**alpha-(0.5-x)**alpha)
-        B= 0.06-A*(0.77-x)**alpha
+        A= 0.058/((0.765-x)**alpha-(0.5-x)**alpha)
+        B= 0.06-A*(0.765-x)**alpha
         try:
             return ((z-B)/A)**(1./alpha)+x
         except ValueError:
