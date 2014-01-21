@@ -29,7 +29,7 @@ def jkzcut(jk,upper=False):
         #B= 0.03-A*(0.6-x)**alpha
         A= 0.054/((0.68-x)**alpha-(0.5-x)**alpha)
         B= 0.06-A*(0.68-x)**alpha
-        print A, B, alpha
+        #print A, B, alpha
         return A*(jk-x)**alpha+B
     else:
         alpha= 9.
