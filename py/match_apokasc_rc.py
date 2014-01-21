@@ -24,8 +24,8 @@ def match_apokasc_rc(rcfile=None):
     return kascdata
 
 if __name__ == '__main__':
-    #data= match_apokasc_rc('test.fits')
-    data= match_apokasc_rc()
+    data= match_apokasc_rc('test.fits')
+    #data= match_apokasc_rc()
     clumpseismo= data['SEISMO EVOL'] == 'CLUMP'
     noseismo= data['SEISMO EVOL'] == 'UNKNOWN'
     noclumpseismo= (data['SEISMO EVOL'] == 'RGB') \
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     #evolutionary state
     jk= data['J0']-data['K0']
     z= isodist.FEH2Z(data['METALS'],zsolar=0.017)
-    logg= data['KASC_RG_LOGG_SCALE_2']+numpy.random.normal(size=len(data))*0. #can adjust this to look at errors
+    logg= data['KASC_RG_LOGG_SCALE_2']+numpy.random.normal(size=len(data))*0.2 #can adjust this to look at errors
     indx= (jk < 0.8)*(jk >= 0.5)\
         *(z <= 0.06)\
         *(z <= rcmodel.jkzcut(jk,upper=True))\
