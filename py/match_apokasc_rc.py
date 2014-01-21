@@ -1,14 +1,18 @@
 import numpy
 import esutil
+import fitsio
 from galpy.util import bovy_plot
 import isodist
 import apogee.tools.read as apread
 import rcmodel
-def match_apokasc_rc():
+def match_apokasc_rc(rcfile=None):
     #First read apokasc
     kascdata= apread.apokasc()
     #Then read rc
-    rcdata= apread.rcsample()
+    if rcfile is None:
+        rcdata= apread.rcsample()
+    else:
+        rcdata= fitsio.read(rcfile)
     #Match
     h=esutil.htm.HTM()
     m1,m2,d12 = h.match(kascdata['RA'],kascdata['DEC'],
@@ -20,6 +24,7 @@ def match_apokasc_rc():
     return kascdata
 
 if __name__ == '__main__':
+    #data= match_apokasc_rc('test.fits')
     data= match_apokasc_rc()
     clumpseismo= data['SEISMO EVOL'] == 'CLUMP'
     noseismo= data['SEISMO EVOL'] == 'UNKNOWN'
@@ -76,7 +81,8 @@ if __name__ == '__main__':
     bovy_plot.bovy_end_print('apokasc_rc_loggjk.png')
     #Statistics using simple seismo logg cut
     clumplogg= (data['KASC_RG_LOGG_SCALE_2'] > 1.8)\
-        *(data['KASC_RG_LOGG_SCALE_2'] < 2.8)
+        *(data['KASC_RG_LOGG_SCALE_2'] < rcmodel.loggteffcut(data['TEFF'],
+                                                            isodist.FEH2Z(data['METALS'],zsolar=0.017),upper=True))#2.8)
     rcclumplogg= clumplogg*(data['RC'] == 1)
     print "%i / %i = %i%% APOKASC logg clump stars are in the RC catalog" % (numpy.sum(rcclumplogg),numpy.sum(clumplogg),float(numpy.sum(rcclumplogg))/numpy.sum(clumplogg)*100)
     rcnoclumplogg= (True-clumplogg)*(data['RC'] == 1)
@@ -116,7 +122,8 @@ if __name__ == '__main__':
         *(z <= rcmodel.jkzcut(jk,upper=True))\
         *(z >= rcmodel.jkzcut(jk))\
         *(logg >= 1.8)\
-        *(logg <= 2.8)            
+        *(logg <= rcmodel.loggteffcut(data['TEFF'],z,upper=True))
+    #*(logg <= 2.8)            
     rckascdata= data[indx]
     seismo= True-((rckascdata['SEISMO EVOL'] == 'UNKNOWN'))
     norcseismo= (rckascdata['SEISMO EVOL'] == 'RGB') \
