@@ -82,6 +82,12 @@ def plot_vs_jkz(parser):
     bovy_plot.bovy_print()
     if options.type == 'sig':
         plotthis[numpy.isnan(plotthis)]= vmax
+    if options.relative:
+        #Only plot between the cuts
+        for ii in range(plotthis.shape[0]):
+            indx= zs >= rcmodel.jkzcut(jks[ii],upper=True)
+            indx+= zs <= rcmodel.jkzcut(jks[ii],upper=False)
+            plotthis[ii,indx]= numpy.nan
     bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='jet',
                           xrange=[jks[0],jks[-1]],
                           yrange=[zs[0],zs[-1]],
