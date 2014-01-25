@@ -30,8 +30,8 @@ if __name__ == '__main__':
     noseismo= data['SEISMO EVOL'] == 'UNKNOWN'
     noclumpseismo= (data['SEISMO EVOL'] == 'RGB') \
         + (data['SEISMO EVOL'] == 'DWARF/SUBGIANT')
-    rcclumpseismo= clumpseismo*(data['RC'] == 1)
-    rcnoclumpseismo= noclumpseismo*(data['RC'] == 1)
+    rcclumpseismo= clumpseismo*(data['RC'] == 1)#*(((data['TEFF']-4800.)/1000.+2.75) > data['LOGG'])
+    rcnoclumpseismo= noclumpseismo*(data['RC'] == 1)#*(((data['TEFF']-4800.)/1000.+2.75) > data['LOGG'])
     #Statistics using evolutionary state measurements
     print "%i APOKASC stars have evolutionary state measurements" % (numpy.sum(clumpseismo)+numpy.sum(noclumpseismo))
     print "%i APOKASC RC stars have evolutionary state measurements" % (numpy.sum(rcclumpseismo)+numpy.sum(rcnoclumpseismo))
@@ -105,11 +105,17 @@ if __name__ == '__main__':
                         onedhistxnormed=True,onedhistynormed=True,
                         onedhistcolor='k',zorder=0,bins=30)
     bovy_plot.bovy_end_print('apokasc_rclogg_metalsafe.png')
-    bloggindx= (data['LOGG'] >= 1.8)*(data['LOGG'] <= 2.8)
-    gloggindx= (data['KASC_RG_LOGG_SCALE_2'] < 1.8)+(data['KASC_RG_LOGG_SCALE_2'] > 2.8)
+    bloggindx= (data['LOGG'] >= 1.8)*\
+        (data['LOGG'] <= rcmodel.loggteffcut(data['TEFF'],data['METALS'],
+                                              upper=True))
+    gloggindx= (data['KASC_RG_LOGG_SCALE_2'] < 1.8)+\
+        (data['KASC_RG_LOGG_SCALE_2'] > rcmodel.loggteffcut(data['TEFF'],data['METALS'],
+                                                            upper=True))
     print "Current contamination in logg range %i / % i = %i%%" % (numpy.sum(bloggindx*gloggindx),len(data),float(numpy.sum(bloggindx*gloggindx))*100./len(data))
     nlogg= data['KASC_RG_LOGG_SCALE_2']+numpy.random.normal(size=len(data))*0.2
-    bloggindx= (nlogg >= 1.8)*(nlogg <= 2.8)
+    bloggindx= (nlogg >= 1.8)*(nlogg <= rcmodel.loggteffcut(data['TEFF'],
+                                                            data['METALS'],
+                                                            upper=True))
     print "Future contamination w/ good logg (unbiased, errors 0.2) in logg range %i / % i = %i%%" % (numpy.sum(bloggindx*gloggindx),len(data),float(numpy.sum(bloggindx*gloggindx))*100./len(data))
     print "Future contamination w/ good logg (unbiased, errors 0.2) for just RC in logg range %i / % i = %i%%" % (numpy.sum(bloggindx*gloggindx*rcindx),numpy.sum(rcindx),float(numpy.sum(bloggindx*gloggindx*rcindx))*100./numpy.sum(rcindx))
     #Select stars to be in the RC from the APOKASC data, then check against 
