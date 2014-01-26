@@ -1,14 +1,15 @@
 import sys
 import numpy
-from scipy import optimize
 from galpy.util import bovy_plot
 from matplotlib import pyplot
 import apogee.tools.read as apread
-import pixelize_sample
 _EXT='ps'
+_ADDLLOGGCUT= True
 def plot_distancedist(basesavefilename):
     #First read the sample
     data= apread.rcsample()
+    if _ADDLLOGGCUT:
+        data= data[data['ADDL_LOGG_CUT'] == 1]
     #Histogram
     bovy_plot.bovy_print(fig_width=6.)
     bovy_plot.bovy_hist(data['RC_DIST'],

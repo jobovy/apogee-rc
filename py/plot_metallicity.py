@@ -6,9 +6,12 @@ from matplotlib import pyplot
 import apogee.tools.read as apread
 import pixelize_sample
 _EXT='ps'
+_ADDLLOGGCUT= True
 def plot_metallicity(basesavefilename):
     #First read the sample
     data= apread.rcsample()
+    if _ADDLLOGGCUT:
+        data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
     indx= (numpy.fabs(data['RC_GALZ']) < 0.05)*(data['METALS'] > -1000.)
     data= data[indx]
@@ -49,6 +52,8 @@ def plot_metallicity(basesavefilename):
     #Now plot azimuthal stuff
     #First read the sample again
     data= apread.rcsample()
+    if _ADDLLOGGCUT:
+        data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
     indx= (numpy.fabs(data['RC_GALZ']) < 0.25)*(data['METALS'] > -1000.)
     data= data[indx]
@@ -73,6 +78,8 @@ def plot_metallicity(basesavefilename):
     # vs. alpha
     #First read the sample
     data= apread.rcsample()
+    if _ADDLLOGGCUT:
+        data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
     indx= (numpy.fabs(data['RC_GALZ']) < 0.1)*(data['METALS'] > -1000.)
     data= data[indx]
@@ -90,6 +97,8 @@ def plot_metallicity(basesavefilename):
     # vs. alpha
     #First read the sample
     data= apread.rcsample()
+    if _ADDLLOGGCUT:
+        data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
     indx= (numpy.fabs(data['RC_GALZ']) > 0.5)*\
         (numpy.fabs(data['RC_GALZ']) < 1.)*\
@@ -108,6 +117,8 @@ def plot_metallicity(basesavefilename):
     # vs. alpha
     #First read the sample
     data= apread.rcsample()
+    if _ADDLLOGGCUT:
+        data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
     indx= (numpy.fabs(data['RC_GALZ']) > 1.)*\
         (numpy.fabs(data['RC_GALZ']) < 2.)*\
@@ -126,6 +137,8 @@ def plot_metallicity(basesavefilename):
     # vs. alpha
     #First read the sample
     data= apread.rcsample()
+    if _ADDLLOGGCUT:
+        data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
     indx= (data['STAT'] == 1)*\
         (data['METALS'] > -1000.)
