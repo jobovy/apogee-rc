@@ -25,13 +25,12 @@ def make_rcsample(savefilename):
         *(z <= 0.06)\
         *(z <= rcmodel.jkzcut(jk,upper=True))\
         *(z >= rcmodel.jkzcut(jk))\
-        *(logg >= 1.8)\
         *(logg >= rcmodel.loggteffcut(data['TEFF'],z,upper=False))\
         *(logg <= rcmodel.loggteffcut(data['TEFF'],z,upper=True))
     data= data[indx]
     #Add more aggressive flag cut
-    data= esutil.numpy_util.add_fields(data,[('ADDL_LOGG_CUT', int)])
-    data['ADDL_LOGG_CUT']= (((data['TEFF']-4800.)/1000.+2.75) > data['LOGG'])
+    data= esutil.numpy_util.add_fields(data,[('ADDL_LOGG_CUT',int)])
+    data['ADDL_LOGG_CUT']= ((data['TEFF']-4800.)/1000.+2.75) > logg
     #Add distances
     data= esutil.numpy_util.add_fields(data,[('RC_DIST', float),
                                              ('RC_DM', float),
