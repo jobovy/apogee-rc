@@ -130,7 +130,10 @@ def astro_sampling(parser):
     axTop= pyplot.axes([left,bottom,width,height])
     fig.sca(axTop)
     #Plot the average over SFH
-    lages= numpy.linspace(-1.,1.,16)[aindx]
+    lages= numpy.linspace(-1.,1.,16)
+    if not options.type == 'mass':
+        aindx= lages > numpy.log10(0.8)
+        lages= lages[aindx]
     mtrend= numpy.zeros(len(zs))
     exppage= 10.**lages*numpy.exp((10.**(lages+2.))/800.) #e.g., Binney (2010)
     exexppage= 10.**lages*numpy.exp((10.**(lages+2.))/100.) #e.g., Binney (2010)
@@ -195,7 +198,7 @@ def _calc_one(z,options,nages,lages,dlages):
                             imfmodel=options.imfmodel,
                             parsec=options.parsec)
     else:
-        rc= rcmodel.rcmodel(Z=z,loggmin=1.8,loggmax=2.8,
+        rc= rcmodel.rcmodel(Z=z,loggmin=1.8,loggmax='custom',
                             band=options.band,basti=options.basti,
                             imfmodel=options.imfmodel,
                             parsec=options.parsec)
