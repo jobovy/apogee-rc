@@ -72,7 +72,7 @@ def calc_avg_rcmks(parser):
 def indiv_calc(ii,zs,options,njks,jks,nmks,mks,logpz):
     print zs[ii]
     out= numpy.empty((2,njks,nmks))
-    rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax=2.8,
+    rc= rcmodel.rcmodel(Z=zs[ii],loggmin=1.8,loggmax='custom',
                         band=options.band,basti=options.basti,
                         imfmodel=options.imfmodel,
                         expsfh=options.expsfh,

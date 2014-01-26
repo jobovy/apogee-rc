@@ -123,7 +123,7 @@ class rcdist:
                                                                kx=3,ky=3,s=0.)
         return None
 
-    def __call__(self,jk,Z,appmag=None,dk=0.043314):
+    def __call__(self,jk,Z,appmag=None,dk=0.039471):
         """
         NAME:
            __call__
