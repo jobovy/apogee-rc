@@ -24,8 +24,7 @@ def match_apokasc_rc(rcfile=None):
     return kascdata
 
 if __name__ == '__main__':
-    data= match_apokasc_rc('test.fits')
-    #data= match_apokasc_rc()
+    data= match_apokasc_rc()
     clumpseismo= data['SEISMO EVOL'] == 'CLUMP'
     noseismo= data['SEISMO EVOL'] == 'UNKNOWN'
     noclumpseismo= (data['SEISMO EVOL'] == 'RGB') \
@@ -122,7 +121,7 @@ if __name__ == '__main__':
     #evolutionary state
     jk= data['J0']-data['K0']
     z= isodist.FEH2Z(data['METALS'],zsolar=0.017)
-    logg= data['KASC_RG_LOGG_SCALE_2']+numpy.random.normal(size=len(data))*0.2 #can adjust this to look at errors
+    logg= data['KASC_RG_LOGG_SCALE_2']+numpy.random.normal(size=len(data))*0. #can adjust this to look at errors
     indx= (jk < 0.8)*(jk >= 0.5)\
         *(z <= 0.06)\
         *(z <= rcmodel.jkzcut(jk,upper=True))\
@@ -136,6 +135,19 @@ if __name__ == '__main__':
     norcseismo= (rckascdata['SEISMO EVOL'] == 'RGB') \
         + (rckascdata['SEISMO EVOL'] == 'DWARF/SUBGIANT')
     print "%i / %i = %i%% APOKASC non-CLUMP stars out of all RC stars would be included with good logg" % (numpy.sum(norcseismo),numpy.sum(seismo),float(numpy.sum(norcseismo))/numpy.sum(seismo)*100.)
+    #Now, how many of the stars in our RC cut have evol and how many of RGB?
+    indx= (jk < 0.8)*(jk >= 0.5)\
+        *(logg >= 1.8)\
+        *(logg <= rcmodel.loggteffcut(data['TEFF'],z,upper=True))
+    #indx*= ((data['TEFF']-4800.)/1000.+2.75) > logg
+    rckascdata= data[indx]
+    seismo= True-((rckascdata['SEISMO EVOL'] == 'UNKNOWN'))
+    print "%i / %i = %i%% RC stars based on logg,teff,feh cut have seismo measurements" % (numpy.sum(seismo),len(rckascdata),float(numpy.sum(seismo))/len(rckascdata)*100.)
+    indx= (jk < 0.8)*(jk >= 0.5)\
+        *(logg > rcmodel.loggteffcut(data['TEFF'],z,upper=True))
+    norckascdata= data[indx]
+    seismo= True-((norckascdata['SEISMO EVOL'] == 'UNKNOWN'))
+    print "%i / %i = %i%% RGB stars based on logg,teff,feh cut have seismo measurements" % (numpy.sum(seismo),len(norckascdata),float(numpy.sum(seismo))*100./len(norckascdata))
     #Select stars to be in the RC from the APOKASC data, using the selection criteria of Williams et al. then check against 
     #evolutionary state
     jk= data['J0']-data['K0']
