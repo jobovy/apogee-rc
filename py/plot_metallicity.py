@@ -14,6 +14,7 @@ def plot_metallicity(basesavefilename):
         data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
     indx= (numpy.fabs(data['RC_GALZ']) < 0.05)*(data['METALS'] > -1000.)
+    print "Using %i stars for low-Z metallicity gradient analysis" % numpy.sum(indx)
     data= data[indx]
     #First do the metallicity gradient
     rs= numpy.arange(0.5,18.5001,.85)
@@ -56,6 +57,7 @@ def plot_metallicity(basesavefilename):
         data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
     indx= (numpy.fabs(data['RC_GALZ']) < 0.25)*(data['METALS'] > -1000.)
+    print "Using %i stars for low-Z azimuthal metallicity gradient analysis" % numpy.sum(indx)
     data= data[indx]
     pix= pixelize_sample.pixelXY(data)
     bovy_plot.bovy_print()
