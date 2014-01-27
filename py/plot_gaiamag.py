@@ -41,32 +41,57 @@ def plot_gaiamag(plotfilename):
                     *(p['logg'] >= 1.8)\
                     *(p['logg'] <= 2.8)            
                 tG= G(p['g'][indx],p['g'][indx]-p['z'][indx])-p['H'][indx]+h
-                tplxerr= 1000.*numpy.array([plxerr(tG[ii],
+                tdm= h+1.49
+                tdist= 10.**(tdm/5.-2.) #kpc
+                tplxerr= numpy.array([plxerr(tG[ii],
                                                    vifromgi(p['g'][indx][ii]-p['i'][indx][ii])) for ii in range(numpy.sum(indx))])
                 bovy_plot.bovy_plot(tG,
-                                    tplxerr*0.5,marker='o',color=colors[jj],mec='none',
+                                    4.74047*tdist*tplxerr*0.5,
+                                    marker='o',color=colors[jj],mec='none',
                                     overplot=overplot,
-                                    xlabel=r'$G$',
-                                    ylabel=r'$\mathrm{proper\ motion\ uncertainty}\ (\mu\mathrm{as\,yr}^{-1})$',
-                                    xrange=[10.,21.],
-                                    yrange=[0.,220.])
+                                    xlabel=r'$Gaia\ G$',
+                                    ylabel=r'$\mathrm{transverse\ velocity\ uncertainty}\ (\mathrm{km\,s}^{-1})$',
+                                    xrange=[11.,21.],
+                                    yrange=[0.,8.])
                 overplot= True
                 #half a magnitude ah
                 tvi= numpy.array([vifromgi(p['g'][indx][ii]-p['i'][indx][ii]) for ii in range(numpy.sum(indx))])
                 ag= .5/0.18307*(0.8426-0.1187*tvi+0.0157*tvi**2.-0.0007*tvi**3.)
-                tplxerr= 1000.*numpy.array([plxerr(tG[ii]+ag[ii],
+                tG= tG-0.5
+                tplxerr= numpy.array([plxerr(tG[ii]+ag[ii],
                                                    vifromgi(p['g'][indx][ii]+.5/0.18307*1.20585-p['i'][indx][ii]-.5/0.18307*0.68319)) for ii in range(numpy.sum(indx))])
+                tdm= h+1.49-0.5
+                tdist= 10.**(tdm/5.-2.) #kpc
+                #print numpy.median(ag)/.5, numpy.median(tvi), numpy.std(tvi)
                 bovy_plot.bovy_plot(tG+ag,
-                                    tplxerr*0.5,marker='o',color=colors[jj],mec='none',
+                                    4.74047*tdist*tplxerr*0.5,
+                                    marker='o',color=colors[jj],mec='none',
                                     overplot=overplot)
                 #Full magnitude of ah
                 tvi= numpy.array([vifromgi(p['g'][indx][ii]-p['i'][indx][ii]) for ii in range(numpy.sum(indx))])
                 ag= 1./0.18307*(0.8426-0.1187*tvi+0.0157*tvi**2.-0.0007*tvi**3.)
-                tplxerr= 1000.*numpy.array([plxerr(tG[ii]+ag[ii],
+                tG= tG-0.5
+                tplxerr= numpy.array([plxerr(tG[ii]+ag[ii],
                                                    vifromgi(p['g'][indx][ii]+1./0.18307*1.20585-p['i'][indx][ii]-1./0.18307*0.68319)) for ii in range(numpy.sum(indx))])
+                tdm= h+1.49-1.
+                tdist= 10.**(tdm/5.-2.) #kpc
                 bovy_plot.bovy_plot(tG+ag,
-                                    tplxerr*0.5,marker='o',color=colors[jj],mec='none',
+                                    4.74047*tdist*tplxerr*0.5,
+                                    marker='o',color=colors[jj],mec='none',
                                     overplot=overplot)
+                if True:
+                    #1.5 magnitudes of ah
+                    tvi= numpy.array([vifromgi(p['g'][indx][ii]-p['i'][indx][ii]) for ii in range(numpy.sum(indx))])
+                    ag= 1.5/0.18307*(0.8426-0.1187*tvi+0.0157*tvi**2.-0.0007*tvi**3.)
+                    tG= tG-.5
+                    tplxerr= numpy.array([plxerr(tG[ii]+ag[ii],
+                                                 vifromgi(p['g'][indx][ii]+1./0.18307*1.20585-p['i'][indx][ii]-1./0.18307*0.68319)) for ii in range(numpy.sum(indx))])
+                    tdm= h+1.49-1.5
+                    tdist= 10.**(tdm/5.-2.) #kpc
+                    bovy_plot.bovy_plot(tG+ag,
+                                        4.74047*tdist*tplxerr*0.5,
+                                        marker='o',color=colors[jj],mec='none',
+                                        overplot=overplot)
     bovy_plot.bovy_plot([20.,20.],[0.,300.],'k:',overplot=True)
     #Work on legend
     dot2= bovy_plot.bovy_plot([-10.],[-10.],'o',color=colors[0],overplot=True,mec='none')
@@ -75,9 +100,9 @@ def plot_gaiamag(plotfilename):
     dot5= bovy_plot.bovy_plot([-10.],[-10.],'o',color=colors[3],overplot=True,mec='none')
     pyplot.legend((dot2[0],dot3[0],dot4[0],dot5[0]),
                   (r'$H = 12.2$',
-                   r'$H = 12.8 \ \ \ \ \mathrm{each}$',
-                   r'$H = 13.3 \ \ \ + A_H= 0, 0.5, 1$',
-                   r'$H = 13.8$'),
+                   r'$H = 12.8 \ \ \ \ \mathrm{each\ incl.}$',
+                   r'$H = 13.3 \ \ \ A_H= 0, 0.5,$',
+                   r'$H = 13.8 \ \ \ \ \ \ \ \ \ \ \ \ \, 1, 1.5$'),
                   loc='upper left',#bbox_to_anchor=(.91,.375),
                   numpoints=1,
                   prop={'size':16},
