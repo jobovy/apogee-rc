@@ -116,7 +116,9 @@ def plot_logg_teff_apokasc(parser):
                             overplot=True,
                             mec='none',ms=3.)
     bovy_plot.bovy_text(r'$%.1f < [\mathrm{M/H}] \leq %.1f$' % (options.feh-0.2,options.feh+0.2),
-                        top_left=True,size=14.)
+                        top_left=True,size=16.)
+    bovy_plot.bovy_text(5150.,2.05,r'$\mathrm{red\ clump}$',
+                        size=18.)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
     
