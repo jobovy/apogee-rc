@@ -63,7 +63,8 @@ def astro_sampling(parser):
         vmin, vmax= 0.5, 2.3
         vmin2, vmax2= 0.5, 2.
         zlabel= r'$\langle M_{\mathrm{RC}} \rangle \,(M_\odot)$'
-        cmap= 'gist_yarg'
+        #cmap= 'gist_yarg'
+        cmap= 'jet'
     elif options.type == 'omega':
         vmin, vmax= 0.,.03
         vmin2, vmax2= 0.,.015
@@ -76,19 +77,22 @@ def astro_sampling(parser):
             zlabel= r'$\mathrm{Mass\ fraction\ in}\ (J-K_s)_0 > 0.8\ \mathrm{giants\ (\%)}$'
         else:
             zlabel= r'$\mathrm{Mass\ fraction\ in\ RC\ stars\ (\%)}$'
-        cmap= 'gist_yarg'
+        #cmap= 'gist_yarg'
+        cmap= 'jet'
         plotthis*= 100.
     elif options.type == 'numfrac':
         vmin, vmax= 0.,0.005
         vmin2, vmax2= 0.,0.004
         zlabel= r'$\mathrm{Number\ fraction\ in\ RC\ stars\ (\%)}$'
-        cmap= 'gist_yarg'
+        #cmap= 'gist_yarg'
+        cmap= 'jet'
         plotthis*= 100.
     elif options.type == 'massperrc':
         vmin, vmax= 0.,50000.
         vmin2, vmax2= 0.,25000.
         zlabel= r'$\mathrm{Stellar\ population\ mass\ per\ RC\ star}\,(M_\odot)$'
-        cmap= 'gist_yarg'
+        #cmap= 'gist_yarg'
+        cmap= 'jet'
         if options.redapogee:
             vmin, vmax= 0.,100000.
             vmin2, vmax2= 0.,200000.
@@ -118,7 +122,7 @@ def astro_sampling(parser):
                           vmin=vmin,vmax=vmax,
                           interpolation='nearest',
                           colorbar=True,
-                          shrink=0.7,
+                          shrink=.9,
                           zlabel=zlabel,
                           overplot=True)
     extent= xlimits+ylimits

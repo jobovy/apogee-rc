@@ -931,7 +931,7 @@ class rcmodel:
                                      xrange=[self._jkmin,self._jkmax],
                                      yrange=ylim,
                                      aspect=(self._jkmax-self._jkmin)/(self._hmax-self._hmin),
-                                     xlabel=r'$(J-K_s)_0\ [\mathrm{mag}]$',
+                                     xlabel=r'$(J-K_s)_0$',
                                      ylabel=ylabel,
                                      interpolation='nearest')
     
@@ -964,7 +964,7 @@ class rcmodel:
         return bovy_plot.bovy_plot(self._sample[:,0],self._sample[:,1],
                                    xrange=[0.5,0.8],
                                    yrange=ylim,
-                                   xlabel=r'$(J-K_s)_0\ [\mathrm{mag}]$',
+                                   xlabel=r'$(J-K_s)_0$',
                                    ylabel=ylabel,
                                    scatter=True,
                                    c=self._weights,

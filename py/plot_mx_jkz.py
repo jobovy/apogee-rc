@@ -49,23 +49,23 @@ def plot_mx_jkz(parser):
     else: zstr= r'$Z = %.2f$' % options.Z
     bovy_plot.bovy_text(zstr,
                         bottom_right=True,size=20.)
-    if options.basti:
-        pyplot.annotate(r'$\mathrm{BaSTI}$',(0.5,1.08),
+    if options.basti and options.Z < 0.01:
+        pyplot.annotate(r'$\mathrm{BaSTI}\rightarrow$',(0.5,1.08),
                         xycoords='axes fraction',
                         horizontalalignment='center',
-                        verticalalignment='top',size=20.)
+                        verticalalignment='top',size=24.)
         #bovy_plot.bovy_text(r'$\mathrm{BaSTI}$',title=True,size=20.)
-    elif options.parsec:
-        pyplot.annotate(r'$\mathrm{PARSEC}$',(0.5,1.08),
+    elif options.parsec and options.Z < 0.01:
+        pyplot.annotate(r'$\mathrm{PARSEC}\rightarrow$',(0.5,1.08),
                         xycoords='axes fraction',
                         horizontalalignment='center',
-                        verticalalignment='top',size=20.)
+                        verticalalignment='top',size=24.)
         #bovy_plot.bovy_text(r'$\mathrm{PARSEC}$',title=True,size=20.)
-    else:
-        pyplot.annotate(r'$\mathrm{Padova}$',(0.5,1.08),
+    elif options.Z < 0.01:
+        pyplot.annotate(r'$\mathrm{Padova}\rightarrow$',(0.5,1.08),
                         xycoords='axes fraction',
                         horizontalalignment='center',
-                        verticalalignment='top',size=20.)
+                        verticalalignment='top',size=24.)
         #bovy_plot.bovy_text(r'$\mathrm{Padova}$',title=True,size=20.)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
