@@ -23,12 +23,10 @@ def plot_distancedist(basesavefilename):
     ax= pyplot.gca()
     ax2= ax.twinx()
     pyplot.sca(ax2)
-    bovy_plot.bovy_hist(data['RC_DIST'],
-                        histtype='step',
-                        cumulative=True,
-                        color='k',
-                        lw=1.,normed=True,
-                        overplot=True,bins=len(data))
+    bovy_plot.bovy_plot(sorted(data['RC_DIST']),
+                        numpy.linspace(1./len(data),1.,len(data)),
+                        'k-',
+                        overplot=True)
     ax2.set_xlim(0.,10.)
     ax2.set_ylim(0.,1.)
     bovy_plot._add_ticks()
