@@ -3,15 +3,17 @@ import numpy
 from scipy import special
 from galpy.util import bovy_plot
 from matplotlib import pyplot
+from extreme_deconvolution import extreme_deconvolution
 import monoAbundanceMW as maps
 import apogee.tools.read as apread
 _EXT='png'
 _ADDLLOGGCUT= True
 _SCATTERPLOT= False
-_ADDBOVYRIX= True
+_ADDBOVYRIX= False
 def plot_fehafe(basefilename):
     #First read the sample
     data= apread.rcsample()
+    data= data[data['SNR'] >= 70.]
     if _ADDLLOGGCUT:
         data= data[data['ADDL_LOGG_CUT'] == 1]
     #R and z ranges to plot
@@ -54,8 +56,6 @@ def plot_fehafe(basefilename):
             if _ADDBOVYRIX:
                 add_bovy_rix(axScatter,Rmins[ii],Rmaxs[ii],zmins[jj],zmaxs[jj])
             #Overplot ridge line
-            def ridge1(feh):
-                return -0.2*(feh+0.6)+0.23
             bovy_plot.bovy_plot([-0.8,0.3],[ridge1(-0.8),ridge1(0.3)],
                                 '-',lw=2.,color='y',overplot=True)
             bovy_plot.bovy_text(r'$%i < R / \mathrm{kpc} \leq %i$' % (Rmins[ii],Rmaxs[ii]) +'\n'+r'$%.1f < |z| / \mathrm{kpc} \leq %.1f$' % (zmins[jj],zmaxs[jj]),
@@ -96,14 +96,100 @@ def plot_fehafe(basefilename):
         if _ADDBOVYRIX:
             add_bovy_rix(axScatter,4.,9.,zmins[jj],zmaxs[jj])
         #Overplot ridge line
-        def ridge1(feh):
-            return -0.2*(feh+0.6)+0.23
         bovy_plot.bovy_plot([-0.8,0.3],[ridge1(-0.8),ridge1(0.3)],
                             '-',lw=2.,color='y',overplot=True)
         bovy_plot.bovy_text(r'$%.1f < |z| / \mathrm{kpc} \leq %.1f$' % (zmins[jj],zmaxs[jj]),
                                 top_left=True,size=16.)
         bovy_plot.bovy_end_print(basefilename+'_%.1fz%.1f.' % (zmins[jj],zmaxs[jj])+_EXT)
+    #Plot scatter in the high-alpha sequence
+    #Histograms in 3 R bins
+    bovy_plot.bovy_print(fig_width=7.)
+    overplot= False
+    colors= ['y','k','r']
+    labelposx= 0.235
+    labelposy= [13.,11.,9.]
+    for ii in range(nRbins):
+        tindx= (data['RC_GALR'] > Rmins[ii])\
+            *(data['RC_GALR'] <= Rmaxs[ii])\
+            *(numpy.fabs(data['RC_GALZ']) <= 3.)
+        tdata= data[tindx]
+        hindx= determine_highalpha(tdata)
+        tdata= tdata[hindx]
+        bovy_plot.bovy_hist(tdata['ALPHAFE']-ridge1(tdata['METALS']),
+                            color=colors[ii],histtype='step',
+                            bins=28,range=[-0.275,0.25],yrange=[0.,15.],
+                            weights=numpy.ones(len(tdata)),
+                            xlabel=r'$\delta[\alpha\mathrm{/Fe}]$',
+                            overplot=overplot,normed=True)
+        dafe= tdata['ALPHAFE']-ridge1(tdata['METALS'])
+        dafe= dafe[(numpy.fabs(tdata['RC_GALZ']) > .5)]
+        txa, txm, txc= run_xd(dafe)
+        print txm.flatten(), numpy.sqrt(txc.flatten()), txa[0]*len(dafe)
+        bovy_plot.bovy_plot([txm[0,0],txm[0,0]],[0.,200.],'--',lw=2.,
+                            color=colors[ii],overplot=True)
+        bovy_plot.bovy_text(labelposx,labelposy[ii],
+                            r'$%i < R \leq %i: \sigma = %.3f$' % (Rmins[ii],Rmaxs[ii],numpy.sqrt(txc[0,0,0])),
+                            size=16.,color=colors[ii],ha='right')
+        overplot= True
+    bovy_plot.bovy_end_print(basefilename+'_afefehhist.%s' % _EXT)
+    #High SN
+    bovy_plot.bovy_print(fig_width=7.)
+    overplot= False
+    for ii in range(nRbins):
+        tindx= (data['RC_GALR'] > Rmins[ii])\
+            *(data['RC_GALR'] <= Rmaxs[ii])\
+            *(numpy.fabs(data['RC_GALZ']) <= 3.)\
+            *(data['SNR'] >= 150.)
+        tdata= data[tindx]
+        hindx= determine_highalpha(tdata)
+        tdata= tdata[hindx]
+        bovy_plot.bovy_hist(tdata['ALPHAFE']-ridge1(tdata['METALS']),
+                            color=colors[ii],histtype='step',
+                            bins=19,range=[-0.275,0.15],yrange=[0.,19.5],
+                            weights=numpy.ones(len(tdata)),
+                            xlabel=r'$\delta[\alpha\mathrm{/Fe}]$',
+                            normed=True,
+                            overplot=overplot)
+        dafe= tdata['ALPHAFE']-ridge1(tdata['METALS'])
+        dafe= dafe[(numpy.fabs(tdata['RC_GALZ']) > .5)]
+        txa, txm, txc= run_xd(dafe)
+        print txm.flatten(), numpy.sqrt(txc.flatten())
+        bovy_plot.bovy_plot([txm[0,0],txm[0,0]],[0.,200.],'--',lw=2.,
+                            color=colors[ii],overplot=True)
+        overplot= True
+    bovy_plot.bovy_end_print(basefilename+'_afefehhist_highsn.%s' % _EXT)
     return None
+
+def ridge1(feh):
+    return -0.2*(feh+0.6)+0.22
+
+def determine_highalpha(data):
+    """Determine which stars are in the high alpha sequence"""
+    tafe= data['ALPHAFE']-ridge1(data['METALS'])
+    niter= 3
+    out= (data['METALS'] <= -0.2)*(data['METALS'] >= -0.6)
+    return out
+    nsig= [1.5,2.,3.]
+    for ii in range(niter):
+        tdisp= numpy.std(tafe[out])
+        out= (numpy.fabs(tafe) <= nsig[ii]*tdisp)
+    print numpy.mean(tafe[out]), tdisp, numpy.sum(out)
+    return out
+
+def run_xd(dafe):
+    """Run XD on the delta afes"""
+    ydata= numpy.empty((len(dafe),1))
+    ycovar= numpy.zeros((len(dafe),1))
+    ydata[:,0]= dafe
+    xamp= numpy.array([0.5,0.5])
+    xmean= numpy.empty((2,1))
+    xcovar= numpy.empty((2,1,1))
+    xmean[0,0]= 0.
+    xmean[1,0]= -0.12
+    xcovar[0,0,0]= 0.07
+    xcovar[1,0,0]= 0.07
+    extreme_deconvolution(ydata,ycovar,xamp,xmean,xcovar,fixmean=[False,True])
+    return (xamp,xmean,xcovar)
 
 def add_bovy_rix(axScatter,Rmin,Rmax,zmin,zmax):
     #Now calculate and plot our model
