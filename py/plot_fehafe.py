@@ -42,7 +42,7 @@ def plot_fehafe(basefilename):
                                       yrange=[-0.12,0.42],
                                       xlabel=r'$[\mathrm{Fe/H}]$',
                                       ylabel=r'$[\alpha/\mathrm{H}]$',
-                                      onedhists=True,bins=31,onedhistsbins=31)
+                                      onedhists=True,bins=31,onedhistsbins=21)
             else:
                 axScatter,axHistx, axHisty=\
                     bovy_plot.bovy_plot(tdata['METALS'],
@@ -231,7 +231,7 @@ python plot_fehafe.py ../figs/fehafe_wbovyrix
 
 montage -background none fehafe_5R7_1.0z2.0.png fehafe_7R9_1.0z2.0.png fehafe_9R11_1.0z2.0.png fehafe_5R7_0.5z1.0.png fehafe_7R9_0.5z1.0.png fehafe_9R11_0.5z1.0.png fehafe_5R7_0.0z0.5.png fehafe_7R9_0.0z0.5.png fehafe_9R11_0.0z0.5.png -tile 3x3 -geometry +0+0 fehafe.png
 
-montage -background none fehafe_wbovyrix_5R7_1.0z2.0.png fehafe_wbovyrix_7R9_1.0z2.0.png fehafe_wbovyrix_9R11_1.0z2.0.png fehafe_wbovyrix_5R7_0.5z1.0.png fehafe_wbovyrix_7R9_0.5z1.0.png fehafe_wbovyrix_9R11_0.5z1.0.png fehafe_wbovyrix_9R11_0.5z1.0.png fehafe_wbovyrix_7R9_0.0z0.5.png fehafe_wbovyrix_9R11_0.0z0.5.png  -tile 3x3 -geometry +0+0 fehafe_wbovyrix.png
+montage -background none fehafe_wbovyrix_5R7_1.0z2.0.png fehafe_wbovyrix_7R9_1.0z2.0.png fehafe_wbovyrix_9R11_1.0z2.0.png fehafe_wbovyrix_5R7_0.5z1.0.png fehafe_wbovyrix_7R9_0.5z1.0.png fehafe_wbovyrix_9R11_0.5z1.0.png fehafe_wbovyrix_5R7_0.0z0.5.png fehafe_wbovyrix_7R9_0.0z0.5.png fehafe_wbovyrix_9R11_0.0z0.5.png  -tile 3x3 -geometry +0+0 fehafe_wbovyrix.png
 
 montage -background none fehafe_0.0z0.5.png fehafe_0.5z1.0.png fehafe_1.0z2.0.png fehafe_2.0z4.0.png -tile 2x2 -geometry +0+0 fehafe_zonly.png
 
