@@ -115,6 +115,7 @@ class pixelXY:
         return int(math.floor((y-self.ymin)/self.dy))
 
     def plot(self,quant,func=numpy.median,minnstar=20.,submediany=False,
+             returnz=False,
              **kwargs):
         """
         NAME:
@@ -168,10 +169,15 @@ class pixelXY:
         else:
             xlabel=r'$X_{\mathrm{GC}}\,(\mathrm{kpc})$'
             ylabel=r'$Y_{\mathrm{GC}}\,(\mathrm{kpc})$'
-        return bovy_plot.bovy_dens2d(z2d.T,origin='lower',cmap='jet',
-                                     interpolation='nearest',
-                                     xlabel=xlabel,ylabel=ylabel,
-                                     xrange=xrange,yrange=yrange,
-                                     contours=False,
-                                     **kwargs)
+        out= bovy_plot.bovy_dens2d(z2d.T,origin='lower',cmap='jet',
+                                   interpolation='nearest',
+                                   xlabel=xlabel,ylabel=ylabel,
+                                   xrange=xrange,yrange=yrange,
+                                   contours=False,
+                                   **kwargs)
+        if returnz:
+            return z2d
+        else:
+            return out
+        
     

@@ -79,9 +79,16 @@ def plot_metallicity(basesavefilename,datafilename=None):
     pix= pixelize_sample.pixelXY(data,rphi=True,
                                  ymin=-22.5,ymax=37.5,dy=5.)
     bovy_plot.bovy_print()
-    pix.plot('METALS',
-             zlabel=r'$\delta\,\mathrm{median\ [Fe/H]}\,(\mathrm{dex})$',
-             vmin=-0.1,vmax=0.1,submediany=True)
+    metals2d= pix.plot('METALS',
+                       zlabel=r'$\delta\,\mathrm{median\ [Fe/H]}\,(\mathrm{dex})$',
+                       vmin=-0.1,vmax=0.1,submediany=True,returnz=True)
+    sigs= []
+    for ii in range(metals2d.shape[0]):
+        tindx= True-numpy.isnan(metals2d[ii,:])
+        if numpy.sum(tindx) > 2:
+            sigs.append(1.4826*numpy.median(numpy.fabs(metals2d[ii,tindx])))
+    sigs= numpy.array(sigs)
+    print numpy.median(sigs), numpy.amax(sigs), sigs
     #bovy_plot.bovy_text(r'$|Z| < 250\,\mathrm{pc}$',bottom_left=True,size=18.)
     bovy_plot.bovy_end_print(basesavefilename+'_RPHI.'+_EXT)
     # vs. alpha
