@@ -1,15 +1,19 @@
 import sys
 import numpy
 from scipy import optimize
+import fitsio
 from galpy.util import bovy_plot
 from matplotlib import pyplot
 import apogee.tools.read as apread
 import pixelize_sample
 _EXT='ps'
 _ADDLLOGGCUT= True
-def plot_metallicity(basesavefilename):
+def plot_metallicity(basesavefilename,datafilename=None):
     #First read the sample
-    data= apread.rcsample()
+    if not datafilename is None:
+        data= fitsio.read(datafilename)
+    else:
+        data= apread.rcsample()
     if _ADDLLOGGCUT:
         data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
@@ -52,7 +56,10 @@ def plot_metallicity(basesavefilename):
     bovy_plot.bovy_end_print(basesavefilename+'_radialgradient.'+_EXT)
     #Now plot azimuthal stuff
     #First read the sample again
-    data= apread.rcsample()
+    if not datafilename is None:
+        data= fitsio.read(datafilename)
+    else:
+        data= apread.rcsample()
     if _ADDLLOGGCUT:
         data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
@@ -79,7 +86,10 @@ def plot_metallicity(basesavefilename):
     bovy_plot.bovy_end_print(basesavefilename+'_RPHI.'+_EXT)
     # vs. alpha
     #First read the sample
-    data= apread.rcsample()
+    if not datafilename is None:
+        data= fitsio.read(datafilename)
+    else:
+        data= apread.rcsample()
     if _ADDLLOGGCUT:
         data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
@@ -98,7 +108,10 @@ def plot_metallicity(basesavefilename):
     bovy_plot.bovy_end_print(basesavefilename+'_alpha.'+_EXT)
     # vs. alpha
     #First read the sample
-    data= apread.rcsample()
+    if not datafilename is None:
+        data= fitsio.read(datafilename)
+    else:
+        data= apread.rcsample()
     if _ADDLLOGGCUT:
         data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
@@ -118,7 +131,10 @@ def plot_metallicity(basesavefilename):
     bovy_plot.bovy_end_print(basesavefilename+'_alpha_0.5z1.'+_EXT)
     # vs. alpha
     #First read the sample
-    data= apread.rcsample()
+    if not datafilename is None:
+        data= fitsio.read(datafilename)
+    else:
+        data= apread.rcsample()
     if _ADDLLOGGCUT:
         data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
@@ -138,7 +154,10 @@ def plot_metallicity(basesavefilename):
     bovy_plot.bovy_end_print(basesavefilename+'_alpha_1z2.'+_EXT)
     # vs. alpha
     #First read the sample
-    data= apread.rcsample()
+    if not datafilename is None:
+        data= fitsio.read(datafilename)
+    else:
+        data= apread.rcsample()
     if _ADDLLOGGCUT:
         data= data[data['ADDL_LOGG_CUT'] == 1]
     #Cut
@@ -168,4 +187,7 @@ def linfit(x,slope,zeropoint):
     return slope*(x-8.)+zeropoint
 
 if __name__ == '__main__':
-    plot_metallicity(sys.argv[1])
+    if len(sys.argv) > 2:
+        plot_metallicity(sys.argv[1],sys.argv[2])
+    else:
+        plot_metallicity(sys.argv[1])

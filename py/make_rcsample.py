@@ -1,20 +1,25 @@
 import sys
 import os, os.path
+from optparse import OptionParser
 import numpy
 import fitsio
 import esutil
 from galpy.util import bovy_coords
-from astroquery.vizier import Vizier
-import astroquery
-from astropy import units as u
-import astropy.coordinates as coord
 import isodist
 import apogee.tools.read as apread
+import apogee.tools.path as appath
 import apogee.select.apogeeSelect
 import rcmodel
 _ADDHAYDENDIST= False
 _ERASESTR= "                                                                                "
-def make_rcsample(savefilename):
+def make_rcsample(parser):
+    options,args= parser.parse_args()
+    savefilename= options.savefilename
+    if savefilename is None:
+        #Create savefilename if not given
+        savefilename= os.path.join(appath._APOGEE_DATA,
+                                   'rcsample_'+appath._APOGEE_REDUX+'.fits')
+        print "Saving to %s ..." % savefilename
     #Read the base-sample
     data= apread.allStar(adddist=_ADDHAYDENDIST)
     #Select red-clump stars
@@ -40,7 +45,7 @@ def make_rcsample(savefilename):
     rcd= rcmodel.rcdist('../../rcdist-apogee/data/rcmodel_mode_jkz_ks_parsec_newlogg.sav')
     jk= data['J0']-data['K0']
     z= isodist.FEH2Z(data['METALS'],zsolar=0.017)
-    data['RC_DIST']= rcd(jk,z,appmag=data['K0'])
+    data['RC_DIST']= rcd(jk,z,appmag=data['K0'])*options.distfac
     data['RC_DM']= 5.*numpy.log10(data['RC_DIST'])+10.
     XYZ= bovy_coords.lbd_to_XYZ(data['GLON'],
                                 data['GLAT'],
@@ -55,21 +60,29 @@ def make_rcsample(savefilename):
     data['RC_GALZ']= Z
     #Save
     fitsio.write(savefilename,data,clobber=True)
-    #Determine statistical sample and add flag
-    apo= apogee.select.apogeeSelect()
-    statIndx= apo.determine_statistical(data)
-    mainIndx= apread.mainIndx(data)
-    data= esutil.numpy_util.add_fields(data,[('STAT',numpy.int32),
-                                             ('INVSF',float)])
-    data['STAT']= 0
-    data['STAT'][statIndx*mainIndx]= 1
-    for ii in range(len(data)):
-        if (statIndx*mainIndx)[ii]:
-            data['INVSF'][ii]= 1./apo(data['LOCATION_ID'][ii],
-                                      data['H'][ii])
-        else:
-            data['INVSF'][ii]= -1.
+    if not options.nostat:
+        #Determine statistical sample and add flag
+        apo= apogee.select.apogeeSelect()
+        statIndx= apo.determine_statistical(data)
+        mainIndx= apread.mainIndx(data)
+        data= esutil.numpy_util.add_fields(data,[('STAT',numpy.int32),
+                                                 ('INVSF',float)])
+        data['STAT']= 0
+        data['STAT'][statIndx*mainIndx]= 1
+        for ii in range(len(data)):
+            if (statIndx*mainIndx)[ii]:
+                data['INVSF'][ii]= 1./apo(data['LOCATION_ID'][ii],
+                                          data['H'][ii])
+            else:
+                data['INVSF'][ii]= -1.
+    if options.nopm:
+        fitsio.write(savefilename,data,clobber=True)       
+        return None
     #Get proper motions
+    from astroquery.vizier import Vizier
+    import astroquery
+    from astropy import units as u
+    import astropy.coordinates as coord
     pmfile= savefilename.split('.')[0]+'_pms.fits'
     if os.path.exists(pmfile):
         pmdata= fitsio.read(pmfile,1)
@@ -323,13 +336,22 @@ def cos_sphere_dist(theta,phi,theta_o,phi_o):
                                                  numpy.sin(phi_o)*numpy.sin(phi))+
             numpy.cos(theta_o)*numpy.cos(theta))
 
+def get_options():
+    usage = "usage: %prog [options]"
+    parser = OptionParser(usage=usage)
+    parser.add_option("-o",dest='savefilename',default=None,
+                      help="Name for catalog file")
+    parser.add_option("--distfac",dest='distfac',default=1.,
+                      type='float',
+                      help="Factor to apply to the RC distances")
+    parser.add_option("--nopm",action="store_true", dest="nopm",
+                      default=False,
+                      help="If set, don't match to proper motion catalogs")
+    parser.add_option("--nostat",action="store_true", dest="nostat",
+                      default=False,
+                      help="If set, don't determine the statistical sample")
+    return parser
+
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        make_rcsample(sys.argv[1])
-    else:
-        #Create savefilename
-        import apogee.tools.path as appath
-        savefilename= os.path.join(appath._APOGEE_DATA,
-                                   'rcsample_'+appath._APOGEE_REDUX+'.fits')
-        print "Saving to %s ..." % savefilename
-        make_rcsample(savefilename)
+    parser= get_options()
+    make_rcsample(parser)
