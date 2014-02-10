@@ -135,6 +135,16 @@ def plot_gaiamag(plotfilename,plx=False):
                   numpoints=1,
                   prop={'size':16},
                   frameon=False)
+    if plx:
+        bovy_plot.bovy_plot([5.,25.],[10.,10.],'k--',lw=2.,overplot=True)
+        bovy_plot.bovy_text(11.25,2.,r'$\mathrm{spectro-photometric\ RC\ precision}$',
+                            size=16.)
+        from matplotlib.patches import FancyArrowPatch
+        ax=pyplot.gca()
+        ax.add_patch(FancyArrowPatch((20.5,10.),(20.5,-1.),
+                                     arrowstyle='->',mutation_scale=15,
+                                     fill=True,
+                                     lw=1.25,color='k'))
     bovy_plot.bovy_end_print(plotfilename)
     return None
 
