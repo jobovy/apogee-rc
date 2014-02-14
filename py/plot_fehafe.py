@@ -10,6 +10,7 @@ _EXT='png'
 _ADDLLOGGCUT= True
 _SCATTERPLOT= False
 _ADDBOVYRIX= False
+_NOLINE= False
 def plot_fehafe(basefilename):
     #First read the sample
     data= apread.rcsample()
@@ -55,11 +56,12 @@ def plot_fehafe(basefilename):
                                         onedhists=True,bins=21)
             if _ADDBOVYRIX:
                 add_bovy_rix(axScatter,Rmins[ii],Rmaxs[ii],zmins[jj],zmaxs[jj])
-            #Overplot ridge line
-            bovy_plot.bovy_plot([-0.8,0.3],[ridge1(-0.8),ridge1(0.3)],
-                                '-',lw=2.,color='y',overplot=True)
+            if not _NOLINE:
+                #Overplot ridge line
+                bovy_plot.bovy_plot([-0.8,0.3],[ridge1(-0.8),ridge1(0.3)],
+                                    '-',lw=2.,color='y',overplot=True)
             bovy_plot.bovy_text(r'$%i < R / \mathrm{kpc} \leq %i$' % (Rmins[ii],Rmaxs[ii]) +'\n'+r'$%.1f < |z| / \mathrm{kpc} \leq %.1f$' % (zmins[jj],zmaxs[jj]),
-                                top_left=True,size=16.)
+                                    top_left=True,size=16.)
             bovy_plot.bovy_end_print(basefilename+'_%iR%i_%.1fz%.1f.' % (Rmins[ii],Rmaxs[ii],zmins[jj],zmaxs[jj])+_EXT)
     #Plot z bins only
     zmins= [0.,0.5,1.,2.]
@@ -228,10 +230,14 @@ if __name__ == '__main__':
 python plot_fehafe.py ../figs/fehafe
 python plot_fehafe.py ../figs/fehafe_wbovyrix
 (first set _ADDBOVYRIX)
+python plot_fehafe.py ../figs/fehafe_noline
+(first set _NOLINE)
 
 montage -background none fehafe_5R7_1.0z2.0.png fehafe_7R9_1.0z2.0.png fehafe_9R11_1.0z2.0.png fehafe_5R7_0.5z1.0.png fehafe_7R9_0.5z1.0.png fehafe_9R11_0.5z1.0.png fehafe_5R7_0.0z0.5.png fehafe_7R9_0.0z0.5.png fehafe_9R11_0.0z0.5.png -tile 3x3 -geometry +0+0 fehafe.png
 
 montage -background none fehafe_wbovyrix_5R7_1.0z2.0.png fehafe_wbovyrix_7R9_1.0z2.0.png fehafe_wbovyrix_9R11_1.0z2.0.png fehafe_wbovyrix_5R7_0.5z1.0.png fehafe_wbovyrix_7R9_0.5z1.0.png fehafe_wbovyrix_9R11_0.5z1.0.png fehafe_wbovyrix_5R7_0.0z0.5.png fehafe_wbovyrix_7R9_0.0z0.5.png fehafe_wbovyrix_9R11_0.0z0.5.png  -tile 3x3 -geometry +0+0 fehafe_wbovyrix.png
+
+montage -background none fehafe_noline_5R7_1.0z2.0.png fehafe_noline_7R9_1.0z2.0.png fehafe_noline_9R11_1.0z2.0.png fehafe_noline_5R7_0.5z1.0.png fehafe_noline_7R9_0.5z1.0.png fehafe_noline_9R11_0.5z1.0.png fehafe_noline_5R7_0.0z0.5.png fehafe_noline_7R9_0.0z0.5.png fehafe_noline_9R11_0.0z0.5.png  -tile 3x3 -geometry +0+0 fehafe_noline.png
 
 montage -background none fehafe_0.0z0.5.png fehafe_0.5z1.0.png fehafe_1.0z2.0.png fehafe_2.0z4.0.png -tile 2x2 -geometry +0+0 fehafe_zonly.png
 
