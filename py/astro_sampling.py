@@ -32,7 +32,7 @@ def astro_sampling(parser):
             savefile= open(args[1],'rb')
             masscoarse= pickle.load(savefile)
             savefile.close()
-            savefile= open(args[1],'rb')
+            savefile= open(args[2],'rb')
             omega= pickle.load(savefile)
             savefile.close()
     else:
@@ -147,9 +147,9 @@ def astro_sampling(parser):
         expmtrend= 1./(numpy.sum(exppage*1./plotthis,axis=1)/numpy.sum(exppage))
         exexpmtrend= 1./(numpy.sum(exexppage*1./plotthis,axis=1)/numpy.sum(exexppage))
     elif options.type == 'mass' and len(args) == 3:
-        mtrend= 1./(numpy.sum(page*1./(omega/masscoarse),axis=1)/numpy.sum(page))*numpy.sum(page*omega,axis=1)/numpy.sum(page)
-        expmtrend= 1./(numpy.sum(exppage*1./(omega/masscoarse),axis=1)/numpy.sum(exppage))*numpy.sum(exppage*omega,axis=1)/numpy.sum(exppage)
-        exexpmtrend= 1./(numpy.sum(exexppage*1./(omega/masscoarse),axis=1)/numpy.sum(exexppage))*numpy.sum(exexppage*omega,axis=1)/numpy.sum(exexppage)
+        mtrend= numpy.sum(page*omega,axis=1)/numpy.sum(page*omega/masscoarse,axis=1)
+        expmtrend= numpy.sum(exppage*omega,axis=1)/numpy.sum(exppage*omega/masscoarse,axis=1)
+        exexpmtrend= numpy.sum(exexppage*omega,axis=1)/numpy.sum(exexppage*omega/masscoarse,axis=1)
     else:
         mtrend= numpy.sum(page*plotthis,axis=1)/numpy.sum(page)
         expmtrend= numpy.sum(exppage*plotthis,axis=1)/numpy.sum(exppage)
