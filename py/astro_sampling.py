@@ -1,7 +1,9 @@
 import os, os.path
 import cPickle as pickle
 import numpy
+from scipy import interpolate
 from galpy.util import bovy_plot, multi
+import isodist
 from matplotlib import pyplot
 from matplotlib.ticker import NullFormatter
 import rcmodel
@@ -111,12 +113,33 @@ def astro_sampling(parser):
                 regularplotthis[ii,jj]= plotthis[ii,thisindx]
         zs= regularzs
         plotthis= regularplotthis
+    if options.remapz:
+        zs= zs[:-1]
+        plotthis= plotthis[:-1,:]
+        fehs= numpy.linspace(-1.05,
+                              isodist.Z2FEH(zs[-1],zsolar=0.017),len(zs))
+        fehzs= isodist.FEH2Z(fehs,zsolar=0.017)
+        new_plotthis= numpy.empty_like(plotthis)
+        for ii in range(plotthis.shape[1]):
+            goodz= True-numpy.isnan(plotthis[:,ii])
+            tip= interpolate.InterpolatedUnivariateSpline(zs[goodz],
+                                                          plotthis[goodz,ii],
+                                                          k=3)
+            new_plotthis[:,ii]= tip(fehzs)
+            new_plotthis[fehs < numpy.nanmax(isodist.Z2FEH(zs[True-goodz],zsolar=0.017)),ii]= numpy.nan
+        plotthis= new_plotthis
+        xlabel= r'$[\mathrm{Fe/H}]\,(\mathrm{dex})$'
+    else:
+        xlabel= r'$Z$'
     bovy_plot.bovy_print(fig_height=7.,fig_width=6.)
     fig= pyplot.gcf()
     left, bottom, width, height= 0.1, 0.1, 0.8, 0.6
     axBottom= pyplot.axes([left,bottom,width,height])
     fig.sca(axBottom)
-    xlimits= [zs[0],zs[-1]]
+    if options.remapz:
+        xlimits= [fehs[0],fehs[-1]]
+    else:
+        xlimits= [zs[0],zs[-1]]
     ylimits= [lages[0]-dlages,lages[-1]+dlages]
     bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap=cmap,
                           xrange=xlimits,
@@ -129,7 +152,7 @@ def astro_sampling(parser):
                           overplot=True)
     extent= xlimits+ylimits
     pyplot.axis(extent)
-    bovy_plot._add_axislabels(r'$Z$',
+    bovy_plot._add_axislabels(xlabel,
                               r'$\log_{10}\,\mathrm{Age} / 1\,\mathrm{Gyr}$')
     bovy_plot._add_ticks()
     left, bottom, width, height= 0.1, 0.68, 0.64, 0.2
@@ -152,6 +175,9 @@ def astro_sampling(parser):
         expmtrend= 1./(numpy.sum(exppage*1./plotthis,axis=1)/numpy.sum(exppage))
         exexpmtrend= 1./(numpy.sum(exexppage*1./plotthis,axis=1)/numpy.sum(exexppage))
     elif options.type == 'mass' and len(args) == 3:
+        if options.remapz:
+            omega= omega[:-1,:]
+            masscoarse= masscoarse[:-1,:]
         mtrend= numpy.nansum(page*omega,axis=1)/numpy.nansum(page*omega/masscoarse,axis=1)
         expmtrend= numpy.nansum(exppage*omega,axis=1)/numpy.nansum(exppage*omega/masscoarse,axis=1)
         exexpmtrend= numpy.nansum(exexppage*omega,axis=1)/numpy.nansum(exexppage*omega/masscoarse,axis=1)
@@ -159,6 +185,8 @@ def astro_sampling(parser):
         mtrend= numpy.sum(page*plotthis,axis=1)/numpy.sum(page)
         expmtrend= numpy.sum(exppage*plotthis,axis=1)/numpy.sum(exppage)
         exexpmtrend= numpy.sum(exexppage*plotthis,axis=1)/numpy.sum(exexppage)
+    if options.remapz:
+        zs= fehs
     pyplot.plot(zs,mtrend,'k-')
     pyplot.plot(zs,expmtrend,'k--')
     pyplot.plot(zs,exexpmtrend,'k-.')

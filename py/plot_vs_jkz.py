@@ -192,6 +192,9 @@ def get_options():
     parser.add_option("--coarseage",action="store_true", dest="coarseage",
                       default=False,
                       help="If set, use a coarse age distribution for the average RC mass")
+    parser.add_option("--remapz",action="store_true", dest="remapz",
+                      default=False,
+                      help="If set, remap Z onto [Fe/H] for astro_sampling")
     return parser
     
 if __name__ == '__main__':
