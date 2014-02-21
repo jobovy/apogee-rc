@@ -6,6 +6,7 @@ from matplotlib import pyplot
 from matplotlib.ticker import NullFormatter
 import rcmodel
 from plot_vs_jkz import get_options
+_CUTLOWAGE= True
 def astro_sampling(parser):
     options,args= parser.parse_args()
     if options.basti:
@@ -56,9 +57,10 @@ def astro_sampling(parser):
         savefile.close()
     #Plot
     #Fist cut out youngest ages, since they are irrelevant
-    aindx= lages > numpy.log10(0.8)
-    lages= lages[aindx]
-    plotthis= plotthis[:,aindx]
+    if _CUTLOWAGE:
+        aindx= lages > numpy.log10(0.8)
+        lages= lages[aindx]
+        plotthis= plotthis[:,aindx]
     if options.type == 'mass':
         vmin, vmax= 0.5, 2.3
         vmin2, vmax2= 0.5, 2.
@@ -135,9 +137,12 @@ def astro_sampling(parser):
     fig.sca(axTop)
     #Plot the average over SFH
     lages= numpy.linspace(-1.,1.,16)
-    if not options.type == 'mass':
+    if _CUTLOWAGE:
         aindx= lages > numpy.log10(0.8)
         lages= lages[aindx]
+        if options.type == 'mass':
+            omega= omega[:,aindx]
+            masscoarse= masscoarse[:,aindx]
     mtrend= numpy.zeros(len(zs))
     exppage= 10.**lages*numpy.exp((10.**(lages+2.))/800.) #e.g., Binney (2010)
     exexppage= 10.**lages*numpy.exp((10.**(lages+2.))/100.) #e.g., Binney (2010)
@@ -147,9 +152,9 @@ def astro_sampling(parser):
         expmtrend= 1./(numpy.sum(exppage*1./plotthis,axis=1)/numpy.sum(exppage))
         exexpmtrend= 1./(numpy.sum(exexppage*1./plotthis,axis=1)/numpy.sum(exexppage))
     elif options.type == 'mass' and len(args) == 3:
-        mtrend= numpy.sum(page*omega,axis=1)/numpy.sum(page*omega/masscoarse,axis=1)
-        expmtrend= numpy.sum(exppage*omega,axis=1)/numpy.sum(exppage*omega/masscoarse,axis=1)
-        exexpmtrend= numpy.sum(exexppage*omega,axis=1)/numpy.sum(exexppage*omega/masscoarse,axis=1)
+        mtrend= numpy.nansum(page*omega,axis=1)/numpy.nansum(page*omega/masscoarse,axis=1)
+        expmtrend= numpy.nansum(exppage*omega,axis=1)/numpy.nansum(exppage*omega/masscoarse,axis=1)
+        exexpmtrend= numpy.nansum(exexppage*omega,axis=1)/numpy.nansum(exexppage*omega/masscoarse,axis=1)
     else:
         mtrend= numpy.sum(page*plotthis,axis=1)/numpy.sum(page)
         expmtrend= numpy.sum(exppage*plotthis,axis=1)/numpy.sum(exppage)
@@ -216,10 +221,16 @@ def _calc_one(z,options,nages,lages,dlages):
         elif options.redapogee:
             aindx*= (jk > 0.8)
         else:
+            rcd= rcmodel.rcdist('../../rcdist-apogee/data/rcmodel_mode_jkz_ks_parsec_newlogg.sav')
+            predH= numpy.array([rcd(j,z) for j in jk])
+            predH= numpy.reshape(predH,len(jk))
             aindx*= (jk < 0.8)*(jk > 0.5)\
                 *(z <= rcmodel.jkzcut(jk,upper=True))\
                 *(z >= rcmodel.jkzcut(jk))\
-                *(z <= 0.06)
+                *(z <= 0.06)\
+                *(rc._sample[:,1] > (predH-0.4))\
+                *(rc._sample[:,1] < (predH+0.4))\
+                *(rc._sample[:,1] > -3.)
         if options.type == 'omega':
             try:
                 out[jj]= numpy.mean(rc._massweights[aindx])
