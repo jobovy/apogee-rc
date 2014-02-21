@@ -276,7 +276,7 @@ class rcmodel:
                         else:
                             H= thisiso.Ks[ii]
                     if JK < 0.3 \
-                            or (isinstance(loggmax,str) and loggmax == 'custom' and thisiso['logg'][ii] > loggteffcut(10.**thisiso['logTe'][ii],Zs[zz],upper=True)) \
+                            or (isinstance(loggmax,str) and loggmax == 'custom' and (thisiso['logg'][ii] > loggteffcut(10.**thisiso['logTe'][ii],Zs[zz],upper=True) or thisiso['logg'][ii] > 3.5)) \
                             or (not isinstance(loggmax,str) and not loggmax is None and thisiso['logg'][ii] > loggmax) \
                             or (not loggmin is None and thisiso['logg'][ii] < loggmin):
                         continue
