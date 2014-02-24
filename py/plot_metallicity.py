@@ -8,6 +8,7 @@ import apogee.tools.read as apread
 import pixelize_sample
 _EXT='ps'
 _ADDLLOGGCUT= True
+_JACKERRS= True
 def plot_metallicity(basesavefilename,datafilename=None):
     #First read the sample
     if not datafilename is None:
@@ -47,6 +48,28 @@ def plot_metallicity(basesavefilename,datafilename=None):
     bestfit= optimize.curve_fit(linfit,(rs+0.5*(rs[1]-rs[0]))[indx],
                                 fehs[indx],sigma=efehs[indx],
                                 p0=(-0.1,0.))
+    if _JACKERRS:
+        fitrs= (rs+0.5*(rs[1]-rs[0]))[indx]
+        fitfehs= fehs[indx]
+        fitefehs= efehs[indx]
+        np= len(fitfehs)
+        fitp0= []
+        fitp1= []
+        for ii in range(np):
+            findx= numpy.ones(np,dtype='bool')
+            findx[ii]= False
+            tbestfit= optimize.curve_fit(linfit,fitrs[findx],
+                                         fitfehs[findx],sigma=fitefehs[findx],
+                                         p0=(-0.1,0.))
+            fitp0.append(tbestfit[0][0])
+            fitp1.append(tbestfit[0][1])
+        fitp0= numpy.array(fitp0)
+        fitp1= numpy.array(fitp1)
+        p0err= numpy.sqrt((np-1.)*numpy.var(fitp0))
+        p1err= numpy.sqrt((np-1.)*numpy.var(fitp1))
+        print "radial metallicity errors"
+        print bestfit[0][0], p0err
+        print bestfit[0][1], p1err
     bovy_plot.bovy_plot(rs+0.5*(rs[1]-rs[0]),
                         bestfit[0][0]*((rs+0.5*(rs[1]-rs[0])-8.))+bestfit[0][1],
                         'k--',overplot=True)
