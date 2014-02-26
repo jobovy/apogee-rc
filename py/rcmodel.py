@@ -275,6 +275,8 @@ class rcmodel:
                             H= thisiso.K[ii]-0.046
                         else:
                             H= thisiso.Ks[ii]
+                    elif band.lower() == 'age':
+                        H= logage-9.
                     if JK < 0.3 \
                             or (isinstance(loggmax,str) and loggmax == 'custom' and (thisiso['logg'][ii] > loggteffcut(10.**thisiso['logTe'][ii],Zs[zz],upper=True) or thisiso['logg'][ii] > 3.5)) \
                             or (not isinstance(loggmax,str) and not loggmax is None and thisiso['logg'][ii] > loggmax) \
@@ -513,7 +515,10 @@ class rcmodel:
         #First collapse
         #coamp, comean, cocovar= self.collapse(jk,sjk=sjk)
         #Calculate pdf
-        xs= numpy.linspace(-3.,0.,nxs)
+        if self._band.lower() == 'age':
+            xs= numpy.linspace(-1.,1.,nxs)
+        else:
+            xs= numpy.linspace(-3.,0.,nxs)
         lnpdf= self(jk*numpy.ones(nxs),xs)
 #        for ii, x in enumerate(xs):
 #            this_lnpdf= numpy.log(coamp)-numpy.log(cocovar)-0.5*(x-comean)**2./cocovar

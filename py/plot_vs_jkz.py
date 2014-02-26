@@ -41,20 +41,34 @@ def plot_vs_jkz(parser):
         save_pickles(args[0],plotthis,jks,zs)
     #Plot
     if options.type == 'sig':
-        if options.relative:
-            vmin, vmax= 0.8,1.2
-            zlabel= r'$\mathrm{FWHM}/\mathrm{FWHM}_{\mathrm{fiducial}}$'
+        if options.band.lower() == 'age':
+            if options.relative:
+                raise NotImplementedError("relative age not implemented yet")
+            else:
+                vmin, vmax= 0.,.5
+                zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}$'
         else:
-            vmin, vmax= 0., 0.4
-            zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}$'
+            if options.relative:
+                vmin, vmax= 0.8,1.2
+                zlabel= r'$\mathrm{FWHM}/\mathrm{FWHM}_{\mathrm{fiducial}}$'
+            else:
+                vmin, vmax= 0., 0.4
+                zlabel= r'$\mathrm{FWHM} / 2\sqrt{2\,\ln 2}$'
     elif options.type == 'mode':
-        if options.relative:
-            vmin, vmax= -0.05,0.05
-            zlabel= r'$\Delta\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|[J-K_s]_0)}$'
+        if options.band.lower() == 'age':
+            if options.relative:
+                raise NotImplementedError("relative age not implemented yet")
+            else:
+                vmin, vmax= 0.,1.
+                zlabel= r'$\Delta\displaystyle\arg\!\max_{\substack{\log_{10}\mathrm{Age}}}{p(\log_{10}\mathrm{Age}|[J-K_s]_0)}$'
         else:
-            vmin, vmax= -1.8, -1.5
+            if options.relative:
+                vmin, vmax= -0.05,0.05
+                zlabel= r'$\Delta\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|[J-K_s]_0)}$'
+            else:
+                vmin, vmax= -1.8, -1.5
         #zlabel= r'$\mathrm{argmax}_{K_s}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
-            zlabel= r'$\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|[J-K_s]_0)}$'
+                zlabel= r'$\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|[J-K_s]_0)}$'
     if options.basti:#Remap the Zs
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
         regularzs= numpy.arange(0.0005,0.04005,0.0005)
