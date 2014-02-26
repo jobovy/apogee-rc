@@ -491,6 +491,9 @@ class rcmodel:
         elif self._band == 'Ks':
             xlabel= r'$M_{K_s}$'
             xlim=[0.,-2.]
+        elif self._band == 'age':
+            xlabel= r'$\log_{10} \mathrm{Age / Gyr}$'
+            xlim=[0.,1.]
         return bovy_plot.bovy_plot(xs,numpy.exp(lnpdf),'k-',
                                    xrange=xlim,
                                    yrange=[0.,
