@@ -492,8 +492,8 @@ class rcmodel:
             xlabel= r'$M_{K_s}$'
             xlim=[0.,-2.]
         elif self._band == 'age':
-            xlabel= r'$\log_{10} \mathrm{Age / Gyr}$'
-            xlim=[0.,1.]
+            xlabel= r'$\log_{10}\, \mathrm{Age / Gyr}$'
+            xlim=[numpy.log10(0.8),1.]
         return bovy_plot.bovy_plot(xs,numpy.exp(lnpdf),'k-',
                                    xrange=xlim,
                                    yrange=[0.,
@@ -935,6 +935,9 @@ class rcmodel:
         elif self._band == 'Ks':
             ylabel= r'$M_{K_s}$'
             ylim=[0.,-3.]
+        elif self._band == 'age':
+            ylabel= r'$\log_{10}\,\mathrm{Age / Gyr}$'
+            ylim=[numpy.log10(0.8),1.]
         return bovy_plot.bovy_dens2d(plotthis.T,origin='lower',cmap='gist_yarg',
                                      xrange=[self._jkmin,self._jkmax],
                                      yrange=ylim,
@@ -969,6 +972,9 @@ class rcmodel:
         elif self._band == 'Ks':
             ylabel= r'$M_{K_s}$'
             ylim=[0.,-3.]
+        elif self._band == 'age':
+            ylabel= r'$\log_{10}\, \mathrm{Age / Gyr}$'
+            ylim=[numpy.log10(0.8),1.]
         return bovy_plot.bovy_plot(self._sample[:,0],self._sample[:,1],
                                    xrange=[0.5,0.8],
                                    yrange=ylim,
