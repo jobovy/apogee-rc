@@ -15,10 +15,15 @@ def plot_magcorr(plotfilename):
                        -1.652846])# Kroupa
     """
     print corrs
-    bovy_plot.bovy_print(fig_width=7.)
+    bovy_plot.bovy_print(fig_width=7.,
+                         text_fontsize=20.,
+                         legend_fontsize=24.,
+                         xtick_labelsize=18.,
+                         ytick_labelsize=18.,
+                         axes_labelsize=24.)
     bovy_plot.bovy_plot([1,2,3,4],corrs,'ko',ms=10.,
                         xrange=[0,5],
-                        yrange=[-0.1,0.1],
+                        yrange=[0.,0.08],
                         ylabel=r'$\mathrm{magnitude\ offset}$')
     #Put labels and rotate them
     pyplot.xticks([1,2,3,4],
