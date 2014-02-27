@@ -37,7 +37,7 @@ if __name__ == '__main__':
     xrange= [0.,1.]
     bovy_plot.bovy_print()
     bovy_plot.bovy_hist(ksshort,range=xrange,bins=21,
-                        xlabel=r'$\mathrm{KS\ probability\ that\ the\ spectroscopic\ sample}$'+'\n'+r'$\mathrm{was\ drawn\ from\ the\ photometric\ sample}$'+'\n'+r'$\times\ \mathrm{the\ model\ selection\ function}$',
+                        xlabel=r'$\mathrm{KS\ probability}$',#\ that\ the\ spectroscopic\ sample}$'+'\n'+r'$\mathrm{was\ drawn\ from\ the\ photometric\ sample}$'+'\n'+r'$\times\ \mathrm{the\ model\ selection\ function}$',
                         ylabel=r'$\mathrm{distribution}$',
                         yrange=[0.,4.],
                         ec='k',histtype='step',normed=True)
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     lineshort= bovy_plot.bovy_plot(sorted(ksshort),
                                    numpy.linspace(1./len(ksshort),1.,len(ksshort)),
                                    'k-',
-                                   xlabel=r'$\mathrm{KS\ probability\ that\ the\ spectroscopic\ sample}$'+'\n'+r'$\mathrm{was\ drawn\ from\ the\ photometric\ sample}$'+'\n'+r'$\times\ \mathrm{the\ model\ selection\ function}$',
+                                   xlabel=r'$\mathrm{KS\ probability}$',#\ that\ the\ spectroscopic\ sample}$'+'\n'+r'$\mathrm{was\ drawn\ from\ the\ photometric\ sample}$'+'\n'+r'$\times\ \mathrm{the\ model\ selection\ function}$',
                                    ylabel=r'$\mathrm{cumulative\ distribution}$',
                                    yrange=[0.,1.],
                                    zorder=3)
