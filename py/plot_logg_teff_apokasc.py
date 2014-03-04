@@ -115,7 +115,7 @@ def plot_logg_teff_apokasc(parser):
                             data['KASC_RG_LOGG_SCALE_2'][noclumpseismo],'ro',
                             overplot=True,
                             mec='none',ms=3.)
-    bovy_plot.bovy_text(r'$%.1f < [\mathrm{M/H}] \leq %.1f$' % (options.feh-0.2,options.feh+0.2),
+    bovy_plot.bovy_text(r'$%.1f < [\mathrm{Fe/H}] \leq %.1f$' % (options.feh-0.2,options.feh+0.2),
                         top_left=True,size=16.)
     bovy_plot.bovy_text(5150.,2.05,r'$\mathrm{red\ clump}$',
                         size=18.)
