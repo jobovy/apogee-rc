@@ -4,6 +4,7 @@ from galpy.util import bovy_plot
 from matplotlib import pyplot
 import isodist
 import rcmodel
+from matplotlib.ticker import FuncFormatter, MultipleLocator
 def G(g,gz):
     return g-0.1154-0.4175*gz-0.0497*gz**2.+0.0016*gz**3. #From Jordi et al. (2010)
 def vifromgi(gi):
@@ -145,6 +146,31 @@ def plot_gaiamag(plotfilename,plx=False):
                                      arrowstyle='->',mutation_scale=15,
                                      fill=True,
                                      lw=1.25,color='k'))
+    #Add twin x axis w/ distsance
+    ax= pyplot.gca()
+    def my_formatter(x, pos):
+        """distance in kpc for zero reddening"""
+        xs= 10.**((x-0.71)/5.-2.)
+        xs2= 10.**((x-0.71-4.)/5.-2.)
+        if xs2 > 1:
+            return r'$%.0f/%.0f$' % (xs,xs2)
+        else:
+            return r'$%.0f/%.1f$' % (xs,xs2)
+    ax2= pyplot.twiny()
+    major_formatter = FuncFormatter(my_formatter)
+    ax2.xaxis.set_major_formatter(major_formatter)
+    xstep= ax.xaxis.get_majorticklocs()
+    xstep= xstep[1]-xstep[0]
+    ax2.xaxis.set_minor_locator(MultipleLocator(xstep/5.))
+    ax2.xaxis.tick_top()
+    ax2.xaxis.set_label_position('top')
+    xmin, xmax= ax.xaxis.get_view_interval()
+    ax2.xaxis.set_view_interval(xmin,xmax,ignore=True)
+    ax2.set_xlabel('$\mathrm{distance\ for}\ A_H = 0/1\,(\mathrm{kpc})$')
+    ystep= ax.yaxis.get_majorticklocs()
+    ystep= ystep[1]-ystep[0]
+    ax2.yaxis.set_minor_locator(MultipleLocator(ystep/5.))
+    #Save
     bovy_plot.bovy_end_print(plotfilename)
     return None
 

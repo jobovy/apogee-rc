@@ -258,7 +258,8 @@ def _calc_one(z,options,nages,lages,dlages):
                 *(z <= 0.06)\
                 *(rc._sample[:,1] > (predH-0.4))\
                 *(rc._sample[:,1] < (predH+0.4))\
-                *(rc._sample[:,1] > -3.)
+                *(rc._sample[:,1] > -3.)\
+                *(rc._loggs[:,0] <= 3.5)
         if options.type == 'omega':
             try:
                 out[jj]= numpy.mean(rc._massweights[aindx])
