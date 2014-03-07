@@ -30,6 +30,10 @@ def match_apokasc_rodrigues(median=False,dteff=False):
     apokasc= apread.apokasc()
     dists= numpy.zeros(len(apokasc))-1
     edists= numpy.zeros(len(apokasc))-1
+    ages= numpy.zeros(len(apokasc))-1
+    eages= numpy.zeros(len(apokasc))-1
+    llages= numpy.zeros(len(apokasc))-1
+    ulages= numpy.zeros(len(apokasc))-1
     for ii in range(len(apokasc)):
         indx= ids == apokasc['KEPLER ID'][ii]
         if numpy.sum(indx) == 0: continue
@@ -39,10 +43,23 @@ def match_apokasc_rodrigues(median=False,dteff=False):
         else:
             dists[ii]= rdata[indx,109]
             edists[ii]= 0.5*(rdata[indx,111]-rdata[indx,110])
+        ages[ii]= rdata[indx,1]
+        eages[ii]= 0.5*(rdata[indx,3]-rdata[indx,2])
+        llages[ii]= rdata[indx,4]
+        ulages[ii]= rdata[indx,5]
     apokasc= esutil.numpy_util.add_fields(apokasc,[('DIST_SEISMO', float),
-                                                   ('E_DIST_SEISMO', float)])
+                                                   ('E_DIST_SEISMO', float),
+                                                   ('AGE_SEISMO', float),
+                                                   ('E_AGE_SEISMO', float),
+                                                   ('LL_AGE_SEISMO', float),
+                                                   ('UL_AGE_SEISMO', float),
+                                                   ])
     apokasc['DIST_SEISMO']= dists/1000.
     apokasc['E_DIST_SEISMO']= edists/1000.
+    apokasc['AGE_SEISMO']= ages
+    apokasc['E_AGE_SEISMO']= eages
+    apokasc['LL_AGE_SEISMO']= llages
+    apokasc['UL_AGE_SEISMO']= ulages
     return apokasc
 
 def compare_seismic_distances(plotfilename,median=False,dteff=False):
