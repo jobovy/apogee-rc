@@ -1,5 +1,6 @@
 import os
 import sys
+import csv
 import numpy
 import esutil
 from galpy.util import bovy_plot
@@ -8,24 +9,35 @@ from matplotlib.ticker import NullFormatter
 import apogee.tools.read as apread
 import rcmodel
 from rcmodel import rcdist
-def read_rodrigues(median=False,dteff=False):
+def read_rodrigues(median=False,dteff=False,scale=False):
     """Read the Rodrigues et al. seismic distance data"""
     filename= os.path.join('..','data','apokasc_v7.1_param_w_')
-    if median:
-        filename+= 'median'
+    if scale:
+        if median:
+            filename+= 'me.out'
+        else:
+            filename+= 'mo.out'
+        if median:
+            usecols= set(range(112))
+        else:
+            usecols= set(range(115))
+        return numpy.loadtxt(filename,comments='#',usecols=usecols)
     else:
-        filename+= 'mode'
-    if dteff:
-        filename+= '_dteff'
-    filename+= '.out'
-    if median:
-        usecols= set(range(112))
-    else:
-        usecols= set(range(115))
-    return numpy.loadtxt(filename,comments='#',usecols=usecols)
+        if median:
+            filename+= 'median'
+        else:
+            filename+= 'mode'
+        if dteff:
+            filename+= '_dteff'
+        filename+= '.out'
+        if median:
+            usecols= set(range(112))
+        else:
+            usecols= set(range(115))
+        return numpy.loadtxt(filename,comments='#',usecols=usecols)
 
-def match_apokasc_rodrigues(median=False,dteff=False):
-    rdata= read_rodrigues(median=median,dteff=dteff)
+def match_apokasc_rodrigues(median=False,dteff=False,scale=False):
+    rdata= read_rodrigues(median=median,dteff=dteff,scale=scale)
     ids= numpy.array([str(int(id)) for id in rdata[:,0]])
     apokasc= apread.apokasc()
     dists= numpy.zeros(len(apokasc))-1
@@ -62,8 +74,9 @@ def match_apokasc_rodrigues(median=False,dteff=False):
     apokasc['UL_AGE_SEISMO']= ulages
     return apokasc
 
-def compare_seismic_distances(plotfilename,median=False,dteff=False):
-    apokasc= match_apokasc_rodrigues(median=median,dteff=dteff)
+def compare_seismic_distances(plotfilename,median=False,dteff=False,
+                              scale=False):
+    apokasc= match_apokasc_rodrigues(median=median,dteff=dteff,scale=scale)
     #Perform RC selection
     logg= apokasc['KASC_RG_LOGG_SCALE_2']
     teff= apokasc['TEFF']
@@ -75,7 +88,8 @@ def compare_seismic_distances(plotfilename,median=False,dteff=False):
         *(jk >= 0.5)\
         *(z <= 0.06)\
         *(z <= rcmodel.jkzcut(jk,upper=True))\
-        *(z >= rcmodel.jkzcut(jk))
+        *(z >= rcmodel.jkzcut(jk))#\
+        #*(apokasc['SEISMO EVOL'] == 'CLUMP')
     print "Found %i RC stars in APOKASC" % numpy.sum(indx)
     rcdists= numpy.zeros(len(apokasc))-1
     rcd= rcdist('../data/rcmodel_mode_jkz_ks_parsec_newlogg.sav')
@@ -131,6 +145,43 @@ def compare_seismic_distances(plotfilename,median=False,dteff=False):
                             (medoffset,medsig),size=14.)
     bovy_plot.bovy_end_print(plotfilename)
 
+def write_matches(savefilename):
+    apokasc= match_apokasc_rodrigues(median=False,scale=True)
+    #Perform RC selection
+    logg= apokasc['KASC_RG_LOGG_SCALE_2']
+    teff= apokasc['TEFF']
+    z= 0.017*10.**apokasc['METALS']
+    jk= apokasc['J0']-apokasc['K0']
+    indx= (logg >= 1.8)\
+        *(logg <= 0.0018*(teff+382.5*apokasc['METALS']-4607)+2.5)\
+        *(jk < 0.8)\
+        *(jk >= 0.5)\
+        *(z <= 0.06)\
+        *(z <= rcmodel.jkzcut(jk,upper=True))\
+        *(z >= rcmodel.jkzcut(jk))
+    print "Found %i RC stars in APOKASC" % numpy.sum(indx)
+    rcdists= numpy.zeros(len(apokasc))-1
+    rcd= rcdist('../data/rcmodel_mode_jkz_ks_parsec_newlogg.sav')
+    rcdists[indx]= rcd(jk[indx],z[indx],apokasc['K0'][indx])
+    pindx= (rcdists > 0.)*(apokasc['DIST_SEISMO'] > 0.)
+    apokasc= apokasc[pindx]
+    rcdists= rcdists[pindx]
+    print "Found %i RC stars in APOKASC with seismic distances" % numpy.sum(pindx)
+    savefile= open(savefilename,'w')
+    savefile.write('#ID,RCDIST(pc),SEISMODIST(SCALE,MO,pc),(SEISMODIST-RCDIST)/RCDIST\n')
+    csvwriter = csv.writer(savefile, delimiter=',')
+    for ii in range(len(apokasc)):
+        csvwriter.writerow([apokasc['KEPLER ID'][ii],
+                            rcdists[ii]*1000.,
+                            apokasc['DIST_SEISMO'][ii]*1000.,
+                            (apokasc['DIST_SEISMO'][ii]-rcdists[ii])/rcdists[ii]])
+    savefile.close()
+
 if __name__ == '__main__':
-    compare_seismic_distances(sys.argv[1],median=sys.argv[2] == 'median',
-                              dteff=sys.argv[3] == 'dteff')
+    if sys.argv[2] == 'match':
+        write_matches(sys.argv[1])
+    else:
+        compare_seismic_distances(sys.argv[1],median=sys.argv[2] == 'median',
+                                  dteff=sys.argv[3] == 'dteff',
+                                  scale=sys.argv[4] == 'scale')
+        
