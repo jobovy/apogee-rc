@@ -1,0 +1,63 @@
+from mechanize import Browser
+import os
+import time
+def get_parsec_isochrone_onez(z,
+                              savefilename,
+                              ages=[6.6,10.15,0.05],
+                              photsys="tab_mag_odfnew/tab_mag_2mass_spitzer_wise.dat",
+                              eta_reimers=0.2):
+    """
+    NAME:
+       get_parsec_isochrone_onez
+    PURPOSE:
+       download PARSEC isochrone tables for a single metallicity and a bunch of ages
+    INPUT:
+       z - metallicity Z
+       savefilename - filename to save the isochrone tables to
+       ages= [6.6,1.15,0.05] log10 of minage, maxage, dage
+       photsys= photometric system
+       eta_reimers= (0.2) mass-loss efficiency parameter
+    OUTPUT:
+       saves the isochrone table as a gzipped file in savefilename
+    HISTORY:
+       2014-03-15 - Written based on old version - Bovy (IAS)
+    """
+    br= Browser()
+    br.open('http://stev.oapd.inaf.it/cgi-bin/cmd')
+    for form in br.forms():#There is only one, hopefully!
+        br.form= form
+        br["photsys_file"]=["photsys"]
+        br["eta_reimers"]= str(eta_reimers)
+        br["isoc_val"]= ["1"]
+        br["isoc_zeta0"]= str(z)
+        br["isoc_lage0"]=str(ages[0])
+        br["isoc_lage1"]=str(ages[1])
+        br["isoc_dlage"]=str(ages[2])
+        br.form.find_control(name='output_gzip').items[0].selected = True
+        br.submit()
+    link=br.find_link()
+    filename= link.text
+    os.system('wget http://stev.oapd.inaf.it/~lgirardi/tmp/%s -O %s' (filename,savefilename))
+    return None
+
+def get_parsec_isochrones():
+    #Setup
+    wait= 60. #s
+    zs= numpy.arange(0.0005,0.06005,0.0005)
+    ages= [6.6,10.15,0.05]
+    photsys= "tab_mag_odfnew/tab_mag_2mass_spitzer_wise.dat"
+    eta_reimers= 0.4
+    savedir= os.path.join(os.getenv('ISODIST_DATA'),
+                          'parsec-0.4-2mass-spitzer-wise')
+    basefilename= 'parsec-0.4-2mass-spitzer-wise-Z-'
+    for z in zs:
+        savefilename= os.path.join(savedir,
+                                   basefilename+'%.3f.dat.gz' % z)
+        get_parsec_isochrone_onez(z,
+                                  savefilename,
+                                  ages=ages,
+                                  photsys=photsys,
+                                  eta_reimers=eta_reimers)
+        if wait != 0:
+            time.sleep(wait)
+    return None
