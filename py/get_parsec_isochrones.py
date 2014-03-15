@@ -1,6 +1,9 @@
 from mechanize import Browser
+import sys
 import os
 import time
+import numpy
+_ERASESTR= "                                                                                "
 def get_parsec_isochrone_onez(z,
                               savefilename,
                               ages=[6.6,10.15,0.05],
@@ -24,35 +27,38 @@ def get_parsec_isochrone_onez(z,
     """
     br= Browser()
     br.open('http://stev.oapd.inaf.it/cgi-bin/cmd')
-    for form in br.forms():#There is only one, hopefully!
-        br.form= form
-        br["photsys_file"]=["photsys"]
-        br["eta_reimers"]= str(eta_reimers)
-        br["isoc_val"]= ["1"]
-        br["isoc_zeta0"]= str(z)
-        br["isoc_lage0"]=str(ages[0])
-        br["isoc_lage1"]=str(ages[1])
-        br["isoc_dlage"]=str(ages[2])
-        br.form.find_control(name='output_gzip').items[0].selected = True
-        br.submit()
+    form= br.forms().next() #There is only one, hopefully!
+    br.form= form
+    br["photsys_file"]=[photsys]
+    br["eta_reimers"]= str(eta_reimers)
+    br["isoc_val"]= ["1"]
+    br["isoc_zeta0"]= str(z)
+    br["isoc_lage0"]=str(ages[0])
+    br["isoc_lage1"]=str(ages[1])
+    br["isoc_dlage"]=str(ages[2])
+    br.form.find_control(name='output_gzip').items[0].selected = True
+    br.submit()
     link=br.find_link()
     filename= link.text
-    os.system('wget http://stev.oapd.inaf.it/~lgirardi/tmp/%s -O %s' (filename,savefilename))
+    os.system('wget -q http://stev.oapd.inaf.it/~lgirardi/tmp/%s -O %s' % (filename,savefilename))
     return None
 
 def get_parsec_isochrones():
     #Setup
     wait= 60. #s
     zs= numpy.arange(0.0005,0.06005,0.0005)
-    ages= [6.6,10.15,0.05]
+    ages= [6.6,10.1,0.05] #upper has to be <= 10.13
     photsys= "tab_mag_odfnew/tab_mag_2mass_spitzer_wise.dat"
     eta_reimers= 0.4
     savedir= os.path.join(os.getenv('ISODIST_DATA'),
                           'parsec-0.4-2mass-spitzer-wise')
     basefilename= 'parsec-0.4-2mass-spitzer-wise-Z-'
     for z in zs:
+        sys.stdout.write('\r'+"Working on Z = %.4f ...\r" % z)
+        sys.stdout.flush()
         savefilename= os.path.join(savedir,
-                                   basefilename+'%.3f.dat.gz' % z)
+                                   basefilename+'%.4f.dat.gz' % z)
+        if os.path.exists(savefilename): continue
         get_parsec_isochrone_onez(z,
                                   savefilename,
                                   ages=ages,
@@ -60,4 +66,6 @@ def get_parsec_isochrones():
                                   eta_reimers=eta_reimers)
         if wait != 0:
             time.sleep(wait)
+    sys.stdout.write('\r'+_ERASESTR+'\r')
+    sys.stdout.flush()
     return None
