@@ -137,6 +137,11 @@ def plot_vs_jkz(parser):
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=16.)
+    elif not options.eta is None:
+        pyplot.annotate(r'$\eta_{\mathrm{Reimers}} = %.1f$' % options.eta,
+                        (0.5,1.08),xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=16.)
     elif False:
         pyplot.annotate(r'$\mathrm{Padova}$',
                         (0.5,1.08),xycoords='axes fraction',
