@@ -153,7 +153,7 @@ class rcmodel:
                  interpolate=False,expsfh=False,band='H',
                  dontgather=False,loggmin=None,loggmax=None,
                  basti=False,ngauss=None,fitlogg=False,
-                 parsec=False,stage=None,
+                 parsec=False,stage=None,eta=None,
                  loofrac=0.1):
         """
         NAME:
@@ -175,6 +175,7 @@ class rcmodel:
            ngauss= number of Gaussians for XD, if -1, determine best
            loofrac= (0.1) fraction to loo if determining best
            fitlogg= if True, also fit logg in XD
+           eta= mass-loss efficiency parameter
         OUTPUT:
            object
         HISTORY:
@@ -186,6 +187,7 @@ class rcmodel:
         self._loggmin= loggmin
         self._loggmax= loggmax
         self._expsfh= expsfh
+        self._eta= eta
         self._Z= Z
         self._imfmodel= imfmodel
         self._basti= basti
@@ -211,9 +213,9 @@ class rcmodel:
             else:
                 Zs= [Z-0.0005,Z,Z+0.0005] #build up statistics
         if basti:
-            p= isodist.BastiIsochrone(Z=Zs)
+            p= isodist.BastiIsochrone(Z=Zs,eta=eta)
         else:
-            p= isodist.PadovaIsochrone(Z=Zs,parsec=parsec)
+            p= isodist.PadovaIsochrone(Z=Zs,parsec=parsec,eta=eta)
         maxage= 9.+numpy.log10(10.) #BaSTI goes too old, so does Padova
         if basti:
             #Force BaSTI to have equal age sampling

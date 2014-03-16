@@ -151,7 +151,8 @@ def indiv_calc(ii,zs,options,njks,jks):
                         band=options.band,basti=options.basti,
                         imfmodel=options.imfmodel,
                         expsfh=options.expsfh,
-                        parsec=options.parsec)
+                        parsec=options.parsec,
+                        eta=options.eta)
     out= numpy.empty(njks)
     for jj in range(njks):
         if options.type == 'mode':
@@ -209,6 +210,8 @@ def get_options():
     parser.add_option("--remapz",action="store_true", dest="remapz",
                       default=False,
                       help="If set, remap Z onto [Fe/H] for astro_sampling")
+    parser.add_option("--eta",dest='eta',default=None,type='float',
+                      help="Mass-loss efficiency parameter")
     return parser
     
 if __name__ == '__main__':

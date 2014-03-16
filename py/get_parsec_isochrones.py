@@ -49,10 +49,10 @@ def get_parsec_isochrones():
     zs= numpy.arange(0.0005,0.06005,0.0005)
     ages= [6.6,10.1,0.05] #upper has to be <= 10.13
     photsys= "tab_mag_odfnew/tab_mag_2mass_spitzer_wise.dat"
-    eta_reimers= 0.4
+    eta_reimers= 0.1
     savedir= os.path.join(os.getenv('ISODIST_DATA'),
-                          'parsec-0.4-2mass-spitzer-wise')
-    basefilename= 'parsec-0.4-2mass-spitzer-wise-Z-'
+                          'parsec-%.1f-2mass-spitzer-wise' % eta_reimers)
+    basefilename= 'parsec-%.1f-2mass-spitzer-wise-Z-' % eta_reimers
     for z in zs:
         sys.stdout.write('\r'+"Working on Z = %.4f ...\r" % z)
         sys.stdout.flush()

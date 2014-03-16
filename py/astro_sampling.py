@@ -233,12 +233,12 @@ def _calc_one(z,options,nages,lages,dlages):
         rc= rcmodel.rcmodel(Z=z,loggmax=3.5,
                             band=options.band,basti=options.basti,
                             imfmodel=options.imfmodel,
-                            parsec=options.parsec)
+                            parsec=options.parsec,eta=options.eta)
     else:
         rc= rcmodel.rcmodel(Z=z,loggmin=1.8,loggmax='custom',
                             band=options.band,basti=options.basti,
                             imfmodel=options.imfmodel,
-                            parsec=options.parsec)
+                            parsec=options.parsec,eta=options.eta)
     out= numpy.zeros(nages)
     for jj in range(nages):
         jk= rc._jks

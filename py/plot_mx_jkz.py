@@ -17,7 +17,8 @@ def plot_mx_jkz(parser):
                         basti=options.basti,band=options.band,
                         parsec=options.parsec,
                         expsfh=options.expsfh,
-                        imfmodel=options.imfmodel)
+                        imfmodel=options.imfmodel,
+                        eta=options.eta)
     #Calculate mode and hm
     njks= 101
     jks= numpy.linspace(0.5,0.8,njks)
@@ -92,6 +93,8 @@ def get_options():
     parser.add_option("--expsfh",action="store_true", dest="expsfh",
                       default=False,
                       help="If set, use an exponentially-declining SFH")
+    parser.add_option("--eta",dest='eta',default=None,type='float',
+                      help="Mass-loss efficiency parameter")
     return parser
     
 if __name__ == '__main__':
