@@ -120,7 +120,7 @@ if __name__ == '__main__':
     #Select stars to be in the RC from the APOKASC data, then check against 
     #evolutionary state
     jk= data['J0']-data['K0']
-    z= isodist.FEH2Z(data['METALS'],zsolar=0.017)
+    z= isodist.FEH2Z(data['METALS'],zsolar=0.017)#*(0.638*10.**data['ALPHAFE']+0.372)
     logg= data['KASC_RG_LOGG_SCALE_2']+numpy.random.normal(size=len(data))*0. #can adjust this to look at errors
     indx= (jk < 0.8)*(jk >= 0.5)\
         *(z <= 0.06)\

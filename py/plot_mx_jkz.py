@@ -18,7 +18,7 @@ def plot_mx_jkz(parser):
                         parsec=options.parsec,
                         expsfh=options.expsfh,
                         imfmodel=options.imfmodel,
-                        eta=options.eta)
+                        eta=options.eta,afe=options.afe)
     #Calculate mode and hm
     njks= 101
     jks= numpy.linspace(0.5,0.8,njks)
@@ -42,14 +42,28 @@ def plot_mx_jkz(parser):
     bovy_plot.bovy_plot(jks,hms[:,0],'-',lw=2.,color='0.85',overplot=True)
     bovy_plot.bovy_plot(jks,hms[:,1],'-',lw=2.,color='0.85',overplot=True)
     #Overplot the cuts in J-Ks for this Z
-    bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z),rcmodel.zjkcut(options.Z)],
-                        [0.,-3.],'k--',lw=2.,overplot=True)
-    bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z,upper=True),rcmodel.zjkcut(options.Z,upper=True)],
+    if options.afe:
+        bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z*(0.638*10.**0.4+0.372)),
+                             rcmodel.zjkcut(options.Z*(0.638*10.**0.4+0.372))],
+                            [0.,-3.],'k--',lw=2.,overplot=True)
+        bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z*(0.638*10.**0.4+0.372),
+                                                       upper=True),
+                             rcmodel.zjkcut(options.Z*(0.638*10.**0.4+0.372),
+                                                       upper=True)],
+                            [0.,-3.],'k--',lw=2.,overplot=True)
+    else:
+        bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z),rcmodel.zjkcut(options.Z)],
+                            [0.,-3.],'k--',lw=2.,overplot=True)
+        bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z,upper=True),rcmodel.zjkcut(options.Z,upper=True)],
                         [0.,-3.],'k--',lw=2.,overplot=True)
     if options.Z < 0.01: zstr= r'$Z = %.3f$' % options.Z
     else: zstr= r'$Z = %.2f$' % options.Z
-    bovy_plot.bovy_text(zstr,
-                        bottom_right=True,size=20.)
+    if options.afe:
+        bovy_plot.bovy_text(zstr+'\n'+r'$[\alpha/\mathrm{Fe}] = 0.4$',
+                            bottom_right=True,size=20.)
+    else:
+        bovy_plot.bovy_text(zstr,
+                            bottom_right=True,size=20.)
     if options.basti and options.Z < 0.01:
         pyplot.annotate(r'$\mathrm{BaSTI}\rightarrow$',(0.5,1.08),
                         xycoords='axes fraction',
@@ -95,6 +109,9 @@ def get_options():
                       help="If set, use an exponentially-declining SFH")
     parser.add_option("--eta",dest='eta',default=None,type='float',
                       help="Mass-loss efficiency parameter")
+    parser.add_option("--afe",action="store_true", dest="afe",
+                      default=False,
+                      help="If set, use alpha-enhanced isochrones (works only for Basti, for now")
     return parser
     
 if __name__ == '__main__':

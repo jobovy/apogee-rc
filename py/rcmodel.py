@@ -153,6 +153,7 @@ class rcmodel:
                  interpolate=False,expsfh=False,band='H',
                  dontgather=False,loggmin=None,loggmax=None,
                  basti=False,ngauss=None,fitlogg=False,
+                 afe=False,
                  parsec=False,stage=None,eta=None,
                  loofrac=0.1):
         """
@@ -176,6 +177,7 @@ class rcmodel:
            loofrac= (0.1) fraction to loo if determining best
            fitlogg= if True, also fit logg in XD
            eta= mass-loss efficiency parameter
+           afe= (False) if True, use alpha-enhanced isochrones (works only for Basti)
         OUTPUT:
            object
         HISTORY:
@@ -191,6 +193,7 @@ class rcmodel:
         self._Z= Z
         self._imfmodel= imfmodel
         self._basti= basti
+        self._afe= afe
         #Read isochrones
         if basti:
             zs= numpy.array([0.0001,0.0003,0.0006,0.001,0.002,0.004,0.008,
@@ -213,7 +216,7 @@ class rcmodel:
             else:
                 Zs= [Z-0.0005,Z,Z+0.0005] #build up statistics
         if basti:
-            p= isodist.BastiIsochrone(Z=Zs,eta=eta)
+            p= isodist.BastiIsochrone(Z=Zs,eta=eta,afe=afe)
         else:
             p= isodist.PadovaIsochrone(Z=Zs,parsec=parsec,eta=eta)
         maxage= 9.+numpy.log10(10.) #BaSTI goes too old, so does Padova
