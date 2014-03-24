@@ -24,9 +24,11 @@ def plot_elliptical_constraint(plotfilename):
                           xlabel=r'$c_\Psi = \varepsilon_\Psi\,\cos 2 \phi_b$',
                           ylabel=r'$s_\Psi = \varepsilon_\Psi\,\sin 2 \phi_b$',
                           vmax=1.)
+    bovy_plot.bovy_plot([-0.15,-0.12],[0.17,0.02],'k-',zorder=1,
+                        overplot=True)
     bovy_plot.bovy_plot([-0.06363636363636363],[0.],'wx',overplot=True,ms=10.,
                         mew=2.,zorder=2.)
-    bovy_plot.bovy_plot([-0.06363636363636363,-0.02],[0.,-0.15],'k-',zorder=1,
+    bovy_plot.bovy_plot([-0.06363636363636363,-0.02],[0.,-0.14],'k-',zorder=1,
                         overplot=True)
     bovy_plot.bovy_text(-0.08,-0.2,r'$\mathrm{model\ with}$'+'\n'+r'$\mathrm{local}\ V_c - \mathrm{global}\ V_c = 14\,\mathrm{km\,s}^{-1}$',
                          size=13.)

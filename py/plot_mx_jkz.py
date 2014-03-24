@@ -42,19 +42,9 @@ def plot_mx_jkz(parser):
     bovy_plot.bovy_plot(jks,hms[:,0],'-',lw=2.,color='0.85',overplot=True)
     bovy_plot.bovy_plot(jks,hms[:,1],'-',lw=2.,color='0.85',overplot=True)
     #Overplot the cuts in J-Ks for this Z
-    if options.afe:
-        bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z*(0.638*10.**0.4+0.372)),
-                             rcmodel.zjkcut(options.Z*(0.638*10.**0.4+0.372))],
-                            [0.,-3.],'k--',lw=2.,overplot=True)
-        bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z*(0.638*10.**0.4+0.372),
-                                                       upper=True),
-                             rcmodel.zjkcut(options.Z*(0.638*10.**0.4+0.372),
-                                                       upper=True)],
-                            [0.,-3.],'k--',lw=2.,overplot=True)
-    else:
-        bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z),rcmodel.zjkcut(options.Z)],
-                            [0.,-3.],'k--',lw=2.,overplot=True)
-        bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z,upper=True),rcmodel.zjkcut(options.Z,upper=True)],
+    bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z),rcmodel.zjkcut(options.Z)],
+                        [0.,-3.],'k--',lw=2.,overplot=True)
+    bovy_plot.bovy_plot([rcmodel.zjkcut(options.Z,upper=True),rcmodel.zjkcut(options.Z,upper=True)],
                         [0.,-3.],'k--',lw=2.,overplot=True)
     if options.Z < 0.01: zstr= r'$Z = %.3f$' % options.Z
     else: zstr= r'$Z = %.2f$' % options.Z
