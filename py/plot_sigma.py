@@ -42,7 +42,7 @@ def plot_sigmar(plotfilename,plotfilename2):
                     ls='none',color='k')
     #bovy_plot.bovy_plot(rs+0.5*(rs[1]-rs[0]),pmesigrs,'ks',overplot=True)
     #Fit
-    indx= True-numpy.isnan(sigrs)
+    indx= (True-numpy.isnan(sigrs))*(True-numpy.isinf(sigrs))*(sigrs > 0.)
     #esigrs[3]= 100.
     bestfit= optimize.curve_fit(expfit,(rs+0.5*(rs[1]-rs[0]))[indx],
                                 sigrs[indx],sigma=esigrs[indx],
@@ -62,10 +62,10 @@ def plot_sigmar(plotfilename,plotfilename2):
     data= apread.rcsample()
     data= data[(data['PMMATCH'] == 1)] #Good velocities
     galy= data['RC_GALR']*numpy.sin(data['RC_GALPHI'])
-    indx= (numpy.fabs(galy) < .75)*(numpy.fabs(data['RC_GALZ']) < 0.05) #(numpy.fabs(data['GLAT']) < 1.51)
+    indx= (numpy.fabs(galy) < .5)*(numpy.fabs(data['RC_GALZ']) < 0.1) #(numpy.fabs(data['GLAT']) < 1.51)
     data= data[indx]
     print len(data)
-    rs= numpy.arange(3.5,16.501,.75)
+    rs= numpy.arange(3.5,16.501,3.)
     sigrs= numpy.zeros_like(rs)+numpy.nan
     mvrs= numpy.zeros_like(rs)+numpy.nan
     emvrs= numpy.zeros_like(rs)+numpy.nan
