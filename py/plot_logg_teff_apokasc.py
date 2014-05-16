@@ -7,7 +7,9 @@ import isodist
 import apogee.tools.read as apread
 import rcmodel
 from plot_vs_jkz import get_options
+from read_valentini import read_valentini
 _DEBUG= False
+_PLOTVALENTINI= True
 def plot_logg_teff_apokasc(parser):
     options,args= parser.parse_args()
     #Setup Zs
@@ -119,6 +121,10 @@ def plot_logg_teff_apokasc(parser):
                         top_left=True,size=16.)
     bovy_plot.bovy_text(5150.,2.05,r'$\mathrm{red\ clump}$',
                         size=18.)
+    if _PLOTVALENTINI:
+        vdata= read_valentini()
+        bovy_plot.bovy_plot(vdata['Teff'],vdata['logg'],'bx',overplot=True,
+                            ms=10.)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
     
