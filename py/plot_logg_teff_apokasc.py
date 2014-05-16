@@ -9,7 +9,7 @@ import rcmodel
 from plot_vs_jkz import get_options
 from read_valentini import read_valentini
 _DEBUG= False
-_PLOTVALENTINI= True
+_PLOTVALENTINI= False
 def plot_logg_teff_apokasc(parser):
     options,args= parser.parse_args()
     #Setup Zs
@@ -123,8 +123,10 @@ def plot_logg_teff_apokasc(parser):
                         size=18.)
     if _PLOTVALENTINI:
         vdata= read_valentini()
-        bovy_plot.bovy_plot(vdata['Teff'],vdata['logg'],'bx',overplot=True,
-                            ms=10.)
+        vdata= vdata[(vdata['[M/H]'] > options.feh-0.2)\
+                         *(vdata['[M/H]'] <= options.feh+0.2)]
+        bovy_plot.bovy_plot(vdata['Teff'],vdata['logg'],'gx',overplot=True,
+                            ms=7.,mew=2.)
     bovy_plot.bovy_end_print(options.outfilename)
     return None
     

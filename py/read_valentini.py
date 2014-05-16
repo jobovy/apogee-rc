@@ -30,4 +30,4 @@ def read_valentini():
             continue
         hipnums.append(data2['HIP'][ii])
     data2= data2[indxarray2]
-    return data1
+    return data2
