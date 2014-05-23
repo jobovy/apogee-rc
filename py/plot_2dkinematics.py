@@ -39,7 +39,10 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
     bovy_plot.bovy_end_print(basesavefilename+'_XY.'+_EXT)
     #R,phi
     pix= pixelize_sample.pixelXY(data,rphi=True,
-                                 ymin=-22.5,ymax=37.5,dy=5.)
+                                 ymin=-22.5,ymax=37.5,
+#                                 dx=0.3,dy=2.)
+#                                 dx=3.,dy=20.)
+                                 dx=1.,dy=5.)
     bovy_plot.bovy_print()
     pix.plot('VHELIO_AVG',
              zlabel=r'$\mathrm{median}\ V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
@@ -47,6 +50,8 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
     #bovy_plot.bovy_text(r'$|Z| < 250\,\mathrm{pc}$',bottom_left=True,size=18.)
     bovy_plot.bovy_end_print(basesavefilename+'_RPHI.'+_EXT)
     #Plot the dispersion / sqrt(n)
+    #pix= pixelize_sample.pixelXY(data,
+    #                             dx=1.,dy=1.)
     bovy_plot.bovy_print()
     pix.plot('VHELIO_AVG',
              func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
@@ -123,7 +128,6 @@ def vlosgal(data,beta=0.,vc=218.,vtsun=_VTSUN):
               -asymmetricDriftModel.va(data['RC_GALR']/8.,31.4/vc,
                                        vc=(data['RC_GALR']/8.)**beta,hR=3./8.,
                                        hs=33.3)*vc)*numpy.sin(l+data['RC_GALPHI'])
-    vlosgal/= cosb
     return vlosgal
 
 def linfit(x,slope,zeropoint):
