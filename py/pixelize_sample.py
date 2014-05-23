@@ -124,7 +124,7 @@ class pixelXY:
            make a plot of a quantity as a function of X and Y
         INPUT:
            quant - the quantity (string that returns the quantity, like 
-           'METALS'
+           'METALS') or a function of the data
            func - function of quantity to plot
            minnstar= minimum number of stars (20)
            submeany= subtract the median y
@@ -149,7 +149,10 @@ class pixelXY:
                     z2d[ii,jj]= numpy.nan
                 else:
                     nbins+= 1
-                    z2d[ii,jj]= func(tdata[quant])
+                    if hasattr(quant, '__call__'):
+                        z2d[ii,jj]= func(quant(tdata))
+                    else:
+                        z2d[ii,jj]= func(tdata[quant])
             if submediany:
                 z2d[ii,:]-= numpy.median(z2d[ii,True-numpy.isnan(z2d[ii,:])])
         #Now plot
