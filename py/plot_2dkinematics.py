@@ -50,8 +50,8 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
     #bovy_plot.bovy_text(r'$|Z| < 250\,\mathrm{pc}$',bottom_left=True,size=18.)
     bovy_plot.bovy_end_print(basesavefilename+'_RPHI.'+_EXT)
     #Plot the dispersion / sqrt(n)
-    #pix= pixelize_sample.pixelXY(data,
-    #                             dx=1.,dy=1.)
+    pix= pixelize_sample.pixelXY(data,
+                                 dx=1.,dy=1.)
     bovy_plot.bovy_print()
     pix.plot('VHELIO_AVG',
              func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
@@ -67,11 +67,35 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
              vmin=0.,vmax=40.)
     #bovy_plot.bovy_text(r'$|Z| < 250\,\mathrm{pc}$',bottom_left=True,size=18.)
     bovy_plot.bovy_end_print(basesavefilename+'_RPHI_vlosdisp.'+_EXT)
+    #Now plot the los velocity corrected for the Solar motion
+    #XY
+    vmin, vmax= -250., 250.
+    bovy_plot.bovy_print()
+    resv= pix.plot(lambda x: vlosgal(x),
+                   zlabel=r'$\mathrm{median}\ V_{\mathrm{los,rot}}\,(\mathrm{km\,s}^{-1})$',
+                   vmin=vmin,vmax=vmax,returnz=True)
+    bovy_plot.bovy_end_print(basesavefilename+'_Vrot_XY.'+_EXT)
+    pix= pixelize_sample.pixelXY(data,rphi=True,
+                                 ymin=-22.5,ymax=37.5,
+                                 dx=1.,dy=5.)
+    #R,phi
+    vmin, vmax= -250., 250.
+    bovy_plot.bovy_print()
+    resv= pix.plot(lambda x: vlosgal(x),
+                   zlabel=r'$\mathrm{median}\ V_{\mathrm{los,rot}}\,(\mathrm{km\,s}^{-1})$',
+                   vmin=vmin,vmax=vmax,returnz=True)
+    #Plot tangent point
+    rs= numpy.linspace(6.,8.,101)
+    bovy_plot.bovy_plot(rs,numpy.arccos(rs/8.)*180./numpy.pi,'k--',lw=2.,
+                        overplot=True)
+    bovy_plot.bovy_plot(rs,-numpy.arccos(rs/8.)*180./numpy.pi,'k--',lw=2.,
+                        overplot=True)
+    bovy_plot.bovy_end_print(basesavefilename+'_Vrot_RPHI.'+_EXT)
     #Now plot the residuals wrt the Bovy et al. (2012) disk model
     #R,phi
     vmin, vmax= -20., 20.
     bovy_plot.bovy_print()
-    resv= pix.plot(lambda x: vlosgal(x,beta=0.,vc=218.),
+    resv= pix.plot(lambda x: dvlosgal(x,beta=0.,vc=218.),
                    zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
                    vmin=vmin,vmax=vmax,returnz=True)
     medindx= True-numpy.isnan(resv)
@@ -96,7 +120,7 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
     #R,phi
     vmin, vmax= -20., 20.
     bovy_plot.bovy_print()
-    resv= pix.plot(lambda x: vlosgal(x,beta=0.,vc=240.,vtsun=252.),
+    resv= pix.plot(lambda x: dvlosgal(x,beta=0.,vc=240.,vtsun=252.),
                    zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
                    vmin=vmin,vmax=vmax,returnz=True)
     medindx= True-numpy.isnan(resv)
@@ -107,27 +131,81 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
     #R,phi
     vmin, vmax= -20., 20.
     bovy_plot.bovy_print()
-    resv= pix.plot(lambda x: vlosgal(x,beta=0.,vc=220.,vtsun=232.),
+    resv= pix.plot(lambda x: dvlosgal(x,beta=0.,vc=220.,vtsun=232.),
                    zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
                    vmin=vmin,vmax=vmax,returnz=True)
     medindx= True-numpy.isnan(resv)
 #    bovy_plot.bovy_text(r'$\mathrm{Residual} = %.1f \pm %.1f / %i\,\mathrm{km\,s}^{-1}$' % (numpy.median(resv[medindx]),numpy.median(numpy.fabs(resv[medindx]-numpy.median(resv[medindx])))*1.4826,round(numpy.sqrt(numpy.sum(medindx)))),
 #                        top_left=True,size=16.)
     bovy_plot.bovy_end_print(basesavefilename+'_dVBovy12Vc220VsSBD_RPHI.'+_EXT)
+    #FFT
+    pix= pixelize_sample.pixelXY(data,
+                                 xmin=4.,xmax=14,
+                                 ymin=-5.,ymax=5.)
+    resv= pix.plot(lambda x: dvlosgal(x),
+                   zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
+                   vmin=vmin,vmax=vmax,returnz=True)
+    resvunc= pix.plot('VHELIO_AVG',
+                      func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
+                      zlabel=r'$\delta\ V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
+                      vmin=0.,vmax=10.,returnz=True)
+    pixsm= pixelize_sample.pixelXY(data,
+                                   xmin=7.5,xmax=11.,
+                                   ymin=-3.,ymax=3.,
+                                   dx=0.35,dy=0.35)
+    resvsm= pixsm.plot(lambda x: dvlosgal(x),
+                   zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
+                   vmin=vmin,vmax=vmax,returnz=True)
+    resvsmunc= pixsm.plot('VHELIO_AVG',
+                      func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
+                      zlabel=r'$\delta\ V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
+                      vmin=0.,vmax=10.,returnz=True)
+    import psds
+    psd2d= psds.power_spectrum(resv,
+                               binsize=1.,radbins=7,wavenumber=True)
+    psd2dsm= psds.power_spectrum(resvsm,
+                                 binsize=1.,radbins=7,wavenumber=True)
+    #Simulate the noise
+    newresv= numpy.random.normal(size=resv.shape)*resvunc
+    newresvsm= numpy.random.normal(size=resvsm.shape)*resvsmunc
+    psd2dnoise= psds.power_spectrum(newresv,
+                                    binsize=1.,radbins=7,wavenumber=True)
+    psd2dsmnoise= psds.power_spectrum(newresvsm,
+                                      binsize=1.,radbins=7,wavenumber=True)
+    bovy_plot.bovy_print()
+    bovy_plot.bovy_plot(psd2d[0][1:],numpy.sqrt(psd2d[1]/numpy.sqrt(numpy.prod(resv.shape)))[1:],'ko-',
+                        xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
+                        xrange=[0.,.5],
+                        yrange=[1.,30.],
+                        semilogy=False)
+    bovy_plot.bovy_plot(psd2dnoise[0][1:],numpy.sqrt(psd2dnoise[1]/numpy.sqrt(numpy.prod(resv.shape)))[1:],'-',color='0.5',overplot=True,lw=2.)
+    #bovy_plot.bovy_plot(psd2dsm[0][1:]/0.35,numpy.sqrt(0.35*psd2dsm[1]/numpy.sqrt(numpy.prod(resvsm.shape)))[1:],'bo-',
+    #                    overplot=True)
+    #bovy_plot.bovy_plot(psd2dsmnoise[0][1:]/.35,numpy.sqrt(psd2dsmnoise[1]/numpy.sqrt(numpy.prod(resvsm.shape)))[1:],'-',color='0.5',overplot=True,lw=2.)
+    bovy_plot.bovy_end_print(basesavefilename+'_FFTPSD.'+_EXT)
     return None
 
-def vlosgal(data,beta=0.,vc=218.,vtsun=_VTSUN):
+def dvlosgal(data,beta=0.,vc=218.,vtsun=_VTSUN):
     l= data['GLON']*_DEGTORAD
     sinl= numpy.sin(data['GLON']*_DEGTORAD)
     cosl= numpy.cos(data['GLON']*_DEGTORAD)
     sinb= numpy.sin(data['GLAT']*_DEGTORAD)
     cosb= numpy.cos(data['GLAT']*_DEGTORAD)
     vlosgal= data['VHELIO_AVG']/cosb-_VRSUN*cosl+vtsun*sinl\
-        -_VZSUN*sinb/cosb\
+        +_VZSUN*sinb/cosb\
         -(vc*(data['RC_GALR']/8.)**beta\
               -asymmetricDriftModel.va(data['RC_GALR']/8.,31.4/vc,
                                        vc=(data['RC_GALR']/8.)**beta,hR=3./8.,
                                        hs=33.3)*vc)*numpy.sin(l+data['RC_GALPHI'])
+    return vlosgal
+
+def vlosgal(data,vtsun=_VTSUN):
+    sinl= numpy.sin(data['GLON']*_DEGTORAD)
+    cosl= numpy.cos(data['GLON']*_DEGTORAD)
+    sinb= numpy.sin(data['GLAT']*_DEGTORAD)
+    cosb= numpy.cos(data['GLAT']*_DEGTORAD)
+    vlosgal= data['VHELIO_AVG']/cosb-_VRSUN*cosl+vtsun*sinl\
+        +_VZSUN*sinb/cosb
     return vlosgal
 
 def linfit(x,slope,zeropoint):
