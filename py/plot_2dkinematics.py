@@ -104,6 +104,22 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
     bovy_plot.bovy_text(r'$\mathrm{Residual} = %.1f \pm %.1f / %i\,\mathrm{km\,s}^{-1}$' % (meanresv,sigresv,round(numpy.sqrt(numpy.sum(medindx)))),
                         top_left=True,size=16.)
     bovy_plot.bovy_end_print(basesavefilename+'_dVBovy12_RPHI.'+_EXT)
+    #XY
+    pixXY= pixelize_sample.pixelXY(data,
+                                 xmin=5.,xmax=13,
+                                 ymin=-3.,ymax=4.,
+                                 dx=1.,dy=1.)
+    vmin, vmax= -20., 20.
+    bovy_plot.bovy_print()
+    pixXY.plot(lambda x: dvlosgal(x,beta=0.,vc=218.),
+               zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
+               vmin=vmin,vmax=vmax,returnz=False)
+    medindx= True-numpy.isnan(resv)
+    meanresv= numpy.mean(resv[medindx])
+    sigresv= numpy.std(resv[medindx])
+    bovy_plot.bovy_text(r'$\mathrm{Residual} = %.1f \pm %.1f / %i\,\mathrm{km\,s}^{-1}$' % (meanresv,sigresv,round(numpy.sqrt(numpy.sum(medindx)))),
+                        top_left=True,size=16.)
+    bovy_plot.bovy_end_print(basesavefilename+'_dVBovy12_XY.'+_EXT)
     #Plot a histogram of the residuals
     bovy_plot.bovy_print()
     bovy_plot.bovy_hist(resv[medindx],color='k',bins=11,xrange=[-25.,25.],
@@ -139,9 +155,11 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
 #                        top_left=True,size=16.)
     bovy_plot.bovy_end_print(basesavefilename+'_dVBovy12Vc220VsSBD_RPHI.'+_EXT)
     #FFT
+    dx= 1.
     pix= pixelize_sample.pixelXY(data,
-                                 xmin=4.,xmax=14,
-                                 ymin=-5.,ymax=5.)
+                                 xmin=5.,xmax=13,
+                                 ymin=-3.,ymax=4.,
+                                 dx=dx,dy=dx)
     resv= pix.plot(lambda x: dvlosgal(x),
                    zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
                    vmin=vmin,vmax=vmax,returnz=True)
@@ -149,39 +167,32 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
                       func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
                       zlabel=r'$\delta\ V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
                       vmin=0.,vmax=10.,returnz=True)
-    pixsm= pixelize_sample.pixelXY(data,
-                                   xmin=7.5,xmax=11.,
-                                   ymin=-3.,ymax=3.,
-                                   dx=0.35,dy=0.35)
-    resvsm= pixsm.plot(lambda x: dvlosgal(x),
-                   zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
-                   vmin=vmin,vmax=vmax,returnz=True)
-    resvsmunc= pixsm.plot('VHELIO_AVG',
-                      func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
-                      zlabel=r'$\delta\ V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
-                      vmin=0.,vmax=10.,returnz=True)
     import psds
+    binsize= .75
     psd2d= psds.power_spectrum(resv,
-                               binsize=1.,radbins=7,wavenumber=True)
-    psd2dsm= psds.power_spectrum(resvsm,
-                                 binsize=1.,radbins=7,wavenumber=True)
+                               binsize=binsize,wavenumber=True)
     #Simulate the noise
     newresv= numpy.random.normal(size=resv.shape)*resvunc
-    newresvsm= numpy.random.normal(size=resvsm.shape)*resvsmunc
+    newresvuni= numpy.random.normal(size=resv.shape)*5.
     psd2dnoise= psds.power_spectrum(newresv,
-                                    binsize=1.,radbins=7,wavenumber=True)
-    psd2dsmnoise= psds.power_spectrum(newresvsm,
-                                      binsize=1.,radbins=7,wavenumber=True)
+                                    binsize=binsize,wavenumber=True)
+    psd2duni= psds.power_spectrum(newresvuni,
+                                  binsize=binsize,wavenumber=True)
     bovy_plot.bovy_print()
-    bovy_plot.bovy_plot(psd2d[0][1:],numpy.sqrt(psd2d[1]/numpy.sqrt(numpy.prod(resv.shape)))[1:],'ko-',
+    ks= psd2d[0][1:]/dx
+    bovy_plot.bovy_plot(ks,numpy.sqrt(psd2d[1]/numpy.prod(resv.shape)/16.\
+                                          /(ks[1]-ks[0]))[1:],'ko-',
                         xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
-                        xrange=[0.,.5],
-                        yrange=[1.,30.],
+                        ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1}\,\mathrm{kpc}^{1/2})$',
+                        xrange=[0.,1./dx/2.],
+                        yrange=[0.,10.],
                         semilogy=False)
-    bovy_plot.bovy_plot(psd2dnoise[0][1:],numpy.sqrt(psd2dnoise[1]/numpy.sqrt(numpy.prod(resv.shape)))[1:],'-',color='0.5',overplot=True,lw=2.)
-    #bovy_plot.bovy_plot(psd2dsm[0][1:]/0.35,numpy.sqrt(0.35*psd2dsm[1]/numpy.sqrt(numpy.prod(resvsm.shape)))[1:],'bo-',
-    #                    overplot=True)
-    #bovy_plot.bovy_plot(psd2dsmnoise[0][1:]/.35,numpy.sqrt(psd2dsmnoise[1]/numpy.sqrt(numpy.prod(resvsm.shape)))[1:],'-',color='0.5',overplot=True,lw=2.)
+    bovy_plot.bovy_plot(ks,numpy.sqrt(psd2dnoise[1]/numpy.prod(resv.shape)/16.\
+                                          /(ks[1]-ks[0]))[1:],
+                        '-',color='0.5',overplot=True,lw=2.)
+    bovy_plot.bovy_plot(ks,numpy.sqrt(psd2duni[1]/numpy.prod(resv.shape)/16.\
+                                          /(ks[1]-ks[0]))[1:],
+                        '-',color='b',overplot=True,lw=2.)
     bovy_plot.bovy_end_print(basesavefilename+'_FFTPSD.'+_EXT)
     return None
 
