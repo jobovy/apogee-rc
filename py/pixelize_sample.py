@@ -115,7 +115,7 @@ class pixelXY:
         return int(math.floor((y-self.ymin)/self.dy))
 
     def plot(self,quant,func=numpy.median,minnstar=20.,submediany=False,
-             returnz=False,
+             returnz=False,justcalc=False,
              **kwargs):
         """
         NAME:
@@ -128,6 +128,7 @@ class pixelXY:
            func - function of quantity to plot
            minnstar= minimum number of stars (20)
            submeany= subtract the median y
+           justcalc= (False) if True, do not plot
            bovy_plot.bovy_dens2d kwargs
         OUTPUT:
            plot to output device
@@ -155,6 +156,11 @@ class pixelXY:
                         z2d[ii,jj]= func(tdata[quant])
             if submediany:
                 z2d[ii,:]-= numpy.median(z2d[ii,True-numpy.isnan(z2d[ii,:])])
+        if justcalc:
+            if returnz:
+                return z2d
+            else:
+                return None
         #Now plot
         xrange=[self.xmin,self.xmax]
         yrange=[self.ymin,self.ymax]
