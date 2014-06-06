@@ -168,7 +168,7 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
                       zlabel=r'$\delta\ V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
                       vmin=0.,vmax=10.,returnz=True)
     import psds
-    binsize= .75
+    binsize= 1.5
     psd2d= psds.power_spectrum(resv,
                                binsize=binsize,wavenumber=True)
     #Simulate the noise

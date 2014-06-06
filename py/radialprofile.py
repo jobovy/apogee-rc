@@ -1,6 +1,6 @@
 import numpy as np
 
-def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return_nr=False, 
+def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return_nr=False, dx= None, dy= None,
         binsize=0.5, weights=None, steps=False, interpnan=False, left=None, right=None,
         mask=None ):
     """
@@ -10,6 +10,7 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
     center - The [x,y] pixel coordinates used as the center. The default is 
              None, which then uses the center of the image (including 
              fractional pixels).
+    dx, dy- spacing in x and y
     stddev - if specified, return the azimuthal standard deviation instead of the average
     returnradii - if specified, return (radii_array,radial_profile)
     return_nr   - if specified, return number of pixels per radius *and* radius
@@ -34,6 +35,10 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
     """
     # Calculate the indices from the image
     y, x = np.indices(image.shape)
+    if not dx is None:
+        x*= dx
+    if not dy is None:
+        y*= dy
 
     if center is None:
         center = np.array([(x.max()-x.min())/2.0, (y.max()-y.min())/2.0])
@@ -65,13 +70,14 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
 
     # recall that bins are from 1 to nbins (which is expressed in array terms by arange(nbins)+1 or xrange(1,nbins+1) )
     # radial_prof.shape = bin_centers.shape
+    print r
     if stddev:
         # Find out which radial bin each point in the map belongs to
         whichbin = np.digitize(r.flat,bins)
         # This method is still very slow; is there a trick to do this with histograms? 
         radial_prof = np.array([image.flat[mask.flat*(whichbin==b)].std() for b in xrange(1,nbins+1)])
     else: 
-        radial_prof = np.histogram(r, bins, weights=(image*weights*mask))[0] / np.histogram(r, bins, weights=(mask*weights))[0]
+        radial_prof = np.histogram(r, bins, range=[0.,r.max()],weights=(image*weights*mask))[0] / np.histogram(r, bins, weights=(mask*weights),range=[0.,r.max()])[0]
 
     if interpnan:
         radial_prof = np.interp(bin_centers,bin_centers[radial_prof==radial_prof],radial_prof[radial_prof==radial_prof],left=left,right=right)
