@@ -10,7 +10,7 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
     center - The [x,y] pixel coordinates used as the center. The default is 
              None, which then uses the center of the image (including 
              fractional pixels).
-    dx, dy- spacing in x and y
+    dx, dy- spacing in x and y (must either both be set or not set at all)
     stddev - if specified, return the azimuthal standard deviation instead of the average
     returnradii - if specified, return (radii_array,radial_profile)
     return_nr   - if specified, return number of pixels per radius *and* radius
@@ -34,11 +34,10 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
     
     """
     # Calculate the indices from the image
-    y, x = np.indices(image.shape)
-    if not dx is None:
-        x*= dx
-    if not dy is None:
-        y*= dy
+    x, y = np.indices(image.shape)
+    if not image.shape[0] == image.shape[1]:
+        y= y.astype('float')
+        y*= (image.shape[0]-1)/(image.shape[1]-1.)
 
     if center is None:
         center = np.array([(x.max()-x.min())/2.0, (y.max()-y.min())/2.0])
@@ -70,7 +69,6 @@ def azimuthalAverage(image, center=None, stddev=False, returnradii=False, return
 
     # recall that bins are from 1 to nbins (which is expressed in array terms by arange(nbins)+1 or xrange(1,nbins+1) )
     # radial_prof.shape = bin_centers.shape
-    print r
     if stddev:
         # Find out which radial bin each point in the map belongs to
         whichbin = np.digitize(r.flat,bins)

@@ -48,4 +48,4 @@ def psd1d(image,dx,binsize=1.):
                                 dx=1./2./dx/image.shape[0],
                                 dy=1./2./dx/image.shape[1],
                                 interpnan=False)
-    return (radii/2./dx,ret)
+    return (radii/2./dx/(image.shape[0]/2.-1.),ret)
