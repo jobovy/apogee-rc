@@ -16,7 +16,7 @@ def psd2d(image):
     #First rm NaN
     image[numpy.isnan(image)]= 0.
     #First take the 2D FFT
-    image_fft= numpy.fft.fft2(image)
+    image_fft= numpy.fft.fft2(image,s=(2*image.shape[0],2*image.shape[1]))
     #Then calculate the periodogram estimate of the power spectrum
     ret= numpy.abs(image_fft)**2.\
         +numpy.abs(numpy.roll(image_fft[::-1,::-1],1))**2.
@@ -44,8 +44,9 @@ def psd1d(image,dx,binsize=1.):
     image-= numpy.mean(image[True-numpy.isnan(image)])
     #Calculate the 2D PSD
     ret2d= psd2d(image)
-    radii,ret= azimuthalAverage(ret2d,returnradii=True,binsize=binsize,
-                                dx=1./2./dx/image.shape[0],
-                                dy=1./2./dx/image.shape[1],
-                                interpnan=False)
-    return (radii/2./dx/(image.shape[0]/2.-1.),ret)
+    nr, radii,ret= azimuthalAverage(ret2d,returnradii=False,binsize=binsize,
+                                    dx=1./2./dx/image.shape[0],
+                                    dy=1./2./dx/image.shape[1],
+                                    interpnan=False,
+                                    return_nr=True)
+    return (radii/2./dx/(image.shape[0]/2.-1.),ret,ret/numpy.sqrt(nr))
