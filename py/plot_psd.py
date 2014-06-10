@@ -127,6 +127,9 @@ def plot_psd(plotfilename):
     interpks.append(0.025)
     interppsd.append(10.**-5.)
     interppsd_w.append(0.00001)
+    interpks.append(110.)
+    interppsd.append(1.)
+    interppsd_w.append(0.00001)
     if _ADDGCS:
         interpks.extend(ks_gcs)
         interppsd.extend(psd_gcs)

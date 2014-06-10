@@ -13,7 +13,7 @@ from plot_psd import _ADDLLOGGCUT, \
     _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX, \
     _RAVEXMIN, _RAVEXMAX, _RAVEYMIN, _RAVEYMAX, _RAVEDX, \
     _GCSXMIN, _GCSXMAX, _GCSYMIN, _GCSYMAX, _GCSDX
-def plot_velocityfield(plotfilename):
+def plot_velocityfield(plotfilename,err=False):
     #Read the 3 data files and pixelate them
     #APOGEE-RC
     data= apread.rcsample()
@@ -46,8 +46,13 @@ def plot_velocityfield(plotfilename):
     tdy= (_RCYMAX-_RCYMIN)/(_RCXMAX-_RCXMIN)*axdx
     rcAxes= pyplot.axes([0.1,(1.-tdy)/2.,axdx,tdy])
     pyplot.sca(rcAxes)
-    img= pixrc.plot(lambda x: dvlosgal(x),vmin=-16.,vmax=16.,overplot=True,
-                    colorbar=False)
+    if err:
+        img= pixrc.plot(lambda x: dvlosgal(x),vmin=0.,vmax=8.,overplot=True,
+                        func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
+                        colorbar=False)
+    else:
+        img= pixrc.plot(lambda x: dvlosgal(x),vmin=-16.,vmax=16.,overplot=True,
+                        colorbar=False)
     pyplot.axis([pixrc.xmin,pixrc.xmax,pixrc.ymin,pixrc.ymax])
     bovy_plot._add_ticks()
     bovy_plot._add_axislabels(r'$ $',
@@ -67,8 +72,13 @@ def plot_velocityfield(plotfilename):
     tdy= (_RAVEYMAX-_RAVEYMIN)/(_RAVEXMAX-_RAVEXMIN)*axdx
     raveAxes= pyplot.axes([0.05+axdx,(1.-tdy)/2.,axdx,tdy])
     pyplot.sca(raveAxes)
-    img= pixrave.plot(lambda x: dvlosgal(x,vtsun=230.),vmin=-7.,vmax=7.,
-                      overplot=True,colorbar=False)
+    if err:
+        img= pixrave.plot(lambda x: dvlosgal(x,vtsun=230.),vmin=-0.,vmax=8.,
+                          func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
+                          overplot=True,colorbar=False)
+    else:
+        img= pixrave.plot(lambda x: dvlosgal(x,vtsun=230.),vmin=-7.,vmax=7.,
+                          overplot=True,colorbar=False)
     pyplot.axis([pixrave.xmin,pixrave.xmax,pixrave.ymin,pixrave.ymax])
     bovy_plot._add_ticks()
     bovy_plot._add_axislabels(r'$X_{\mathrm{GC}}\,(\mathrm{kpc})$',
@@ -88,8 +98,13 @@ def plot_velocityfield(plotfilename):
     tdy= (_GCSYMAX-_GCSYMIN)/(_GCSXMAX-_GCSXMIN)*axdx
     gcsAxes= pyplot.axes([0.0+2.*axdx,(1.-tdy)/2.,axdx,tdy])
     pyplot.sca(gcsAxes)
-    img= pixgcs.plot(lambda x: x['VVel']-numpy.median(data['VVel']),
-                     vmin=-4.,vmax=4.,overplot=True,colorbar=False)
+    if err:
+        img= pixgcs.plot(lambda x: x['VVel']-numpy.median(data['VVel']),
+                         func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
+                         vmin=0.,vmax=8.,overplot=True,colorbar=False)
+    else:
+        img= pixgcs.plot(lambda x: x['VVel']-numpy.median(data['VVel']),
+                         vmin=-4.,vmax=4.,overplot=True,colorbar=False)
     def my_formatter(x, pos):
         return r'$%g$' % (8.+x)
     major_formatter = FuncFormatter(my_formatter)
@@ -114,4 +129,7 @@ def plot_box(xmin,xmax,ymin,ymax,ls='-',color='k'):
     return None
 
 if __name__ == '__main__':
-    plot_velocityfield(sys.argv[1])
+    if len(sys.argv) > 2:
+        plot_velocityfield(sys.argv[1],err=True)
+    else:
+        plot_velocityfield(sys.argv[1],err=False)
