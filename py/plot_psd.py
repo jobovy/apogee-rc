@@ -18,6 +18,25 @@ _ADDRAVE= True
 _NNOISE= 1000
 _PLOTBAND= False
 _SUBTRACTERRORS= 1.
+#Parameters of the pixelizations
+#APOGEE-RC
+_GCXMIN= 5.
+_GCXMAX= 12.5
+_GCYMIN= -3.
+_GCYMAX= 4.5
+_GCDX= 0.75
+#RAVE
+_RAVEXMIN= 6.75
+_RAVEXMAX= 8.75
+_RAVEYMIN= -1.75
+_RAVEYMAX= 0.25
+_RAVEDX= 0.25
+#GCS
+_GCSXMIN= -0.075
+_GCSXMAX= 0.075
+_GCSYMIN= -0.075
+_GCSYMAX= 0.075
+_GCSDX= 0.025
 def plot_psd():
     data= apread.rcsample()
     if _ADDLLOGGCUT:
@@ -27,11 +46,11 @@ def plot_psd():
     print "Using %i stars for low-Z 2D kinematics analysis" % numpy.sum(indx)
     data= data[indx]
     #Get residuals
-    dx= 0.75
+    dx= _GCDX
     binsize= .8#.765
     pix= pixelize_sample.pixelXY(data,
-                                 xmin=5.,xmax=12.5,
-                                 ymin=-3.,ymax=4.5,
+                                 xmin=_GCXMIN,xmax=_GCXMAX,
+                                 ymin=_GCYMIN,ymax=_GCYMAX,
                                  dx=dx,dy=dx)
     resv= pix.plot(lambda x: dvlosgal(x),returnz=True,justcalc=True)
     resvunc= pix.plot('VHELIO_AVG',
@@ -138,10 +157,11 @@ def plot_psd():
 
 def plot_psd_gcs():
     data= hackGCS.hackGCS()
-    dx= 0.025
+    dx= _GCSDX
     binsize= .8
-    pix= pixelize_sample.pixelXY(data,xmin=-0.075,xmax=0.075,
-                                 ymin=-0.075,ymax=0.075,
+    pix= pixelize_sample.pixelXY(data,
+                                 xmin=_GCSXMIN,xmax=_GCSXMAX,
+                                 ymin=_GCSYMIN,ymax=_GCSYMAX,
                                  dx=dx,dy=dx)
     resv= pix.plot('VVel',returnz=True,justcalc=True)
     resvunc= pix.plot('VVel',
@@ -190,10 +210,11 @@ def plot_psd_gcs():
 
 def plot_psd_rave():
     data= fitsio.read('/Users/bovy/data/rave/ravedr4_rc.fits')
-    dx= .25
+    dx= _RAVEDX
     binsize= 0.8#.735
-    pix= pix= pixelize_sample.pixelXY(data,xmin=6.75,xmax=8.75,
-                                      ymin=-1.75,ymax=0.25,
+    pix= pix= pixelize_sample.pixelXY(data,
+                                      xmin=_RAVEXMIN,xmax=_RAVEXMAX,
+                                      ymin=_RAVEYMIN,ymax=_RAVEYMAX,
                                       dx=dx,dy=dx)
     resv= pix.plot(lambda x: dvlosgal(x,vtsun=230.),returnz=True,justcalc=True)
     resvunc= pix.plot('VHELIO_AVG',
