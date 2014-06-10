@@ -17,6 +17,7 @@ _ADDLLOGGCUT= True
 _ADDGCS= True
 _ADDRED= False
 _ADDRAVE= True
+_ADDRIX= True
 _NNOISE= 1000
 _PLOTBAND= False
 _SUBTRACTERRORS= 1.
@@ -101,6 +102,16 @@ def plot_psd(plotfilename):
                             scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
                             '-',lw=8.,zorder=9,
                             color='0.65',overplot=True)
+    #Add the lopsided and ellipticity constraints from Rix/Zaritsky
+    if _ADDRIX:
+        pyplot.errorbar([1./16.],[5.6],
+                        yerr=[5.6/2.],
+                        marker='d',color='0.6',
+                        mew=1.5,mfc='none',mec='0.6')
+        pyplot.errorbar([1./8./numpy.sqrt(2.)],[6.4],
+                        yerr=numpy.reshape(numpy.array([6.4/0.045*0.02,6.4/0.045*0.03]),(2,1)),
+                        marker='d',color='0.6',mec='0.6',
+                        mew=1.5,mfc='none')
     if _ADDGCS:
         ks_gcs, psd_gcs, e_psd_gcs= plot_psd_gcs()
     if _ADDRAVE:
