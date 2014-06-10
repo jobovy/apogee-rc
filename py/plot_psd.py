@@ -1,3 +1,4 @@
+import sys
 import numpy
 from scipy import interpolate
 from galpy.util import bovy_plot
@@ -37,7 +38,7 @@ _GCSXMAX= 0.075
 _GCSYMIN= -0.075
 _GCSYMAX= 0.075
 _GCSDX= 0.025
-def plot_psd():
+def plot_psd(plotfilename):
     data= apread.rcsample()
     if _ADDLLOGGCUT:
         data= data[data['ADDL_LOGG_CUT'] == 1]
@@ -76,8 +77,8 @@ def plot_psd():
         xrange=[.03,110.]
     else:
         xrange= [0.,1.]
-    yrange= [0.,10.]
-    bovy_plot.bovy_print(fig_width=7.5)
+    yrange= [0.,11.9]
+    bovy_plot.bovy_print(fig_width=7.5,fig_height=4.)
     bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][0:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
                         'ko',lw=2.,
@@ -152,7 +153,7 @@ def plot_psd():
     ax2.set_xlabel('$\mathrm{Approximate\ scale}\,(\mathrm{kpc})$',
                    fontsize=12.,ha='center',x=0.5)
     ax2.xaxis.set_major_formatter(major_formatter2)
-    bovy_plot.bovy_end_print('/Users/bovy/Desktop/test.png')
+    bovy_plot.bovy_end_print(plotfilename)
     return None
 
 def plot_psd_gcs():
@@ -184,7 +185,6 @@ def plot_psd_gcs():
         newresv= numpy.random.normal(size=resv.shape)*resvunc
         noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
     ks= psd1d[0][0:-3]
-    bovy_plot.bovy_print()
     bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][0:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),'kx',mew=2.,
                         overplot=True)
@@ -237,7 +237,6 @@ def plot_psd_rave():
         newresv= numpy.random.normal(size=resv.shape)*resvunc
         noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
     ks= psd1d[0][0:-3]
-    bovy_plot.bovy_print()
     bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][0:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),'k+',mew=2.,
                         overplot=True)
@@ -293,7 +292,6 @@ def plot_psd_red():
         newresv= numpy.random.normal(size=resv.shape)*resvunc
         noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
     ks= psd1d[0][0:-3]
-    bovy_plot.bovy_print()
     bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][0:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),'ko',mew=2.,
                         mfc='none',overplot=True)
@@ -321,4 +319,4 @@ def plot_psd_red():
     return None
 
 if __name__ == '__main__':
-    plot_psd()
+    plot_psd(sys.argv[1])
