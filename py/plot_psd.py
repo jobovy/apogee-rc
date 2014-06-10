@@ -1,4 +1,5 @@
 import sys
+import os, os.path
 import numpy
 from scipy import interpolate
 from galpy.util import bovy_plot
@@ -209,7 +210,7 @@ def plot_psd_gcs():
             scale*0.5*psd1d[2][0:-3]/numpy.sqrt(psd1d[1][0:-3]))
 
 def plot_psd_rave():
-    data= fitsio.read('/Users/bovy/data/rave/ravedr4_rc.fits')
+    data= fitsio.read(os.path.join(os.getenv('DATADIR'),'rave','ravedr4_rc.fits'))
     dx= _RAVEDX
     binsize= 0.8#.735
     pix= pix= pixelize_sample.pixelXY(data,

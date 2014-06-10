@@ -1,4 +1,5 @@
 import sys
+import os, os.path
 import numpy
 from galpy.util import bovy_plot
 from matplotlib import pyplot
@@ -27,7 +28,7 @@ def plot_velocityfield(plotfilename):
                                    ymin=_RCYMIN,ymax=_RCYMAX,
                                    dx=_RCDX,dy=_RCDX)
     #RAVE
-    data= fitsio.read('/Users/bovy/data/rave/ravedr4_rc.fits')
+    data= fitsio.read(os.path.join(os.getenv('DATADIR'),'rave','ravedr4_rc.fits'))
     pixrave= pixelize_sample.pixelXY(data,
                                      xmin=_RAVEXMIN,xmax=_RAVEXMAX,
                                      ymin=_RAVEYMIN,ymax=_RAVEYMAX,

@@ -31,7 +31,8 @@ def raveRC():
     #To allow for XY pixelization
     data= esutil.numpy_util.add_fields(data,[('RC_GALR', float),
                                              ('RC_GALPHI', float),
-                                             ('RC_GALZ', float)])
+                                             ('RC_GALZ', float),
+                                             ('VHELIO_AVG', float)])
     XYZ= bovy_coords.lbd_to_XYZ(data['GLON'],
                                 data['GLAT'],
                                 data['Dist'],
@@ -43,4 +44,5 @@ def raveRC():
     data['RC_GALR']= R
     data['RC_GALPHI']= phi
     data['RC_GALZ']= Z   
+    data['VHELIO_AVG']= data['HRV']
     return data
