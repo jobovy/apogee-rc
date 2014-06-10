@@ -92,6 +92,9 @@ def plot_psd():
     interppsd_w[:8]*= 0.025 #fiddling to get a decent fit
     interppsd_w[3:5]*= 0.001
     interppsd_w= list(interppsd_w)
+    interpks.append(0.025)
+    interppsd.append(10.**-5.)
+    interppsd_w.append(0.00001)
     if _ADDGCS:
         interpks.extend(ks_gcs)
         interppsd.extend(psd_gcs)
@@ -110,7 +113,7 @@ def plot_psd():
     interpspec= interpolate.UnivariateSpline(numpy.log(interpks[interpindx]),
                                              numpy.log(interppsd[interpindx]/3.),
                                              w=interppsd_w,
-                                             k=3,s=len(interppsd_w)*0.85)
+                                             k=3,s=len(interppsd_w)*0.8)
     pks= numpy.linspace(interpks[0],interpks[-1],201)
     bovy_plot.bovy_plot(pks,
                         3.*numpy.exp(interpspec(numpy.log(pks))),
