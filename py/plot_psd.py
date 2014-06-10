@@ -20,11 +20,11 @@ _PLOTBAND= False
 _SUBTRACTERRORS= 1.
 #Parameters of the pixelizations
 #APOGEE-RC
-_GCXMIN= 5.
-_GCXMAX= 12.5
-_GCYMIN= -3.
-_GCYMAX= 4.5
-_GCDX= 0.75
+_RCXMIN= 5.5
+_RCXMAX= 12.25
+_RCYMIN= -3.
+_RCYMAX= 3.75
+_RCDX= 0.75
 #RAVE
 _RAVEXMIN= 6.75
 _RAVEXMAX= 8.75
@@ -46,11 +46,11 @@ def plot_psd():
     print "Using %i stars for low-Z 2D kinematics analysis" % numpy.sum(indx)
     data= data[indx]
     #Get residuals
-    dx= _GCDX
+    dx= _RCDX
     binsize= .8#.765
     pix= pixelize_sample.pixelXY(data,
-                                 xmin=_GCXMIN,xmax=_GCXMAX,
-                                 ymin=_GCYMIN,ymax=_GCYMAX,
+                                 xmin=_RCXMIN,xmax=_RCXMAX,
+                                 ymin=_RCYMIN,ymax=_RCYMAX,
                                  dx=dx,dy=dx)
     resv= pix.plot(lambda x: dvlosgal(x),returnz=True,justcalc=True)
     resvunc= pix.plot('VHELIO_AVG',
