@@ -1,10 +1,9 @@
 import numpy
 from galpy.util import bovy_coords
 from galpy.potential import SteadyLogSpiralPotential
-from plot_psd import _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX
 def simulate_vlos_spiral(alpha=-7.,m=2.,gamma=0.7853981633974483,omegas=0.65,
-                         xmin=_RCXMIN,xmax=_RCXMAX,ymin=_RCYMIN,ymax=_RCYMAX,
-                         dx=0.05):
+                         xmin=None,xmax=None,ymin=None,ymax=None,
+                         dx=None):
     """Perform a simple simulation of the effect of spiral structure on the velocity field; use the WKB approximation"""
     #Set up galpy spiral
     sp= SteadyLogSpiralPotential(alpha=alpha,m=m,gamma=gamma,omegas=omegas)

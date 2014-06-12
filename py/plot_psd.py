@@ -12,12 +12,14 @@ import bovy_psd
 from plot_2dkinematics import dvlosgal
 import hackGCS
 import readAndHackHoltz
+from simple_spiral_simulation import simulate_vlos_spiral
 _EXT='png'
 _ADDLLOGGCUT= True
 _ADDGCS= True
 _ADDRED= False
 _ADDRAVE= True
 _ADDRIX= True
+_ADDSIMPLESPIRAL= True
 _NNOISE= 1000
 _PLOTBAND= False
 _SUBTRACTERRORS= 1.
@@ -55,7 +57,8 @@ def plot_psd(plotfilename):
                                  xmin=_RCXMIN,xmax=_RCXMAX,
                                  ymin=_RCYMIN,ymax=_RCYMAX,
                                  dx=dx,dy=dx)
-    resv= pix.plot(lambda x: dvlosgal(x),returnz=True,justcalc=True)
+    resv= pix.plot(lambda x: dvlosgal(x,vtsun=220.+23.1),
+                   returnz=True,justcalc=True)
     resvunc= pix.plot('VHELIO_AVG',
                       func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
                       returnz=True,justcalc=True)
@@ -104,6 +107,21 @@ def plot_psd(plotfilename):
                             scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
                             '-',lw=8.,zorder=9,
                             color='0.65',overplot=True)
+    #Add a simple model of a spiral potential
+    if _ADDSIMPLESPIRAL:
+        alpha= -11.5
+        spvlos= simulate_vlos_spiral(alpha=alpha,
+                                     gamma=1.2,
+                                     xmin=_RCXMIN,xmax=_RCXMAX,
+                                     ymin=_RCYMIN,ymax=_RCYMAX,
+                                     dx=_RCDX)
+        potscale= 1.4
+        print numpy.arctan(2./alpha)/numpy.pi*180., numpy.sqrt(0.035/numpy.fabs(alpha)/2.)*potscale*220., numpy.sqrt(0.035/numpy.fabs(alpha))*potscale*220.
+        simpsd1d= bovy_psd.psd1d(spvlos*220.*potscale,_RCDX,binsize=binsize)
+        tks= simpsd1d[0][0:-3]
+        bovy_plot.bovy_plot(tks,
+                            scale*numpy.sqrt(simpsd1d[1][0:-3]),
+                            'k--',lw=2.,overplot=True)
     #Add the lopsided and ellipticity constraints from Rix/Zaritsky
     if _ADDRIX:
         pyplot.errorbar([1./16.],[5.6],

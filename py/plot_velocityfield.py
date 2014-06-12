@@ -47,7 +47,8 @@ def plot_velocityfield(plotfilename,err=False):
     rcAxes= pyplot.axes([0.1,(1.-tdy)/2.,axdx,tdy])
     pyplot.sca(rcAxes)
     if err:
-        img= pixrc.plot(lambda x: dvlosgal(x),vmin=0.,vmax=8.,overplot=True,
+        img= pixrc.plot(lambda x: dvlosgal(x,vtsun=220.+23.1),
+                        vmin=0.,vmax=8.,overplot=True,
                         func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
                         colorbar=False)
     else:
