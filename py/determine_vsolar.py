@@ -24,10 +24,10 @@ def determine_vsolar(plotfilename):
                                    ymin=_RCYMIN,ymax=_RCYMAX,
                                    dx=_RCDX,dy=_RCDX)
     vsolars= numpy.linspace(0.,40.,51)
-    lpower= large_scale_power(pixrc,vsolars,vc=218.,dx=_RCDX)
+    lpower= large_scale_power(pixrc,vsolars,vc=220.,dx=_RCDX)
     bovy_plot.bovy_print()
     line1= bovy_plot.bovy_plot(vsolars,lpower,'k-',lw=2.,
-                               xrange=[0.,40.],
+                               xrange=[vsolars[0],vsolars[-1]],
                                yrange=[0.,30.],
                                xlabel=r'$V_\odot\,(\mathrm{km\,s}^{-1})$',
                                ylabel=r'$\sqrt\langle P_k(0.2 < k / (\mathrm{kpc}^{-1}) < 0.9)\rangle\,(\mathrm{km\,s}^{-1})$')
@@ -43,25 +43,43 @@ def determine_vsolar(plotfilename):
     line2= bovy_plot.bovy_plot(vsolars,lpower240,'k--',lw=2.,overplot=True)
     lpower200= large_scale_power(pixrc,vsolars,vc=200.,dx=_RCDX)
     line3= bovy_plot.bovy_plot(vsolars,lpower200,'k-.',lw=2.,overplot=True)
+    lpowerbetam0p2= large_scale_power(pixrc,vsolars,dx=_RCDX,beta=-0.1)
+    line4= bovy_plot.bovy_plot(vsolars,lpowerbetam0p2,
+                               '--',dashes=(20,10),
+                               color='0.7',lw=3.,overplot=True)
+    lpowerbetap0p2= large_scale_power(pixrc,vsolars,dx=_RCDX,beta=0.1)
+    line5= bovy_plot.bovy_plot(vsolars,lpowerbetap0p2,
+                               '--',dashes=(20,10),
+                               color='0.3',lw=3.,overplot=True)
     #Add legend
-    pyplot.legend((line3[0],line1[0],line2[0]),
-                  (r'$V_c = 200\,\mathrm{km\,s}^{-1}$',
-                   r'$V_c = 218\,\mathrm{km\,s}^{-1}$',
-                   r'$V_c = 240\,\mathrm{km\,s}^{-1}$'),
-                  loc='upper left',#bbox_to_anchor=(.91,.375),
-                  numpoints=2,
-                  prop={'size':14},
+    legend1= pyplot.legend((line3[0],line1[0],line2[0]),
+                           (r'$V_c = 200\,\mathrm{km\,s}^{-1}$',
+                            r'$V_c = 220\,\mathrm{km\,s}^{-1}$',
+                            r'$V_c = 240\,\mathrm{km\,s}^{-1}$'),
+                           loc='upper left',#bbox_to_anchor=(.91,.375),
+                           numpoints=2,
+                           prop={'size':14},
                   frameon=False)
+    legend2= pyplot.legend((line4[0],line5[0]),
+                           (r'$\beta = -0.1$',
+                            r'$\beta = \phantom{-}0.1$'),
+                           loc='upper right',bbox_to_anchor=(1.,.96),
+                           numpoints=2,
+                           prop={'size':14},
+                           frameon=False)
+    pyplot.gca().add_artist(legend1)
+    pyplot.gca().add_artist(legend2)
     bovy_plot.bovy_end_print(plotfilename)
     return None
 
-def large_scale_power(pix,vsolar,vc=218.,dx=None):
+def large_scale_power(pix,vsolar,vc=220.,dx=None,beta=0.):
     """Determine the power on large scales in the residuals for different solarmotions"""
     out= numpy.empty_like(vsolar)
     binsize= 0.8
     scale= 0.522677552224
     for ii in range(len(vsolar)):
-        resv= pix.plot(lambda x: dvlosgal(x,vc=vc,vtsun=vc+vsolar[ii]),
+        resv= pix.plot(lambda x: dvlosgal(x,vc=vc,vtsun=vc+vsolar[ii],
+                                          beta=beta),
                        returnz=True,justcalc=True)
         psd1d= bovy_psd.psd1d(resv,dx,binsize=binsize)
         indx= (psd1d[0] > 0.2)*(psd1d[0] < 0.9)

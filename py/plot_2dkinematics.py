@@ -196,13 +196,13 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
     bovy_plot.bovy_end_print(basesavefilename+'_FFTPSD.'+_EXT)
     return None
 
-def dvlosgal(data,beta=0.,vc=218.,vtsun=_VTSUN):
+def dvlosgal(data,beta=0.,vc=218.,vtsun=_VTSUN,vrsun=_VRSUN):
     l= data['GLON']*_DEGTORAD
     sinl= numpy.sin(data['GLON']*_DEGTORAD)
     cosl= numpy.cos(data['GLON']*_DEGTORAD)
     sinb= numpy.sin(data['GLAT']*_DEGTORAD)
     cosb= numpy.cos(data['GLAT']*_DEGTORAD)
-    vlosgal= data['VHELIO_AVG']/cosb-_VRSUN*cosl+vtsun*sinl\
+    vlosgal= data['VHELIO_AVG']/cosb-vrsun*cosl+vtsun*sinl\
         +_VZSUN*sinb/cosb\
         -(vc*(data['RC_GALR']/8.)**beta\
               -asymmetricDriftModel.va(data['RC_GALR']/8.,31.4/vc,
@@ -210,12 +210,12 @@ def dvlosgal(data,beta=0.,vc=218.,vtsun=_VTSUN):
                                        hs=33.3)*vc)*numpy.sin(l+data['RC_GALPHI'])
     return vlosgal
 
-def vlosgal(data,vtsun=_VTSUN):
+def vlosgal(data,vtsun=_VTSUN,vrsun=_VRSUN):
     sinl= numpy.sin(data['GLON']*_DEGTORAD)
     cosl= numpy.cos(data['GLON']*_DEGTORAD)
     sinb= numpy.sin(data['GLAT']*_DEGTORAD)
     cosb= numpy.cos(data['GLAT']*_DEGTORAD)
-    vlosgal= data['VHELIO_AVG']/cosb-_VRSUN*cosl+vtsun*sinl\
+    vlosgal= data['VHELIO_AVG']/cosb-vrsun*cosl+vtsun*sinl\
         +_VZSUN*sinb/cosb
     return vlosgal
 
