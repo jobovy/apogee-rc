@@ -12,7 +12,7 @@ _ADDLLOGGCUT= True
 _JACKERRS= True
 _DEGTORAD= numpy.pi/180.
 _VRSUN= -10.5
-_VTSUN= 242.
+_VTSUN= 243.
 _VZSUN= 7.25
 def plot_2dkinematics(basesavefilename,datafilename=None):
     #Plot 2D los field
@@ -95,7 +95,7 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
     #R,phi
     vmin, vmax= -20., 20.
     bovy_plot.bovy_print()
-    resv= pix.plot(lambda x: dvlosgal(x,beta=0.,vc=218.),
+    resv= pix.plot(lambda x: dvlosgal(x,beta=0.,vc=220.),
                    zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
                    vmin=vmin,vmax=vmax,returnz=True)
     medindx= True-numpy.isnan(resv)
@@ -111,7 +111,7 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
                                  dx=1.,dy=1.)
     vmin, vmax= -20., 20.
     bovy_plot.bovy_print()
-    pixXY.plot(lambda x: dvlosgal(x,beta=0.,vc=218.),
+    pixXY.plot(lambda x: dvlosgal(x,beta=0.,vc=220.),
                zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los}}\,(\mathrm{km\,s}^{-1})$',
                vmin=vmin,vmax=vmax,returnz=False)
     medindx= True-numpy.isnan(resv)
@@ -196,7 +196,7 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
     bovy_plot.bovy_end_print(basesavefilename+'_FFTPSD.'+_EXT)
     return None
 
-def dvlosgal(data,beta=0.,vc=218.,vtsun=_VTSUN,vrsun=_VRSUN):
+def dvlosgal(data,beta=0.,vc=220.,vtsun=_VTSUN,vrsun=_VRSUN):
     l= data['GLON']*_DEGTORAD
     sinl= numpy.sin(data['GLON']*_DEGTORAD)
     cosl= numpy.cos(data['GLON']*_DEGTORAD)

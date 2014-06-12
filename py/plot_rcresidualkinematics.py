@@ -8,7 +8,7 @@ import pixelize_sample
 from plot_2dkinematics import dvlosgal
 from plot_psd import _ADDLLOGGCUT, \
     _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX
-def plot_rcresidualkinematics(plotfilename,sbd10=False,vc=218.):
+def plot_rcresidualkinematics(plotfilename,sbd10=False,vc=220.):
     #Read the APOGEE-RC data and pixelate it
     #APOGEE-RC
     data= apread.rcsample()
@@ -49,4 +49,4 @@ if __name__ == '__main__':
     elif len(sys.argv) > 2:
         plot_rcresidualkinematics(sys.argv[1],sbd10=False,vc=float(sys.argv[2]))
     else:
-        plot_rcresidualkinematics(sys.argv[1],sbd10=False,vc=218.)
+        plot_rcresidualkinematics(sys.argv[1],sbd10=False,vc=220.)
