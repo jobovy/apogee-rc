@@ -33,6 +33,20 @@ def determine_vsolar_error():
 
 def determine_vsolar_mock(data,dfc,trueVsolar):
     #At the position of each real data point, generate a mock velocity
+    data= create_mock_sample(data,dfc,trueVsolar)
+    #Get velocity field
+    pix= pixelize_sample.pixelXY(data,
+                                 xmin=_RCXMIN,xmax=_RCXMAX,
+                                 ymin=_RCYMIN,ymax=_RCYMAX,
+                                 dx=_RCDX,dy=_RCDX)
+    vsolars= numpy.linspace(0.,40.,51)
+    lpower= large_scale_power(pix,vsolars,vc=220.,dx=_RCDX,beta=0.)
+    p= numpy.polyfit(vsolars,lpower,2)
+    minvsolar= -0.5*p[1]/p[0]
+    return minvsolar
+
+
+def create_mock_sample(data,dfc,trueVsolar):
     ndata= len(data)
     mockvel= numpy.empty(ndata)
     dphil= data['RC_GALPHI']+data['GLON']/180.*numpy.pi
@@ -47,16 +61,6 @@ def determine_vsolar_mock(data,dfc,trueVsolar):
             -10.5*cosl[ii]/220.\
             -(1.+trueVsolar)*sinl[ii]
     data['VHELIO_AVG']= mockvel*220.
-    #Get velocity field
-    pix= pixelize_sample.pixelXY(data,
-                                 xmin=_RCXMIN,xmax=_RCXMAX,
-                                 ymin=_RCYMIN,ymax=_RCYMAX,
-                                 dx=_RCDX,dy=_RCDX)
-    vsolars= numpy.linspace(0.,40.,51)
-    lpower= large_scale_power(pix,vsolars,vc=220.,dx=_RCDX,beta=0.)
-    p= numpy.polyfit(vsolars,lpower,2)
-    minvsolar= -0.5*p[1]/p[0]
-    return minvsolar
-
+    return data
 if __name__ == '__main__':
     determine_vsolar_error()

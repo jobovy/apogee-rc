@@ -91,7 +91,8 @@ def plot_psd(plotfilename):
                         semilogx=_ADDGCS,
                         xrange=xrange,yrange=yrange)
     pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][0:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-                    yerr=scale*0.5*psd1d[2][0:-3]/numpy.sqrt(psd1d[1][0:-3]),
+                    yerr=scale*0.5*(psd1d[2][0:-3]**2.
+                                    +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][0:-3]),
                     marker='None',ls='none',color='k')
     if _PLOTBAND:
         bovy_plot.bovy_plot(ks,
@@ -205,7 +206,8 @@ def plot_psd_gcs():
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),'kx',mew=2.,
                         overplot=True)
     pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][0:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-                    yerr=scale*0.5*psd1d[2][0:-3]/numpy.sqrt(psd1d[1][0:-3]),
+                    yerr=scale*0.5*(psd1d[2][0:-3]**2.
+                                    +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][0:-3]),
                     marker='None',ls='none',color='k')
     if False:
         interpindx= True-numpy.isnan(psd1d[1][0:-3])
@@ -257,7 +259,8 @@ def plot_psd_rave():
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),'k+',mew=2.,
                         overplot=True)
     pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][0:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-                    yerr=scale*0.5*psd1d[2][0:-3]/numpy.sqrt(psd1d[1][0:-3]),
+                    yerr=scale*0.5*(psd1d[2][0:-3]**2.
+                                    +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][0:-3]),
                     marker='None',ls='none',color='k')
     if False:
         interpindx= True-numpy.isnan(psd1d[1][0:-3])
@@ -312,7 +315,8 @@ def plot_psd_red():
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),'ko',mew=2.,
                         mfc='none',overplot=True)
     pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][0:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-                    yerr=scale*0.5*psd1d[2][0:-3]/numpy.sqrt(psd1d[1][0:-3]),
+                    yerr=scale*0.5*(psd1d[2][0:-3]**2.
+                                    +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][0:-3]),
                     marker='None',ls='none',color='k')
     if False:
         interpindx= True-numpy.isnan(psd1d[1][0:-3])
