@@ -68,6 +68,7 @@ def plot_psd(plotfilename):
         newresv= numpy.random.normal(size=resv.shape)*3.25
         noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
     scale= 3.25/numpy.median(numpy.sqrt(noisepsd))
+    print scale
     #Simulations for the actual noise
     nnoise= _NNOISE
     noisepsd= numpy.empty((nnoise,len(psd1d[0])-3))
