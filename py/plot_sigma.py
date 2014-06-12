@@ -4,28 +4,33 @@ from scipy import optimize
 from galpy.util import bovy_plot
 from matplotlib import pyplot
 import apogee.tools.read as apread
+from plot_psd import _ADDLLOGGCUT
 def plot_sigmar(plotfilename,plotfilename2):
     #First read the sample
     data= apread.rcsample()
+    if _ADDLLOGGCUT:
+        data= data[data['ADDL_LOGG_CUT'] == 1]
     data= data[(data['PMMATCH'] == 1)] #Good velocities
     galy= data['RC_GALR']*numpy.sin(data['RC_GALPHI'])
-    indx= (numpy.fabs(galy) < .75)*(numpy.fabs(data['RC_GALZ']) < 0.05) #(numpy.fabs(data['GLAT']) < 1.51)
+    indx= (numpy.fabs(galy) < .75)*(numpy.fabs(data['RC_GALZ']) < 0.25) #(numpy.fabs(data['GLAT']) < 1.51)
     data= data[indx]
     print len(data)
-    rs= numpy.arange(3.5,16.501,1.)
+    rs= numpy.arange(3.5,16.501,.5)
     sigrs= numpy.zeros_like(rs)+numpy.nan
     mvrs= numpy.zeros_like(rs)+numpy.nan
     emvrs= numpy.zeros_like(rs)+numpy.nan
     esigrs= numpy.zeros_like(rs)+numpy.nan
     pmesigrs= numpy.zeros_like(rs)+numpy.nan
+    std= robstd 
+    #std= numpy.std
     for ii in range(len(rs)-1):
         tindx= (data['RC_GALR'] > rs[ii])\
             *(data['RC_GALR'] <= rs[ii+1])
         print rs[ii], numpy.sum(tindx)
-        sigrs[ii]= numpy.std(data['GALVR'][tindx])
+        sigrs[ii]= std(data['GALVR'][tindx])
         mvrs[ii]= numpy.median(data['GALVR'][tindx])
         emvrs[ii]= sigrs[ii]/numpy.sqrt(numpy.sum(tindx))
-        esigrs[ii]= sigrs[ii]/numpy.sqrt(2.*numpy.sum(tindx))
+        esigrs[ii]= disperror(data['GALVR'][tindx],std)
         pmesigrs[ii]= 4.74047*numpy.sqrt(numpy.mean(data['RC_DIST'][tindx]**2.\
                                                    *data['PMRA_ERR'][tindx]**2.\
                                                    *numpy.sin(data['GLON'][tindx]/180.*numpy.pi+data['RC_GALPHI'][tindx])**2.))
@@ -59,11 +64,11 @@ def plot_sigmar(plotfilename,plotfilename2):
     bovy_plot.bovy_end_print(plotfilename)
     #Now plot vr
     #First read the sample
-    data= apread.rcsample()
-    data= data[(data['PMMATCH'] == 1)] #Good velocities
-    galy= data['RC_GALR']*numpy.sin(data['RC_GALPHI'])
-    indx= (numpy.fabs(galy) < .5)*(numpy.fabs(data['RC_GALZ']) < 0.1) #(numpy.fabs(data['GLAT']) < 1.51)
-    data= data[indx]
+    #data= apread.rcsample()
+    #data= data[(data['PMMATCH'] == 1)] #Good velocities
+    #galy= data['RC_GALR']*numpy.sin(data['RC_GALPHI'])
+    #indx= (numpy.fabs(galy) < .5)*(numpy.fabs(data['RC_GALZ']) < 0.1) #(numpy.fabs(data['GLAT']) < 1.51)
+    #data= data[indx]
     print len(data)
     rs= numpy.arange(3.5,16.501,3.)
     sigrs= numpy.zeros_like(rs)+numpy.nan
@@ -75,13 +80,14 @@ def plot_sigmar(plotfilename,plotfilename2):
         tindx= (data['RC_GALR'] > rs[ii])\
             *(data['RC_GALR'] <= rs[ii+1])
         print rs[ii], numpy.sum(tindx)
-        sigrs[ii]= numpy.std(data['GALVR'][tindx])
+        sigrs[ii]= std(data['GALVR'][tindx])
         mvrs[ii]= numpy.median(data['GALVR'][tindx])
         emvrs[ii]= sigrs[ii]/numpy.sqrt(numpy.sum(tindx))
-        esigrs[ii]= sigrs[ii]/numpy.sqrt(2.*numpy.sum(tindx))
+        esigrs[ii]= disperror(data['GALVR'][tindx],std)
         pmesigrs[ii]= 4.74047*numpy.sqrt(numpy.mean(data['RC_DIST'][tindx]**2.\
                                                    *data['PMRA_ERR'][tindx]**2.\
                                                    *numpy.sin(data['GLON'][tindx]/180.*numpy.pi+data['RC_GALPHI'][tindx])**2.))
+    print rs+0.5*(rs[1]-rs[0]),mvrs
     bovy_plot.bovy_print()
     bovy_plot.bovy_plot(rs+0.5*(rs[1]-rs[0]),mvrs,'ko',
                         xlabel=r'$R\,(\mathrm{kpc})$',
@@ -92,7 +98,14 @@ def plot_sigmar(plotfilename,plotfilename2):
                     ls='none',color='k')
     bovy_plot.bovy_text(r'$|Z| < 50\,\mathrm{pc}$',top_right=True,size=18.)
     bovy_plot.bovy_end_print(plotfilename2)
-    
+
+def disperror(x,std):
+    gaussdisp= std(x)
+    varerr2= 2.*gaussdisp**4./(len(x)-1.)
+    return 0.5*varerr2**0.5/gaussdisp
+
+def robstd(x):
+    return 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))
 
 def expfit(x,lnsro,lnhsr):
     return numpy.exp(lnsro)*numpy.exp(-(x-8.)/numpy.exp(lnhsr))
