@@ -20,6 +20,7 @@ _ADDRED= False
 _ADDRAVE= True
 _ADDRIX= True
 _ADDSIMPLESPIRAL= True
+_INTERP= False
 _NNOISE= 1000
 _PLOTBAND= False
 _SUBTRACTERRORS= 1.
@@ -37,10 +38,10 @@ _RAVEYMIN= -1.75
 _RAVEYMAX= 0.25
 _RAVEDX= 0.25
 #GCS
-_GCSXMIN= -0.075
-_GCSXMAX= 0.075
-_GCSYMIN= -0.075
-_GCSYMAX= 0.075
+_GCSXMIN= -0.0625
+_GCSXMAX= 0.0625
+_GCSYMIN= -0.0625
+_GCSYMAX= 0.0625
 _GCSDX= 0.025
 def plot_psd(plotfilename):
     data= apread.rcsample()
@@ -66,26 +67,26 @@ def plot_psd(plotfilename):
     print psd1d
     #Simulations for constant 3.25 km/s
     nnoise= _NNOISE
-    noisepsd= numpy.empty((nnoise,len(psd1d[0])-3))
+    noisepsd= numpy.empty((nnoise,len(psd1d[0])-4))
     for ii in range(nnoise):
         newresv= numpy.random.normal(size=resv.shape)*3.25
-        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
-    scale= 3.25/numpy.median(numpy.sqrt(noisepsd))
+        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][1:-3]
+    scale= 4.*numpy.pi#3.25/numpy.median(numpy.sqrt(noisepsd))
     print scale
     #Simulations for the actual noise
     nnoise= _NNOISE
-    noisepsd= numpy.empty((nnoise,len(psd1d[0])-3))
+    noisepsd= numpy.empty((nnoise,len(psd1d[0])-4))
     for ii in range(nnoise):
         newresv= numpy.random.normal(size=resv.shape)*resvunc
-        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
-    ks= psd1d[0][0:-3]
+        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][1:-3]
+    ks= psd1d[0][1:-3]
     if _ADDGCS:
         xrange=[.03,110.]
     else:
         xrange= [0.,1.]
     yrange= [0.,11.9]
     bovy_plot.bovy_print(fig_width=7.5,fig_height=4.)
-    bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][0:-3]
+    bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
                         'ko',lw=2.,
                         zorder=12,
@@ -93,9 +94,9 @@ def plot_psd(plotfilename):
                         ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1})$',
                         semilogx=_ADDGCS,
                         xrange=xrange,yrange=yrange)
-    pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][0:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-                    yerr=scale*0.5*(psd1d[2][0:-3]**2.
-                                    +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][0:-3]),
+    pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
+                    yerr=scale*0.5*(psd1d[2][1:-3]**2.
+                                    +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]),
                     marker='None',ls='none',color='k')
     if _PLOTBAND:
         bovy_plot.bovy_plot(ks,
@@ -109,18 +110,18 @@ def plot_psd(plotfilename):
                             color='0.65',overplot=True)
     #Add a simple model of a spiral potential
     if _ADDSIMPLESPIRAL:
-        alpha= -11.5
+        alpha= -11.
         spvlos= simulate_vlos_spiral(alpha=alpha,
                                      gamma=1.2,
                                      xmin=_RCXMIN,xmax=_RCXMAX,
                                      ymin=_RCYMIN,ymax=_RCYMAX,
-                                     dx=_RCDX)
-        potscale= 1.4
+                                     dx=0.05)
+        potscale= 1.45
         print numpy.arctan(2./alpha)/numpy.pi*180., numpy.sqrt(0.035/numpy.fabs(alpha)/2.)*potscale*220., numpy.sqrt(0.035/numpy.fabs(alpha))*potscale*220.
-        simpsd1d= bovy_psd.psd1d(spvlos*220.*potscale,_RCDX,binsize=binsize)
-        tks= simpsd1d[0][0:-3]
+        simpsd1d= bovy_psd.psd1d(spvlos*220.*potscale,0.05,binsize=binsize)
+        tks= simpsd1d[0][1:-3]
         bovy_plot.bovy_plot(tks,
-                            scale*numpy.sqrt(simpsd1d[1][0:-3]),
+                            scale*numpy.sqrt(simpsd1d[1][1:-3]),
                             'k--',lw=2.,overplot=True)
     #Add the lopsided and ellipticity constraints from Rix/Zaritsky
     if _ADDRIX:
@@ -138,41 +139,42 @@ def plot_psd(plotfilename):
         ks_rave, psd_rave, e_psd_rave= plot_psd_rave()
     if _ADDRED:
         plot_psd_red()
-    interpks= list(ks[:-5])
-    interppsd= list((scale*numpy.sqrt(psd1d[1][0:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)))[:-5])
-    interppsd_w= (scale*0.5*psd1d[2][0:-3]/numpy.sqrt(psd1d[1][0:-3]))[:-5]
-    interppsd_w[:8]*= 0.025 #fiddling to get a decent fit
-    interppsd_w[3:5]*= 0.001
-    interppsd_w= list(interppsd_w)
-    interpks.append(0.025)
-    interppsd.append(10.**-5.)
-    interppsd_w.append(0.00001)
-    interpks.append(110.)
-    interppsd.append(1.)
-    interppsd_w.append(0.00001)
-    if _ADDGCS:
-        interpks.extend(ks_gcs)
-        interppsd.extend(psd_gcs)
-        interppsd_w.extend(e_psd_gcs)
-    if _ADDRAVE:
-        interpks.extend(ks_rave[5:])
-        interppsd.extend(psd_rave[5:])
-        interppsd_w.extend(e_psd_rave[5:])
-    interpks= numpy.array(interpks)
-    sortindx= numpy.argsort(interpks)
-    interpks= interpks[sortindx]
-    interppsd= numpy.array(interppsd)[sortindx]
-    interppsd_w= interppsd/numpy.array(interppsd_w)[sortindx]
-    interpindx= True-numpy.isnan(interppsd)
+    if _INTERP:
+        interpks= list(ks[:-5])
+        interppsd= list((scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)))[:-5])
+        interppsd_w= (scale*0.5*psd1d[2][1:-3]/numpy.sqrt(psd1d[1][1:-3]))[:-5]
+        interppsd_w[:8]*= 0.025 #fiddling to get a decent fit
+        interppsd_w[3:5]*= 0.001
+        interppsd_w= list(interppsd_w)
+        interpks.append(0.025)
+        interppsd.append(10.**-5.)
+        interppsd_w.append(0.00001)
+        interpks.append(110.)
+        interppsd.append(1.)
+        interppsd_w.append(0.00001)
+        if _ADDGCS:
+            interpks.extend(ks_gcs)
+            interppsd.extend(psd_gcs)
+            interppsd_w.extend(e_psd_gcs)
+        if _ADDRAVE:
+            interpks.extend(ks_rave[5:])
+            interppsd.extend(psd_rave[5:])
+            interppsd_w.extend(e_psd_rave[5:])
+        interpks= numpy.array(interpks)
+        sortindx= numpy.argsort(interpks)
+        interpks= interpks[sortindx]
+        interppsd= numpy.array(interppsd)[sortindx]
+        interppsd_w= interppsd/numpy.array(interppsd_w)[sortindx]
+        interpindx= True-numpy.isnan(interppsd)
     #interpspec= interpolate.InterpolatedUnivariateSpline(interpks[interpindx],
-    interpspec= interpolate.UnivariateSpline(numpy.log(interpks[interpindx]),
-                                             numpy.log(interppsd[interpindx]/3.),
-                                             w=interppsd_w,
-                                             k=3,s=len(interppsd_w)*0.8)
-    pks= numpy.linspace(interpks[0],interpks[-1],201)
-    bovy_plot.bovy_plot(pks,
-                        3.*numpy.exp(interpspec(numpy.log(pks))),
-                        'k-',overplot=True)
+        interpspec= interpolate.UnivariateSpline(numpy.log(interpks[interpindx]),
+                                                 numpy.log(interppsd[interpindx]/3.),
+                                                 w=interppsd_w,
+                                                 k=3,s=len(interppsd_w)*0.8)
+        pks= numpy.linspace(interpks[0],interpks[-1],201)
+        #bovy_plot.bovy_plot(pks,
+        #                    3.*numpy.exp(interpspec(numpy.log(pks))),
+#                    'k-',overplot=True)
     def my_formatter(x, pos):
         return r'$%g$' % x
     def my_formatter2(x, pos):
@@ -207,42 +209,35 @@ def plot_psd_gcs():
     print psd1d
     #Simulations for constant 3.25 km/s
     nnoise= _NNOISE
-    noisepsd= numpy.empty((nnoise,len(psd1d[0])-3))
+    noisepsd= numpy.empty((nnoise,len(psd1d[0])-4))
     for ii in range(nnoise):
         newresv= numpy.random.normal(size=resv.shape)*3.25
-        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
-    scale= 3.25/numpy.median(numpy.sqrt(noisepsd))
+        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][1:-3]
+    scale= 4.*numpy.pi#3.25/numpy.median(numpy.sqrt(noisepsd))
     print scale
     #Simulations for the actual noise
     nnoise= _NNOISE
-    noisepsd= numpy.empty((nnoise,len(psd1d[0])-3))
+    noisepsd= numpy.empty((nnoise,len(psd1d[0])-4))
     for ii in range(nnoise):
         newresv= numpy.random.normal(size=resv.shape)*resvunc
-        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
-    ks= psd1d[0][0:-3]
-    bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][0:-3]
+        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][1:-3]
+    ks= psd1d[0][1:-3]
+    bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),'kx',mew=2.,
                         overplot=True)
-    pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][0:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-                    yerr=scale*0.5*(psd1d[2][0:-3]**2.
-                                    +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][0:-3]),
+    pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
+                    yerr=scale*0.5*(psd1d[2][1:-3]**2.
+                                    +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]),
                     marker='None',ls='none',color='k')
-    if False:
-        interpindx= True-numpy.isnan(psd1d[1][0:-3])
-        interpspec= interpolate.InterpolatedUnivariateSpline(ks[interpindx],
-                                                             scale*numpy.sqrt(psd1d[1][0:-3])[interpindx],
-                                                             k=3)
-        pks= numpy.linspace(ks[0],ks[-1],201)
-        bovy_plot.bovy_plot(pks,interpspec(pks),'k-',overplot=True)
     if _PLOTBAND:
         bovy_plot.bovy_plot(ks,
                             scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
                             '-',lw=8.,zorder=9,
                             color='0.65',overplot=True)
     return (ks,
-            scale*numpy.sqrt(psd1d[1][0:-3]
+            scale*numpy.sqrt(psd1d[1][1:-3]
                              -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-            scale*0.5*psd1d[2][0:-3]/numpy.sqrt(psd1d[1][0:-3]))
+            scale*0.5*psd1d[2][1:-3]/numpy.sqrt(psd1d[1][1:-3]))
 
 def plot_psd_rave():
     data= fitsio.read(os.path.join(os.getenv('DATADIR'),'rave','ravedr4_rc.fits'))
@@ -260,30 +255,30 @@ def plot_psd_rave():
     print psd1d
     #Simulations for constant 3.25 km/s
     nnoise= _NNOISE
-    noisepsd= numpy.empty((nnoise,len(psd1d[0])-3))
+    noisepsd= numpy.empty((nnoise,len(psd1d[0])-4))
     for ii in range(nnoise):
         newresv= numpy.random.normal(size=resv.shape)*3.25
-        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
-    scale= 3.25/numpy.median(numpy.sqrt(noisepsd))
+        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][1:-3]
+    scale= 4.*numpy.pi#3.25/numpy.median(numpy.sqrt(noisepsd))
     print scale
     #Simulations for the actual noise
     nnoise= _NNOISE
-    noisepsd= numpy.empty((nnoise,len(psd1d[0])-3))
+    noisepsd= numpy.empty((nnoise,len(psd1d[0])-4))
     for ii in range(nnoise):
         newresv= numpy.random.normal(size=resv.shape)*resvunc
-        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
-    ks= psd1d[0][0:-3]
-    bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][0:-3]
+        noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][1:-3]
+    ks= psd1d[0][1:-3]
+    bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),'k+',mew=2.,
                         overplot=True)
-    pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][0:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-                    yerr=scale*0.5*(psd1d[2][0:-3]**2.
-                                    +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][0:-3]),
+    pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
+                    yerr=scale*0.5*(psd1d[2][1:-3]**2.
+                                    +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]),
                     marker='None',ls='none',color='k')
     if False:
-        interpindx= True-numpy.isnan(psd1d[1][0:-3])
+        interpindx= True-numpy.isnan(psd1d[1][1:-3])
         interpspec= interpolate.InterpolatedUnivariateSpline(ks[interpindx],
-                                                             scale*numpy.sqrt(psd1d[1][0:-3])[interpindx],
+                                                             scale*numpy.sqrt(psd1d[1][1:-3])[interpindx],
                                                              k=3)
         pks= numpy.linspace(ks[0],ks[-1],201)
         bovy_plot.bovy_plot(pks,interpspec(pks),'k-',overplot=True)
@@ -297,9 +292,9 @@ def plot_psd_rave():
         #                    '-',zorder=0,alpha=0.5,
         #                    color='0.45',overplot=True)
     return (ks,
-            scale*numpy.sqrt(psd1d[1][0:-3]
+            scale*numpy.sqrt(psd1d[1][1:-3]
                              -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-            scale*0.5*psd1d[2][0:-3]/numpy.sqrt(psd1d[1][0:-3]))
+            scale*0.5*psd1d[2][1:-3]/numpy.sqrt(psd1d[1][1:-3]))
 
 def plot_psd_red():
     data= readAndHackHoltz.readAndHackHoltz()
@@ -320,7 +315,7 @@ def plot_psd_red():
     for ii in range(nnoise):
         newresv= numpy.random.normal(size=resv.shape)*3.25
         noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][0:-3]
-    scale= 3.25/numpy.median(numpy.sqrt(noisepsd))
+    scale= 4.*numpy.pi#3.25/numpy.median(numpy.sqrt(noisepsd))
     print scale
     #Simulations for the actual noise
     nnoise= _NNOISE
