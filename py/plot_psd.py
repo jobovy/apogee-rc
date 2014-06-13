@@ -241,7 +241,7 @@ def plot_psd_gcs():
     pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
                     yerr=scale*0.5*(psd1d[2][1:-3]**2.
                                     +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]),
-                    marker='None',ls='none',color='k')
+                    marker='None',ls='none',color='k',lolims=True)
     if _PLOTBAND:
         bovy_plot.bovy_plot(ks,
                             scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
