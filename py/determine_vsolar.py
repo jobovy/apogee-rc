@@ -28,7 +28,7 @@ def determine_vsolar(plotfilename):
     bovy_plot.bovy_print()
     line1= bovy_plot.bovy_plot(vsolars,lpower,'k-',lw=2.,
                                xrange=[vsolars[0],vsolars[-1]],
-                               yrange=[0.,30.],
+                               yrange=[0.,20.],
                                xlabel=r'$V_\odot\,(\mathrm{km\,s}^{-1})$',
                                ylabel=r'$\sqrt\langle P_k(0.2 < k / (\mathrm{kpc}^{-1}) < 0.9)\rangle\,(\mathrm{km\,s}^{-1})$')
     #Find the minimum by fitting a second order polynomial
@@ -76,7 +76,7 @@ def large_scale_power(pix,vsolar,vc=220.,dx=None,beta=0.):
     """Determine the power on large scales in the residuals for different solarmotions"""
     out= numpy.empty_like(vsolar)
     binsize= 0.8
-    scale= 0.522677552224
+    scale= 4.*numpy.pi #0.522677552224
     for ii in range(len(vsolar)):
         resv= pix.plot(lambda x: dvlosgal(x,vc=vc,vtsun=vc+vsolar[ii],
                                           beta=beta),

@@ -58,7 +58,7 @@ def plot_psd(plotfilename):
                                  xmin=_RCXMIN,xmax=_RCXMAX,
                                  ymin=_RCYMIN,ymax=_RCYMAX,
                                  dx=dx,dy=dx)
-    resv= pix.plot(lambda x: dvlosgal(x,vtsun=220.+23.1),
+    resv= pix.plot(lambda x: dvlosgal(x,vtsun=220.+22.6),
                    returnz=True,justcalc=True)
     resvunc= pix.plot('VHELIO_AVG',
                       func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
