@@ -115,14 +115,20 @@ def plot_psd(plotfilename):
                                      gamma=1.2,
                                      xmin=_RCXMIN,xmax=_RCXMAX,
                                      ymin=_RCYMIN,ymax=_RCYMAX,
-                                     dx=0.05)
+                                     dx=0.01)
         potscale= 1.45
         print numpy.arctan(2./alpha)/numpy.pi*180., numpy.sqrt(0.035/numpy.fabs(alpha)/2.)*potscale*220., numpy.sqrt(0.035/numpy.fabs(alpha))*potscale*220.
-        simpsd1d= bovy_psd.psd1d(spvlos*220.*potscale,0.05,binsize=binsize)
+        simpsd1d= bovy_psd.psd1d(spvlos*220.*potscale,0.01,binsize=binsize)
         tks= simpsd1d[0][1:-3]
         bovy_plot.bovy_plot(tks,
                             scale*numpy.sqrt(simpsd1d[1][1:-3]),
                             'k--',lw=2.,overplot=True)
+        #bovy_plot.bovy_plot(tks[tks > 0.7],
+        #                    scale*numpy.sqrt(simpsd1d[1][1:-3][tks > 0.7]+4./scale**2.*(1.-numpy.tanh(-(tks[tks > 0.7]-0.9)/0.1))/2.),
+        #                    'k-.',lw=2.,overplot=True)
+        bovy_plot.bovy_plot(tks,
+                            scale*numpy.sqrt(simpsd1d[1][1:-3]+4./scale**2.),
+                            'k-.',lw=2.,overplot=True)
     #Add the lopsided and ellipticity constraints from Rix/Zaritsky
     if _ADDRIX:
         pyplot.errorbar([1./16.],[5.6],
