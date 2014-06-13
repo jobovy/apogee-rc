@@ -136,8 +136,6 @@ def plot_psd(plotfilename):
                       numpoints=8,
                       prop={'size':14},
                       frameon=False)
-    bovy_plot.bovy_end_print(plotfilename)
-    return None
     #Add the lopsided and ellipticity constraints from Rix/Zaritsky
     if _ADDRIX:
         pyplot.errorbar([1./16.],[5.6],
