@@ -23,8 +23,10 @@ def simulate_vlos_spiral(alpha=-7.,m=2.,gamma=0.7853981633974483,omegas=0.65,
     for ii in range(nx):
         for jj in range(ny):
             pot= sp(rs[ii,jj],phi=phis[ii,jj])
-            vr= m*(omegas-1.)/Delta*alpha/1.*reduction_factor(alpha/1.)*pot
-            vt= -2.*-0.5/Delta*alpha/1.*reduction_factor(alpha/1.)*pot
+            vr= m*(omegas-1.)/Delta*rs[ii,jj]*alpha/1.\
+                *reduction_factor(alpha/1.)*pot
+            vt= -2.*-0.5/Delta*rs[ii,jj]*alpha/1.\
+                *reduction_factor(alpha/1.)*pot
             vlos[ii,jj]= -vr*cospl[ii,jj]+vt*sinpl[ii,jj]
     return vlos
 
