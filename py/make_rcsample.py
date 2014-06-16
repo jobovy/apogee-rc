@@ -22,6 +22,29 @@ def make_rcsample(parser):
         print "Saving to %s ..." % savefilename
     #Read the base-sample
     data= apread.allStar(adddist=_ADDHAYDENDIST)
+    #Remove a bunch of fields that we do not want to keep
+    data= esutil.remove_fields(data,
+                               ['TARGET_ID',
+                                'FILE',
+                                'AK_WISE',
+                                'SFD_EBV',
+                                'SYNTHVHELIO_AVG',
+                                'SYNTHVSCATTER',
+                                'SYNTHVERR',
+                                'SYNTHVERR_MED',
+                                'RV_TEFF',
+                                'RV_LOGG',
+                                'RV_FEH',
+                                'RV_CCFWHM',
+                                'RV_AUTOFWHM',
+                                'SYNTHSCATTER',
+                                'CHI2_THRESHOLD',
+                                'APSTAR_VERSION',
+                                'ASPCAP_VERSION',
+                                'RESULTS_VERSION',
+                                'PM_SRC',
+                                
+                                
     #Select red-clump stars
     jk= data['J0']-data['K0']
     z= isodist.FEH2Z(data['METALS'],zsolar=0.017)
