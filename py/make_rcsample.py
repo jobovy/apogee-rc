@@ -42,9 +42,13 @@ def make_rcsample(parser):
                                 'APSTAR_VERSION',
                                 'ASPCAP_VERSION',
                                 'RESULTS_VERSION',
-                                'PM_SRC',
-                                
-                                
+                                'REDUCTION_ID',
+                                'SRC_H',
+                                'PM_SRC'])
+    if int(appath._APOGEE_REDUX[1:]) < 500:
+        data= esutil.remove_fields(data,
+                                   ['ELEM'])
+        
     #Select red-clump stars
     jk= data['J0']-data['K0']
     z= isodist.FEH2Z(data['METALS'],zsolar=0.017)
