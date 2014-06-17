@@ -23,32 +23,31 @@ def make_rcsample(parser):
     #Read the base-sample
     data= apread.allStar(adddist=_ADDHAYDENDIST)
     #Remove a bunch of fields that we do not want to keep
-    data= esutil.remove_fields(data,
-                               ['TARGET_ID',
-                                'FILE',
-                                'AK_WISE',
-                                'SFD_EBV',
-                                'SYNTHVHELIO_AVG',
-                                'SYNTHVSCATTER',
-                                'SYNTHVERR',
-                                'SYNTHVERR_MED',
-                                'RV_TEFF',
-                                'RV_LOGG',
-                                'RV_FEH',
-                                'RV_CCFWHM',
-                                'RV_AUTOFWHM',
-                                'SYNTHSCATTER',
-                                'CHI2_THRESHOLD',
-                                'APSTAR_VERSION',
-                                'ASPCAP_VERSION',
-                                'RESULTS_VERSION',
-                                'REDUCTION_ID',
-                                'SRC_H',
-                                'PM_SRC'])
+    data= esutil.numpy_util.remove_fields(data,
+                                          ['TARGET_ID',
+                                           'FILE',
+                                           'AK_WISE',
+                                           'SFD_EBV',
+                                           'SYNTHVHELIO_AVG',
+                                           'SYNTHVSCATTER',
+                                           'SYNTHVERR',
+                                           'SYNTHVERR_MED',
+                                           'RV_TEFF',
+                                           'RV_LOGG',
+                                           'RV_FEH',
+                                           'RV_CCFWHM',
+                                           'RV_AUTOFWHM',
+                                           'SYNTHSCATTER',
+                                           'CHI2_THRESHOLD',
+                                           'APSTAR_VERSION',
+                                           'ASPCAP_VERSION',
+                                           'RESULTS_VERSION',
+                                           'REDUCTION_ID',
+                                           'SRC_H',
+                                           'PM_SRC'])
     if int(appath._APOGEE_REDUX[1:]) < 500:
-        data= esutil.remove_fields(data,
-                                   ['ELEM'])
-        
+        data= esutil.numpy_util.remove_fields(data,
+                                              ['ELEM'])
     #Select red-clump stars
     jk= data['J0']-data['K0']
     z= isodist.FEH2Z(data['METALS'],zsolar=0.017)
