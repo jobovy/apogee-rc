@@ -62,6 +62,9 @@ def make_rcsample(parser):
     #Add more aggressive flag cut
     data= esutil.numpy_util.add_fields(data,[('ADDL_LOGG_CUT',int)])
     data['ADDL_LOGG_CUT']= ((data['TEFF']-4800.)/1000.+2.75) > data['LOGG']
+    if options.loggcut:
+        data= data[data['ADDL_LOGG_CUT'] == 1]
+    print "Making catalog of %i objects ..." % len(data)
     #Add distances
     data= esutil.numpy_util.add_fields(data,[('RC_DIST', float),
                                              ('RC_DM', float),
@@ -125,9 +128,9 @@ def make_rcsample(parser):
             sys.stdout.flush()
             pmdata.RA[ii]= data['RA'][ii]
             pmdata.DEC[ii]= data['DEC'][ii]
-            co= coord.ICRSCoordinates(ra=data['RA'][ii],
-                                      dec=data['DEC'][ii],
-                                      unit=(u.degree, u.degree))
+            co= coord.ICRS(ra=data['RA'][ii],
+                           dec=data['DEC'][ii],
+                           unit=(u.degree, u.degree))
             trying= True
             while trying:
                 try:
@@ -242,9 +245,9 @@ def make_rcsample(parser):
             sys.stdout.flush()
             pmdata.RA[ii]= data['RA'][ii]
             pmdata.DEC[ii]= data['DEC'][ii]
-            co= coord.ICRSCoordinates(ra=data['RA'][ii],
-                                      dec=data['DEC'][ii],
-                                      unit=(u.degree, u.degree))
+            co= coord.ICRS(ra=data['RA'][ii],
+                           dec=data['DEC'][ii],
+                           unit=(u.degree, u.degree))
             trying= True
             while trying:
                 try:
@@ -376,6 +379,9 @@ def get_options():
     parser.add_option("--nostat",action="store_true", dest="nostat",
                       default=False,
                       help="If set, don't determine the statistical sample")
+    parser.add_option("--addl-logg-cut",action="store_true", dest="loggcut",
+                      default=False,
+                      help="If set, apply the ADDL_LOGG_CUT to the sample")
     return parser
 
 if __name__ == '__main__':
