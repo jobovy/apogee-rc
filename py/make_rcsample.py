@@ -1,3 +1,6 @@
+#
+# DR11 catalog created using 'python make_rcsample.py -o /work/bovy/data/bovy/apogee/apogee-rc-DR11.fits --addl-logg-cut'
+#
 import sys
 import os, os.path
 from optparse import OptionParser
