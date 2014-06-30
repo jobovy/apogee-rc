@@ -23,6 +23,7 @@ _ADDSIMPLESPIRAL= True
 _INTERP= False
 _NNOISE= 1000
 _PLOTBAND= False
+_SIGNIF= 0.95
 _SUBTRACTERRORS= 1.
 #Parameters of the pixelizations
 #APOGEE-RC
@@ -85,7 +86,7 @@ def plot_psd(plotfilename):
     else:
         xrange= [0.,1.]
     yrange= [0.,11.9]
-    bovy_plot.bovy_print(fig_width=7.5,fig_height=4.)
+    bovy_plot.bovy_print(fig_width=7.5,fig_height=4.5)
     bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
                         'ko',lw=2.,
@@ -99,15 +100,20 @@ def plot_psd(plotfilename):
                                     +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]),
                     marker='None',ls='none',color='k')
     if _PLOTBAND:
+#        bovy_plot.bovy_plot(ks,
+#                            scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
+#                            '--',lw=2.,zorder=10,
+#                            color='0.85',overplot=True)
         bovy_plot.bovy_plot(ks,
-                            scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
-                            '--',lw=2.,zorder=10,
-                            color='0.85',overplot=True)
-    if _PLOTBAND:
-        bovy_plot.bovy_plot(ks,
-                            scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
-                            '-',lw=8.,zorder=9,
-                            color='0.65',overplot=True)
+                            scale*numpy.sqrt(numpy.sort(noisepsd
+                                                        -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0),axis=0)[int(numpy.floor(0.99*_NNOISE)),:]),
+                            zorder=1,ls='--',overplot=True,
+                            color='0.65')
+        pyplot.fill_between(ks,
+                            scale*numpy.sqrt(numpy.sort(noisepsd
+                                                        -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0),axis=0)[int(numpy.floor(_SIGNIF*_NNOISE)),:]),
+                            zorder=2,
+                            color='0.5')
     #Add a simple model of a spiral potential
     if _ADDSIMPLESPIRAL:
         alpha= -12.5
@@ -126,12 +132,11 @@ def plot_psd(plotfilename):
         #bovy_plot.bovy_plot(tks[tks > 0.7],
         #                    scale*numpy.sqrt(simpsd1d[1][1:-3][tks > 0.7]+4./scale**2.*(1.-numpy.tanh(-(tks[tks > 0.7]-0.9)/0.1))/2.),
         #                    'k-.',lw=2.,overplot=True)
-        line2= bovy_plot.bovy_plot(tks,
-                                   scale*numpy.sqrt(simpsd1d[1][1:-3]+4./scale**2.),
-                                   'k-.',lw=2.,overplot=True,dashes=(10,5,3,5))
-        pyplot.legend((line1[0],line2[0]),
-                      (r'$\mathrm{Spiral}:\ \delta \phi_{\mathrm{rms}} = (11\,\mathrm{km\,s}^{-1})^2,$'+'\n'+r'$\mathrm{pitch\ angle} = 9^\circ$',
-                       r'$+2\,\mathrm{km\,s}^{-1}\ \mathrm{white\ noise}$'),
+        #line2= bovy_plot.bovy_plot(tks,
+        #                           scale*numpy.sqrt(simpsd1d[1][1:-3]+4./scale**2.),
+        #                           'k-.',lw=2.,overplot=True,dashes=(10,5,3,5))
+        pyplot.legend((line1[0],),
+                      (r'$\mathrm{Spiral}:\ \delta \phi_{\mathrm{rms}} = (11\,\mathrm{km\,s}^{-1})^2,$'+'\n'+r'$\mathrm{pitch\ angle} = 9^\circ$',),
                       loc='upper right',#bbox_to_anchor=(.91,.375),
                       numpoints=8,
                       prop={'size':14},
@@ -152,6 +157,17 @@ def plot_psd(plotfilename):
         ks_rave, psd_rave, e_psd_rave= plot_psd_rave()
     if _ADDRED:
         plot_psd_red()
+    #Plot an estimate of the noise, based on looking at the bands
+    nks= numpy.linspace(2.,120.,2)
+    pyplot.fill_between(nks,[2.,2.],hatch='/',color='k',facecolor=(0,0,0,0))
+#                        edgecolor=(0,0,0,0))
+    nks= numpy.linspace(0.17,2.,2)
+    def linsp(x):
+        return 1./(numpy.log(0.17)-numpy.log(2.))*(numpy.log(x)-numpy.log(0.17))+3.
+    pyplot.fill_between(nks,linsp(nks),hatch='/',color='k',facecolor=(0,0,0,0))
+#                        edgecolor=(0,0,0,0))   
+    bovy_plot.bovy_text(0.19,.5,r'$95\,\%\,\mathrm{noise\ range}$',
+                        bbox=dict(facecolor='w',edgecolor='w'),fontsize=14.)
     if _INTERP:
         interpks= list(ks[:-5])
         interppsd= list((scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)))[:-5])
@@ -243,10 +259,20 @@ def plot_psd_gcs():
                                     +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]),
                     marker='None',ls='none',color='k',lolims=True)
     if _PLOTBAND:
+#        bovy_plot.bovy_plot(ks,
+#                            scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
+#                            '-',lw=2.,zorder=9,
+#                            color='0.65',overplot=True)
         bovy_plot.bovy_plot(ks,
-                            scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
-                            '-',lw=8.,zorder=9,
-                            color='0.65',overplot=True)
+                            scale*numpy.sqrt(numpy.sort(noisepsd
+                                                        -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0),axis=0)[int(numpy.floor(0.99*_NNOISE)),:]),
+                            zorder=1,ls='--',overplot=True,
+                            color='0.65')
+        pyplot.fill_between(ks,
+                            scale*numpy.sqrt(numpy.sort(noisepsd
+                                                        -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0),axis=0)[int(numpy.floor(_SIGNIF*_NNOISE)),:]),
+                            zorder=0,
+                            color='0.65')
     return (ks,
             scale*numpy.sqrt(psd1d[1][1:-3]
                              -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
@@ -296,10 +322,20 @@ def plot_psd_rave():
         pks= numpy.linspace(ks[0],ks[-1],201)
         bovy_plot.bovy_plot(pks,interpspec(pks),'k-',overplot=True)
     if _PLOTBAND:
+        #bovy_plot.bovy_plot(ks,
+        #                    scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
+        #                    '-',lw=8.,zorder=9,
+        #                    color='0.65',overplot=True)
         bovy_plot.bovy_plot(ks,
-                            scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
-                            '-',lw=8.,zorder=9,
-                            color='0.65',overplot=True)
+                            scale*numpy.sqrt(numpy.sort(noisepsd
+                                                        -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0),axis=0)[int(numpy.floor(0.99*_NNOISE)),:]),
+                            zorder=1,ls='--',overplot=True,
+                            color='0.65')
+        pyplot.fill_between(ks,
+                            scale*numpy.sqrt(numpy.sort(noisepsd
+                                                        -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0),axis=0)[int(numpy.floor(_SIGNIF*_NNOISE)),:]),
+                            zorder=0,
+                            color='0.65')
         #bovy_plot.bovy_plot(numpy.tile(ks,(_NNOISE,1)).T,
         #                    scale*numpy.sqrt(noisepsd).T,
         #                    '-',zorder=0,alpha=0.5,
