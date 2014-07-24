@@ -1,6 +1,8 @@
 #Determine the error on the solar motion inferred by minimizing the large-scale power
+import sys
 import numpy
 from galpy.df import dehnendf
+from galpy.potential import SteadyLogSpiralPotential
 import apogee.tools.read as apread
 import pixelize_sample
 from plot_2dkinematics import dvlosgal
@@ -8,7 +10,7 @@ from plot_psd import _ADDLLOGGCUT, \
     _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX
 import bovy_psd
 from determine_vsolar import large_scale_power
-def determine_vsolar_error():
+def determine_vsolar_error(spiral=False):
     #Read the APOGEE-RC data and pixelate it
     #APOGEE-RC
     data= apread.rcsample()
@@ -24,16 +26,16 @@ def determine_vsolar_error():
     mockvsolars= []
     for ii in range(ntrials):
         print "Working on %i / %i" % (ii+1,ntrials)
-        mockvsolars.append(determine_vsolar_mock(data,dfc,trueVsolar))
+        mockvsolars.append(determine_vsolar_mock(data,dfc,trueVsolar,spiral))
     mockvsolars= numpy.array(mockvsolars)
     print mockvsolars
     print numpy.mean(mockvsolars-24.), numpy.std(mockvsolars)
     print numpy.sum(numpy.fabs(mockvsolars-24.) > 1.)/float(ntrials)
     return None
 
-def determine_vsolar_mock(data,dfc,trueVsolar):
+def determine_vsolar_mock(data,dfc,trueVsolar,spiral=False):
     #At the position of each real data point, generate a mock velocity
-    data= create_mock_sample(data,dfc,trueVsolar)
+    data= create_mock_sample(data,dfc,trueVsolar,spiral=spiral)
     #Get velocity field
     pix= pixelize_sample.pixelXY(data,
                                  xmin=_RCXMIN,xmax=_RCXMAX,
@@ -46,7 +48,16 @@ def determine_vsolar_mock(data,dfc,trueVsolar):
     return minvsolar
 
 
-def create_mock_sample(data,dfc,trueVsolar):
+def create_mock_sample(data,dfc,trueVsolar,spiral=False):
+    if spiral:
+       #Set up galpy spiral
+        m=2
+        alpha= -12.5
+        gamma= 1.2
+        omegas= 0.65
+        potscale= 1.35
+        Delta= 2.-m**2.*(omegas-1.)**2.
+        sp= SteadyLogSpiralPotential(alpha=alpha,m=m,gamma=gamma,omegas=omegas)
     ndata= len(data)
     mockvel= numpy.empty(ndata)
     dphil= data['RC_GALPHI']+data['GLON']/180.*numpy.pi
@@ -60,7 +71,19 @@ def create_mock_sample(data,dfc,trueVsolar):
             +vrvt[0,1]*sindphil[ii]\
             -10.5*cosl[ii]/220.\
             -(1.+trueVsolar)*sinl[ii]
+        if spiral:
+            pot= sp(data['RC_GALR'][ii]/8.,phi=data['RC_GALPHI'][ii])
+            spiraldev= -m*(omegas-1.)/Delta*data['RC_GALR'][ii]/8.*alpha/1.\
+                *pot*cosdphil[ii]\
+                -2.*-0.5/Delta*data['RC_GALR'][ii]/8.*alpha/1.\
+                *pot*sindphil[ii]
+#            print mockvel[ii], spiraldev*potscale, spiraldev*potscale/mockvel[ii]
+            mockvel[ii]+= spiraldev*potscale
     data['VHELIO_AVG']= mockvel*220.
     return data
+
 if __name__ == '__main__':
-    determine_vsolar_error()
+    if len(sys.argv) > 1:
+        determine_vsolar_error(spiral=True)
+    else:
+        determine_vsolar_error()
