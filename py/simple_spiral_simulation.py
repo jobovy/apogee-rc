@@ -25,10 +25,12 @@ def simulate_vlos_spiral(alpha=-7.,m=2.,gamma=0.7853981633974483,omegas=0.65,
     for ii in range(nx):
         for jj in range(ny):
             pot= sp(rs[ii,jj],phi=phis[ii,jj])
+            potsin= sp._amp*sp._A/sp._alpha\
+                *numpy.sqrt(1.-(sp(rs[ii,jj],phi=phis[ii,jj])/sp._A/sp._amp*sp._alpha)**2.)
             vr[ii,jj]= m*(omegas-1.)/Delta*rs[ii,jj]*alpha/1.\
                 *reduction_factor(alpha/1.)*pot
-            vt[ii,jj]= -2.*-0.5/Delta*rs[ii,jj]*alpha/1.\
-                *reduction_factor(alpha/1.)*pot
+            vt[ii,jj]= 2.*-0.5/Delta*rs[ii,jj]*alpha/1.\
+                *reduction_factor(alpha/1.)*potsin
             vlos[ii,jj]= -vr[ii,jj]*cospl[ii,jj]+vt[ii,jj]*sinpl[ii,jj]
     if returnvrvt:
         return (vr,vt)
