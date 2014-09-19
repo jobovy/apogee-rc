@@ -5,6 +5,7 @@ import fitsio
 from galpy.util import bovy_plot
 from matplotlib import pyplot
 import apogee.tools.read as apread
+import apogee.tools.path as appath
 import pixelize_sample
 _EXT='ps'
 _ADDLLOGGCUT= True
@@ -94,8 +95,12 @@ def plot_metallicity(basesavefilename,datafilename=None):
     pix.plot('METALS',
              zlabel=r'$\mathrm{median\ [Fe/H]}\,(\mathrm{dex})$',
              vmin=-0.4,vmax=0.3)
-    bovy_plot.bovy_text(r'$\mathrm{typical\ uncertainty\!:}\ 0.02\,\mathrm{dex}$',
-                        bottom_left=True,size=18.)
+    if int(appath._APOGEE_REDUX[1:]) > 600:
+        bovy_plot.bovy_text(r'$\mathrm{typical\ uncertainty\!:}\ 0.015\,\mathrm{dex}$',
+                            bottom_left=True,size=17.)
+    else:
+        bovy_plot.bovy_text(r'$\mathrm{typical\ uncertainty\!:}\ 0.02\,\mathrm{dex}$',
+                            bottom_left=True,size=18.)
     bovy_plot.bovy_text(r'$|Z| < 250\,\mathrm{pc}$',top_right=True,size=18.)
     bovy_plot.bovy_end_print(basesavefilename+'_XY.'+_EXT)
     #R,phi
@@ -103,7 +108,9 @@ def plot_metallicity(basesavefilename,datafilename=None):
                                  ymin=-22.5,ymax=37.5,dy=5.)
     bovy_plot.bovy_print()
     metals2d= pix.plot('METALS',
+#                       func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
                        zlabel=r'$\delta\,\mathrm{median\ [Fe/H]}\,(\mathrm{dex})$',
+#                       vmin=0.,vmax=0.05,submediany=False,returnz=True)
                        vmin=-0.1,vmax=0.1,submediany=True,returnz=True)
     sigs= []
     for ii in range(metals2d.shape[0]):
