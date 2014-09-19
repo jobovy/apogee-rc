@@ -1,5 +1,6 @@
 #
-# DR11 catalog created using 'python make_rcsample.py -o /work/bovy/data/bovy/apogee/apogee-rc-DR11.fits --addl-logg-cut'
+# DR11 catalog created using 'python make_rcsample.py -o /work/bovy/data/bovy/apogee/apogee-rc-DR11.fits --addl-logg-cut --rumdups'
+# rmdups was added after the fact because this option changed
 #
 import sys
 import os, os.path
@@ -24,7 +25,7 @@ def make_rcsample(parser):
                                    'rcsample_'+appath._APOGEE_REDUX+'.fits')
         print "Saving to %s ..." % savefilename
     #Read the base-sample
-    data= apread.allStar(adddist=_ADDHAYDENDIST)
+    data= apread.allStar(adddist=_ADDHAYDENDIST,rmdups=options.rmdups)
     #Remove a bunch of fields that we do not want to keep
     data= esutil.numpy_util.remove_fields(data,
                                           ['TARGET_ID',
@@ -54,7 +55,24 @@ def make_rcsample(parser):
     #Select red-clump stars
     jk= data['J0']-data['K0']
     z= isodist.FEH2Z(data['METALS'],zsolar=0.017)
-    logg= data['LOGG']
+    if int(appath._APOGEE_REDUX[1:]) > 600:
+        from apogee.tools import paramIndx
+        if False:
+            #Use my custom logg calibration that's correct for the RC
+            logg= (1.-0.042)*data['FPARAM'][:,paramIndx('logg')]-0.213
+            lowloggindx= data['FPARAM'][:,paramIndx('logg')] < 1.
+            logg[lowloggindx]= data['FPARAM'][lowloggindx,paramIndx('logg')]-0.255
+            hiloggindx= data['FPARAM'][:,paramIndx('logg')] > 3.8
+            logg[hiloggindx]= data['FPARAM'][hiloggindx,paramIndx('logg')]-0.3726
+        else:
+            #Use my custom logg calibration that's correct on average
+            logg= (1.+0.03)*data['FPARAM'][:,paramIndx('logg')]-0.37
+            lowloggindx= data['FPARAM'][:,paramIndx('logg')] < 1.
+            logg[lowloggindx]= data['FPARAM'][lowloggindx,paramIndx('logg')]-0.34
+            hiloggindx= data['FPARAM'][:,paramIndx('logg')] > 3.8
+            logg[hiloggindx]= data['FPARAM'][hiloggindx,paramIndx('logg')]-0.256
+    else:
+        logg= data['LOGG']
     indx= (jk < 0.8)*(jk >= 0.5)\
         *(z <= 0.06)\
         *(z <= rcmodel.jkzcut(jk,upper=True))\
@@ -382,6 +400,9 @@ def get_options():
     parser.add_option("--nostat",action="store_true", dest="nostat",
                       default=False,
                       help="If set, don't determine the statistical sample")
+    parser.add_option("--rmdups",action="store_true", dest="rmdups",
+                      default=False,
+                      help="If set, remove duplicates from the allStar file to begin")
     parser.add_option("--addl-logg-cut",action="store_true", dest="loggcut",
                       default=False,
                       help="If set, apply the ADDL_LOGG_CUT to the sample")
