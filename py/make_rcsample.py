@@ -1,6 +1,8 @@
 #
-# DR11 catalog created using 'python make_rcsample.py -o /work/bovy/data/bovy/apogee/apogee-rc-DR11.fits --addl-logg-cut --rumdups'
+# DR11 catalog created using 'python make_rcsample.py -o /work/bovy/data/bovy/apogee/apogee-rc-DR11.fits --addl-logg-cut --rmdups'
 # rmdups was added after the fact because this option changed
+#
+# DR12 catalog created using 'python make_rcsample.py -o /work/bovy/data/bovy/apogee/apogee-rc-DR12.fits --addl-logg-cut --rmdups'
 #
 import sys
 import os, os.path
