@@ -1,3 +1,4 @@
+# Run with python plot_bird_psd.py ~/Desktop/test.png
 import sys
 import numpy
 import bovy_psd
