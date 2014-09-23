@@ -1,5 +1,6 @@
 import sys
 import os, os.path
+import socket
 import numpy
 from scipy import interpolate
 from galpy.util import bovy_plot
@@ -159,13 +160,15 @@ def plot_psd(plotfilename):
         plot_psd_red()
     #Plot an estimate of the noise, based on looking at the bands
     nks= numpy.linspace(2.,120.,2)
-    pyplot.fill_between(nks,[2.,2.],hatch='/',color='k',facecolor=(0,0,0,0))
-#                        edgecolor=(0,0,0,0))
+    if not 'mba23' in socket.gethostname():
+        pyplot.fill_between(nks,[2.,2.],hatch='/',color='k',facecolor=(0,0,0,0))
+    #                        edgecolor=(0,0,0,0))
     nks= numpy.linspace(0.17,2.,2)
     def linsp(x):
         return 1./(numpy.log(0.17)-numpy.log(2.))*(numpy.log(x)-numpy.log(0.17))+3.
-    pyplot.fill_between(nks,linsp(nks),hatch='/',color='k',facecolor=(0,0,0,0))
-#                        edgecolor=(0,0,0,0))   
+    if not 'mba23' in socket.gethostname():
+        pyplot.fill_between(nks,linsp(nks),hatch='/',color='k',facecolor=(0,0,0,0))
+    #                        edgecolor=(0,0,0,0))   
     bovy_plot.bovy_text(0.19,.5,r'$95\,\%\,\mathrm{noise\ range}$',
                         bbox=dict(facecolor='w',edgecolor='w'),fontsize=14.)
     if _INTERP:
