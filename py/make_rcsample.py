@@ -83,7 +83,7 @@ def make_rcsample(parser):
         *(logg <= rcmodel.loggteffcut(data['TEFF'],z,upper=True))
     data= data[indx]
     #Add more aggressive flag cut
-    data= esutil.numpy_util.add_fields(data,[('ADDL_LOGG_CUT',int)])
+    data= esutil.numpy_util.add_fields(data,[('ADDL_LOGG_CUT',numpy.int32)])
     data['ADDL_LOGG_CUT']= ((data['TEFF']-4800.)/1000.+2.75) > data['LOGG']
     if options.loggcut:
         data= data[data['ADDL_LOGG_CUT'] == 1]
