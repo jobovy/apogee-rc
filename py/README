@@ -1,0 +1,7 @@
+
+# Steady-spiral simulation
+python velocity_field_2014.py $@ --savefile=../sim/spiral_rect.sav \
+        --steadyspiral -r 18 -g 101 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --to=-250. \
+        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
