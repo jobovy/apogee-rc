@@ -8,8 +8,6 @@ import math as m
 import numpy as nu
 from optparse import OptionParser
 import subprocess
-#import matplotlib
-#matplotlib.use('PDF')
 from galpy.util import save_pickles, bovy_plot, bovy_coords
 from galpy.orbit import Orbit
 from galpy.df import dehnendf, shudf
