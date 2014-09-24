@@ -14,6 +14,7 @@ from plot_2dkinematics import dvlosgal
 import hackGCS
 import readAndHackHoltz
 from simple_spiral_simulation import simulate_vlos_spiral
+import galpy_simulations
 _EXT='png'
 _ADDLLOGGCUT= True
 _ADDGCS= True
@@ -60,7 +61,7 @@ def plot_psd(plotfilename):
                                  xmin=_RCXMIN,xmax=_RCXMAX,
                                  ymin=_RCYMIN,ymax=_RCYMAX,
                                  dx=dx,dy=dx)
-    resv= pix.plot(lambda x: dvlosgal(x,vtsun=220.+22.6),
+    resv= pix.plot(lambda x: dvlosgal(x,vtsun=220.+22.5),
                    returnz=True,justcalc=True)
     resvunc= pix.plot('VHELIO_AVG',
                       func=lambda x: 1.4826*numpy.median(numpy.fabs(x-numpy.median(x)))/numpy.sqrt(len(x)),
@@ -123,10 +124,19 @@ def plot_psd(plotfilename):
                                      xmin=_RCXMIN,xmax=_RCXMAX,
                                      ymin=_RCYMIN,ymax=_RCYMAX,
                                      dx=0.01)
-        potscale= 1.35
+        potscale= 1.35*1.2
         print numpy.arctan(2./alpha)/numpy.pi*180., numpy.sqrt(0.035/numpy.fabs(alpha)/2.)*potscale*220., numpy.sqrt(0.035/numpy.fabs(alpha))*potscale*220.
         simpsd1d= bovy_psd.psd1d(spvlos*220.*potscale,0.01,binsize=binsize)
         tks= simpsd1d[0][1:-3]
+        bovy_plot.bovy_plot(tks,
+                            scale*numpy.sqrt(simpsd1d[1][1:-3]),
+                            'k--',lw=2.,overplot=True)
+        #A better simulation
+        spvlos= galpy_simulations.vlos('../sim/spiral_rect_alpha-14.sav')
+        potscale= 4.5
+        simpsd1d= bovy_psd.psd1d(spvlos*220.*potscale,0.33333333,binsize=binsize)
+        tks= simpsd1d[0][1:-3]
+        print numpy.arctan(2./-14.)/numpy.pi*180., numpy.sqrt(0.075/numpy.fabs(alpha)/2.)*potscale*220., numpy.sqrt(0.075/numpy.fabs(alpha))*potscale*220.
         line1= bovy_plot.bovy_plot(tks,
                                    scale*numpy.sqrt(simpsd1d[1][1:-3]),
                                    'k--',lw=2.,overplot=True)
@@ -137,7 +147,7 @@ def plot_psd(plotfilename):
         #                           scale*numpy.sqrt(simpsd1d[1][1:-3]+4./scale**2.),
         #                           'k-.',lw=2.,overplot=True,dashes=(10,5,3,5))
         pyplot.legend((line1[0],),
-                      (r'$\mathrm{Spiral}:\ \delta \phi_{\mathrm{rms}} = (11\,\mathrm{km\,s}^{-1})^2,$'+'\n'+r'$\mathrm{pitch\ angle} = 9^\circ$',),
+                      (r'$\mathrm{Spiral}:\ \delta \phi_{\mathrm{rms}} = (11\,\mathrm{km\,s}^{-1})^2,$'+'\n'+r'$\mathrm{pitch\ angle} = 8^\circ$',),
                       loc='upper right',#bbox_to_anchor=(.91,.375),
                       numpoints=8,
                       prop={'size':14},
