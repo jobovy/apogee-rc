@@ -61,6 +61,42 @@ python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
         --nsigma=4 --to=-250. --steadyspiralomegas=0.3 \
         --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
 
+# Steady-spiral simulation, different pattern speed, different pitch
+python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
+       --savefile=../sim/spiral_rect_omegas0.35_alpha-14.sav \
+        --steadyspiral -m 19 -r 19 -g 26 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --to=-250. --steadyspiralomegas=0.35 \
+	--steadyspiralalpha=-14. \
+        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
+
+# Steady-spiral simulation, different pattern speed, different pitch
+python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
+       --savefile=../sim/spiral_rect_omegas0.33_alpha-14.sav \
+        --steadyspiral -m 19 -r 19 -g 26 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --to=-250. --steadyspiralomegas=0.33 \
+	--steadyspiralalpha=-14. \
+        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
+
+# Steady-spiral simulation, different pattern speed, different angle
+python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
+       --savefile=../sim/spiral_rect_omegas0.33_gamma0.3.sav \
+        --steadyspiral -m 19 -r 19 -g 26 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --to=-250. --steadyspiralomegas=0.33 \
+	--steadyspiralgamma=0.3 \
+        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
+
+# Steady-spiral simulation, different pattern speed, different pitch
+python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
+       --savefile=../sim/spiral_rect_omegas0.33_alpha-7.sav \
+        --steadyspiral -m 19 -r 19 -g 26 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --to=-250. --steadyspiralomegas=0.33 \
+	--steadyspiralalpha=-7. \
+        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
+
 # Steady-spiral simulation, different pitch, fast growth
 python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
        --savefile=../sim/spiral_rect_alpha-14_fast.sav \
