@@ -1,14 +1,13 @@
-_PROFILE= False
 import sys
 import os, os.path
 import shutil
-import time
 import cPickle as pickle
 import math as m
 import numpy as nu
 from optparse import OptionParser
 import subprocess
-from galpy.util import save_pickles, bovy_plot, bovy_coords
+import multiprocessing
+from galpy.util import save_pickles, bovy_plot, bovy_coords, multi
 from galpy.orbit import Orbit
 from galpy.df import dehnendf, shudf
 from galpy.potential import SteadyLogSpiralPotential, \
@@ -162,6 +161,32 @@ def velocity_field(parser):
         grids= []
     #Loop through, saving
     while ii < nx:
+        if not options.multi is None:
+            sys.stdout.write('\r'+"X gridpoint %i out of %i" % \
+                                 (ii+1,nx))
+            sys.stdout.flush()
+            multOut= multi.parallel_map(\
+                lambda x: _calc_meanvel_single(x,ii,options,evalts,xgrid,ygrid,edf),
+                range(ny),
+                numcores=nu.amin([ny,multiprocessing.cpu_count(),
+                                  options.multi]))
+            for jj in range(ny):
+                surfmass[ii,jj,:]= multOut[jj][0]
+                meanvr[ii,jj,:]= multOut[jj][1]
+                meanvt[ii,jj,:]= multOut[jj][2]
+                sigmar2[ii,jj,:]= multOut[jj][3]
+                sigmat2[ii,jj,:]= multOut[jj][4]
+                sigmart[ii,jj,:]= multOut[jj][5]
+                vertexdev[ii,jj,:]= multOut[jj][6]
+                grids.append(multOut[jj][7])
+                surfmass_init[ii,jj,:]= multOut[jj][8]
+                meanvt_init[ii,jj,:]= multOut[jj][9]
+                sigmar2_init[ii,jj,:]= multOut[jj][10]
+                sigmat2_init[ii,jj,:]= multOut[jj][11]
+            save_output(options.savefilename,surfmass,meanvr,meanvt,sigmar2,
+                        sigmat2,sigmart,vertexdev,ii,jj,grids,
+                        surfmass_init,meanvt_init,sigmar2_init,sigmat2_init)
+            continue
         while jj < ny:
             if options.print_vprogress:
                 sys.stdout.write("Spatial gridpoint %i out of %i\n" % \
@@ -178,8 +203,6 @@ def velocity_field(parser):
                 R= nu.sqrt((1.-xgrid[ii])**2.+ygrid[jj]**2.)
                 phi= nu.arcsin(ygrid[jj]/R)
             #Calculate surfmass etc.
-            if _PROFILE:
-                start= time.time()
             smass, grid= edf.vmomentsurfacemass(R,0,0,grid=True,phi=phi,
                                                 returnGrid=True,t=evalts,
                                                 gridpoints=options.grid,
@@ -188,46 +211,30 @@ def velocity_field(parser):
                                                 nlevels=options.nlevels,
                                                 print_progress=options.print_vprogress,
                                                 integrate_method=options.integrate_method)
-            if _PROFILE:
-                grid_time= (time.time()-start)
             if not options.dontsavegrid: grids.append(grid)
             surfmass[ii,jj,:]= smass
-            if _PROFILE:
-                start= time.time()
             meanvr[ii,jj,:]= edf.meanvR(R,phi=phi,grid=grid,t=evalts,
                                         surfacemass=surfmass[ii,jj,:],
                                         nsigma=options.nsigma,
                                         hierarchgrid=options.hierarchgrid,
                                         nlevels=options.nlevels)
-            if _PROFILE:
-                meanvr_time= (time.time()-start)
-                start= time.time()
             meanvt[ii,jj,:]= edf.meanvT(R,phi=phi,grid=grid,t=evalts,
                                         surfacemass=surfmass[ii,jj,:],
                                         nsigma=options.nsigma,
                                         hierarchgrid=options.hierarchgrid,
                                         nlevels=options.nlevels)
-            if _PROFILE:
-                meanvt_time= (time.time()-start)
-                start= time.time()
             sigmar2[ii,jj,:]= edf.sigmaR2(R,phi=phi,grid=grid,t=evalts,
                                           surfacemass=surfmass[ii,jj,:],
                                           meanvR=meanvr[ii,jj,:],
                                           nsigma=options.nsigma,
                                           hierarchgrid=options.hierarchgrid,
                                           nlevels=options.nlevels)
-            if _PROFILE:
-                sigmar_time= (time.time()-start)
-                start= time.time()
             sigmat2[ii,jj,:]= edf.sigmaT2(R,phi=phi,grid=grid,t=evalts,
                                           surfacemass=surfmass[ii,jj,:],
                                           meanvT=meanvt[ii,jj,:],
                                           nsigma=options.nsigma,
                                           hierarchgrid=options.hierarchgrid,
                                           nlevels=options.nlevels)
-            if _PROFILE:
-                sigmat_time= (time.time()-start)
-                start= time.time()
             sigmart[ii,jj,:]= edf.sigmaRT(R,phi=phi,grid=grid,t=evalts,
                                           surfacemass=surfmass[ii,jj,:],
                                           meanvR=meanvr[ii,jj,:],
@@ -235,9 +242,6 @@ def velocity_field(parser):
                                           nsigma=options.nsigma,
                                           hierarchgrid=options.hierarchgrid,
                                           nlevels=options.nlevels)
-            if _PROFILE:
-                sigmart_time= (time.time()-start)
-                start= time.time()
             vertexdev[ii,jj,:]= edf.vertexdev(R,phi=phi,grid=grid,t=evalts,
                                               sigmaR2=sigmar2[ii,jj,:],
                                               sigmaT2=sigmat2[ii,jj,:],
@@ -245,9 +249,6 @@ def velocity_field(parser):
                                               nsigma=options.nsigma,
                                               hierarchgrid=options.hierarchgrid,
                                               nlevels=options.nlevels)
-            if _PROFILE:
-                vdev_time= (time.time()-start)
-                start= time.time()
             #Also calculate initial, non-trivial values
             use_init_grid= True #Much faster
             if use_init_grid:
@@ -275,26 +276,10 @@ def velocity_field(parser):
                                              meanvT=meanvt_init[ii,jj],
                                              nsigma=options.nsigma)
             jj+= 1
-            if _PROFILE:
-                rest_time= time.time()-start
-                start= time.time()
             #Save
             save_output(options.savefilename,surfmass,meanvr,meanvt,sigmar2,
                         sigmat2,sigmart,vertexdev,ii,jj,grids,
                         surfmass_init,meanvt_init,sigmar2_init,sigmat2_init)
-            if _PROFILE:
-                save_time= (time.time()-start)
-                tot_time= grid_time+meanvr_time+meanvt_time+sigmar_time+sigmat_time+sigmart_time+vdev_time+rest_time+save_time
-                print grid_time/tot_time, \
-                      meanvr_time/tot_time, \
-                      meanvt_time/tot_time, \
-                      sigmar_time/tot_time, \
-                      sigmat_time/tot_time, \
-                      sigmart_time/tot_time, \
-                      vdev_time/tot_time, \
-                      rest_time/tot_time, \
-                      save_time/tot_time, \
-                      tot_time
         ii+= 1
         jj= 0
     sys.stdout.write('\n')
@@ -487,6 +472,88 @@ def velocity_field(parser):
                             oortk,oortk_init)
         bovy_plot.bovy_end_print(args[0])
         return None
+
+def _calc_meanvel_single(jj,ii,options,evalts,xgrid,ygrid,edf):
+    #Calculate R and phi
+    if options.galcoords:
+        R, phi= ygrid[jj], xgrid[ii]
+    else:
+        R= nu.sqrt((1.-xgrid[ii])**2.+ygrid[jj]**2.)
+        phi= nu.arcsin(ygrid[jj]/R)
+        #Calculate surfmass etc.
+    smass, grid= edf.vmomentsurfacemass(R,0,0,grid=True,phi=phi,
+                                        returnGrid=True,t=evalts,
+                                        gridpoints=options.grid,
+                                        nsigma=options.nsigma,
+                                        hierarchgrid=options.hierarchgrid,
+                                        nlevels=options.nlevels,
+                                        print_progress=options.print_vprogress,
+                                        integrate_method=options.integrate_method)
+    surfmass= smass
+    meanvr= edf.meanvR(R,phi=phi,grid=grid,t=evalts,
+                       surfacemass=surfmass,
+                       nsigma=options.nsigma,
+                       hierarchgrid=options.hierarchgrid,
+                       nlevels=options.nlevels)
+    meanvt= edf.meanvT(R,phi=phi,grid=grid,t=evalts,
+                       surfacemass=surfmass,
+                       nsigma=options.nsigma,
+                       hierarchgrid=options.hierarchgrid,
+                       nlevels=options.nlevels)
+    sigmar2= edf.sigmaR2(R,phi=phi,grid=grid,t=evalts,
+                         surfacemass=surfmass,
+                         meanvR=meanvr[ii,jj,:],
+                         nsigma=options.nsigma,
+                         hierarchgrid=options.hierarchgrid,
+                         nlevels=options.nlevels)
+    sigmat2= edf.sigmaT2(R,phi=phi,grid=grid,t=evalts,
+                         surfacemass=surfmass,
+                         meanvT=meanvt[ii,jj,:],
+                         nsigma=options.nsigma,
+                         hierarchgrid=options.hierarchgrid,
+                         nlevels=options.nlevels)
+    sigmart= edf.sigmaRT(R,phi=phi,grid=grid,t=evalts,
+                         surfacemass=surfmass,
+                         meanvR=meanvr,
+                         meanvT=meanvt,
+                         nsigma=options.nsigma,
+                         hierarchgrid=options.hierarchgrid,
+                         nlevels=options.nlevels)
+    vertexdev= edf.vertexdev(R,phi=phi,grid=grid,t=evalts,
+                             sigmaR2=sigmar2,
+                             sigmaT2=sigmat2,
+                             sigmaRT=sigmart,
+                             nsigma=options.nsigma,
+                             hierarchgrid=options.hierarchgrid,
+                             nlevels=options.nlevels)
+    #Also calculate initial, non-trivial values
+    use_init_grid= True #Much faster
+    if use_init_grid:
+        smass_init, init_grid= edf.vmomentsurfacemass(R,0,0,phi=phi,
+                                                      t=edf._to,
+                                                      grid=True,
+                                                      gridpoints=options.grid,
+                                                      returnGrid=True)
+    else:
+        smass_init= edf.vmomentsurfacemass(R,0,0,phi=phi,
+                                           t=edf._to)
+        init_grid= False
+    surfmass_init= smass_init
+    meanvt_init= edf.meanvT(R,phi=phi,t=edf._to,
+                            grid=init_grid,
+                            surfacemass=surfmass_init,
+                            nsigma=options.nsigma)
+    sigmar2_init= edf.sigmaR2(R,phi=phi,t=edf._to,
+                              grid=init_grid,
+                              surfacemass=surfmass_init,
+                              meanvR=0.,nsigma=options.nsigma)
+    sigmat2_init= edf.sigmaT2(R,phi=phi,t=edf._to,
+                              grid=init_grid,
+                              surfacemass=surfmass_init,
+                              meanvT=meanvt_init,
+                              nsigma=options.nsigma)
+    return (surfmass,meanvr,meanvt,sigmar2,sigmat2,sigmart,vertexdev,grid,
+            surfmass_init,meanvt_init,sigmar2_init,sigmat2_init)
 
 def create_field_movie(options,surfmass,meanvr,meanvt,sigmar2,
                        sigmat2,sigmart,vertexdev,ii,jj,surfmass_init,
@@ -1155,6 +1222,9 @@ def get_options():
     parser.add_option("--oort",dest="oort",
                       default=None,
                       help="(also) calculate the Oort constants, save them to this file in a manner similar to the first savefile")
+    parser.add_option("-m","--multi",dest="multi",type='int',
+                      default=None,
+                      help="If set, use multiprocessing")
     return parser
 
 if __name__ == '__main__':
