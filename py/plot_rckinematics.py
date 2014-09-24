@@ -18,8 +18,8 @@ def plot_rckinematics(plotfilename,subsun=False):
     data= data[indx]
     #Get velocity field
     pixrc= pixelize_sample.pixelXY(data,
-                                   xmin=_RCXMIN-1.5,xmax=_RCXMAX+1.5,
-                                   ymin=_RCYMIN-1.5,ymax=_RCYMAX+1.5,
+                                   xmin=_RCXMIN-2.25,xmax=_RCXMAX+2.25,
+                                   ymin=_RCYMIN-2.25,ymax=_RCYMAX+2.25,
                                    dx=_RCDX,dy=_RCDX)
     bovy_plot.bovy_print()
     if subsun:
