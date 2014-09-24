@@ -54,7 +54,7 @@ def velocity_field(parser):
         #Grid we do the RC analysis on
         xgrid= nu.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
                            (_RCXMAX-8.)/8.-_RCDX/8./2.,
-                           options.res)
+                           options.res)[::-1]
         ygrid= nu.linspace(_RCYMIN/8.+_RCDX/8./2.,
                            _RCYMAX/8.-_RCDX/8./2.,
                            options.res)
@@ -201,7 +201,7 @@ def velocity_field(parser):
             if options.galcoords:
                 R, phi= ygrid[jj], xgrid[ii]
             else:
-                R= nu.sqrt((1.-xgrid[ii])**2.+ygrid[jj]**2.)
+                R= nu.sqrt((1.+xgrid[ii])**2.+ygrid[jj]**2.)
                 phi= nu.arcsin(ygrid[jj]/R)
             #Calculate surfmass etc.
             smass, grid= edf.vmomentsurfacemass(R,0,0,grid=True,phi=phi,
@@ -339,7 +339,7 @@ def velocity_field(parser):
             if options.galcoords:
                 R, phi= ygrid[oort_jj], xgrid[oort_ii]
             else:
-                R= nu.sqrt((1.-xgrid[oort_ii])**2.+ygrid[oort_jj]**2.)
+                R= nu.sqrt((1.+xgrid[oort_ii])**2.+ygrid[oort_jj]**2.)
                 phi= nu.arcsin(ygrid[oort_jj]/R)
             if len(grids) > 0: grid= grids[oort_jj+oort_ii*ny]
             else: grid= True
@@ -479,7 +479,7 @@ def _calc_meanvel_single(jj,ii,options,evalts,xgrid,ygrid,edf):
     if options.galcoords:
         R, phi= ygrid[jj], xgrid[ii]
     else:
-        R= nu.sqrt((1.-xgrid[ii])**2.+ygrid[jj]**2.)
+        R= nu.sqrt((1.+xgrid[ii])**2.+ygrid[jj]**2.)
         phi= nu.arcsin(ygrid[jj]/R)
         #Calculate surfmass etc.
     smass, grid= edf.vmomentsurfacemass(R,0,0,grid=True,phi=phi,
