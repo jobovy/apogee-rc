@@ -54,7 +54,7 @@ def velocity_field(parser):
         #Grid we do the RC analysis on
         xgrid= nu.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
                            (_RCXMAX-8.)/8.-_RCDX/8./2.,
-                           options.res)[::-1]
+                           options.res)
         ygrid= nu.linspace(_RCYMIN/8.+_RCDX/8./2.,
                            _RCYMAX/8.-_RCDX/8./2.,
                            options.res)
