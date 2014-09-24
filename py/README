@@ -1,4 +1,18 @@
 
+# Dehnen bar
+python velocity_field_2014.py ../sim/bar_rect_vr.ps \
+       --savefile=../sim/bar_rect.sav \
+        --bar -m 19 -r 19 -g 26 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4
+
+python velocity_field_2014.py ../sim/bar_rect_vr.ps \
+       --savefile=../sim/bar_rect_slow.sav \
+        --bar -m 19 -r 19 -g 26 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --bar_tform=-75. --bar_tsteady=68. #slow growth
+
+
 # Steady-spiral simulation, default parameters
 python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
        --savefile=../sim/spiral_rect.sav \

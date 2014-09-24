@@ -1143,7 +1143,7 @@ def get_options():
                       default=-4.,
                       help="Bar formation time in bar periods")
     parser.add_option("--bar_tsteady",dest="bar_tsteady",type='float',
-                      default=-2.,
+                      default=2.,
                       help="Bar steady time in bar periods")
     parser.add_option("--bar_olr",dest="bar_olr",type='float',
                       default=.9,
