@@ -219,6 +219,16 @@ def vlosgal(data,vtsun=_VTSUN,vrsun=_VRSUN):
         +_VZSUN*sinb/cosb
     return vlosgal
 
+def modelvlosgal(R,phi,l,beta=0.,vc=220.,vtsun=_VTSUN,vrsun=_VRSUN):
+    sinl= numpy.sin(l)
+    cosl= numpy.cos(l)
+    vlosgal= -vrsun*cosl+vtsun*sinl\
+        -(vc*(R/8.)**beta\
+              -asymmetricDriftModel.va(R/8.,31.4/vc,
+                                       vc=(R/8.)**beta,hR=3./8.,
+                                       hs=33.3)*vc)*numpy.sin(l+phi)
+    return -vlosgal
+
 def linfit(x,slope,zeropoint):
     return slope*(x-8.)+zeropoint
 
