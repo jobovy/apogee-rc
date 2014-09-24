@@ -234,7 +234,7 @@ def plot_psd(plotfilename):
     ax2.set_xlabel('$\mathrm{Approximate\ scale}\,(\mathrm{kpc})$',
                    fontsize=12.,ha='center',x=0.5)
     ax2.xaxis.set_major_formatter(major_formatter2)
-    bovy_plot.bovy_end_print(plotfilename)
+    bovy_plot.bovy_end_print(plotfilename,dpi=300)
     return None
 
 def plot_psd_gcs():
