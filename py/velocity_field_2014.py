@@ -74,14 +74,14 @@ def velocity_field(parser):
                                  rolr=options.bar_olr)
         pot.append(barp)
     if options.steadyspiral:
-        omegas= 0.65
+        omegas= options.steadyspiralomegas
         ts= 2.*m.pi/omegas #4:1 ILR at Solar circle
         steadyspiralp= SteadyLogSpiralPotential(A=-0.075,
                                                 alpha=options.steadyspiralalpha,
                                                 tform=options.steadyspiraltform/ts,
                                                 tsteady=options.steadyspiraltsteady/ts,
                                                 omegas=omegas,
-                                                gamma=1.2)
+                                                gamma=options.steadyspiralgamma)
         pot.append(steadyspiralp)
     if options.singletransientspiral:
         transientsp= TransientLogSpiralPotential(A=-0.035,
@@ -481,7 +481,7 @@ def _calc_meanvel_single(jj,ii,options,evalts,xgrid,ygrid,edf):
     else:
         R= nu.sqrt((1.+xgrid[ii])**2.+ygrid[jj]**2.)
         phi= nu.arcsin(ygrid[jj]/R)
-        #Calculate surfmass etc.
+    #Calculate surfmass etc.
     smass, grid= edf.vmomentsurfacemass(R,0,0,grid=True,phi=phi,
                                         returnGrid=True,t=evalts,
                                         gridpoints=options.grid,
@@ -1193,6 +1193,12 @@ def get_options():
     parser.add_option("--steadyspiralalpha",dest="steadyspiralalpha",
                       default=-12.5,type='float',
                       help="Alpha parameter of the steady spiral")
+    parser.add_option("--steadyspiralomegas",dest="steadyspiralomegas",
+                      default=0.65,type='float',
+                      help="Pattern speed of the steady spiral")
+    parser.add_option("--steadyspiralgamma",dest="steadyspiralgamma",
+                      default=1.2,type='float',
+                      help="Gamma parameter of the steady spiral")
     parser.add_option("--el_tform",dest="el_tform",
                       default=None,type='float',
                       help="time at which the elliptical disk forms)")
