@@ -179,13 +179,14 @@ def velocity_field(parser):
                 sigmart[ii,jj,:]= multOut[jj][5]
                 vertexdev[ii,jj,:]= multOut[jj][6]
                 grids.append(multOut[jj][7])
-                surfmass_init[ii,jj,:]= multOut[jj][8]
-                meanvt_init[ii,jj,:]= multOut[jj][9]
-                sigmar2_init[ii,jj,:]= multOut[jj][10]
-                sigmat2_init[ii,jj,:]= multOut[jj][11]
+                surfmass_init[ii,jj]= multOut[jj][8]
+                meanvt_init[ii,jj]= multOut[jj][9]
+                sigmar2_init[ii,jj]= multOut[jj][10]
+                sigmat2_init[ii,jj]= multOut[jj][11]
             save_output(options.savefilename,surfmass,meanvr,meanvt,sigmar2,
                         sigmat2,sigmart,vertexdev,ii,jj,grids,
                         surfmass_init,meanvt_init,sigmar2_init,sigmat2_init)
+            ii+= 1
             continue
         while jj < ny:
             if options.print_vprogress:
@@ -502,13 +503,13 @@ def _calc_meanvel_single(jj,ii,options,evalts,xgrid,ygrid,edf):
                        nlevels=options.nlevels)
     sigmar2= edf.sigmaR2(R,phi=phi,grid=grid,t=evalts,
                          surfacemass=surfmass,
-                         meanvR=meanvr[ii,jj,:],
+                         meanvR=meanvr,
                          nsigma=options.nsigma,
                          hierarchgrid=options.hierarchgrid,
                          nlevels=options.nlevels)
     sigmat2= edf.sigmaT2(R,phi=phi,grid=grid,t=evalts,
                          surfacemass=surfmass,
-                         meanvT=meanvt[ii,jj,:],
+                         meanvT=meanvt,
                          nsigma=options.nsigma,
                          hierarchgrid=options.hierarchgrid,
                          nlevels=options.nlevels)
@@ -552,8 +553,8 @@ def _calc_meanvel_single(jj,ii,options,evalts,xgrid,ygrid,edf):
                               surfacemass=surfmass_init,
                               meanvT=meanvt_init,
                               nsigma=options.nsigma)
-    return (surfmass,meanvr,meanvt,sigmar2,sigmat2,sigmart,vertexdev,grid,
-            surfmass_init,meanvt_init,sigmar2_init,sigmat2_init)
+    return [surfmass,meanvr,meanvt,sigmar2,sigmat2,sigmart,vertexdev,grid,
+            surfmass_init,meanvt_init,sigmar2_init,sigmat2_init]
 
 def create_field_movie(options,surfmass,meanvr,meanvt,sigmar2,
                        sigmat2,sigmart,vertexdev,ii,jj,surfmass_init,
