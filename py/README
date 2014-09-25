@@ -1,79 +1,30 @@
 
 # Dehnen bar
 python velocity_field_2014.py ../sim/bar_rect_vr.ps \
-       --savefile=../sim/bar_rect.sav \
-        --bar -m 19 -r 19 -g 26 \
+       --savefile=../sim/bar_rect_hivres.sav \
+        --bar -m 19 -r 19 -g 10 \
         --vmin=-0.05 --vmax=0.05 --nt=1 \
         --nsigma=4
 
 python velocity_field_2014.py ../sim/bar_rect_vr.ps \
-       --savefile=../sim/bar_rect_slow.sav \
-        --bar -m 19 -r 19 -g 26 \
+       --savefile=../sim/bar_rect_slow_hivres.sav \
+        --bar -m 19 -r 19 -g 101 \
         --vmin=-0.05 --vmax=0.05 --nt=1 \
         --nsigma=4 --bar_tform=-75. --bar_tsteady=68. #slow growth
 
 
-# Steady-spiral simulation, default parameters
-python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
-        --vmin=-0.05 --vmax=0.05 --nt=1 \
-        --nsigma=4 --to=-250. \
-        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
-
 # Steady-spiral simulation, different pitch
 python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect_alpha-14.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
+       --savefile=../sim/spiral_rect_alpha-14_hivres.sav \
+        --steadyspiral -m 19 -r 19 -g 101 \
         --vmin=-0.05 --vmax=0.05 --nt=1 \
         --nsigma=4 --to=-250. --steadyspiralalpha=-14. \
         --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
 
-# Steady-spiral simulation, different angle
-python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect_gamma0.8.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
-        --vmin=-0.05 --vmax=0.05 --nt=1 \
-        --nsigma=4 --to=-250. --steadyspiralgamma=0.8 \
-        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
-
-# Steady-spiral simulation, different pattern speed
-python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect_omegas0.8.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
-        --vmin=-0.05 --vmax=0.05 --nt=1 \
-        --nsigma=4 --to=-250. --steadyspiralomegas=0.8 \
-        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
-
-# Steady-spiral simulation, different pattern speed
-python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect_omegas0.5.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
-        --vmin=-0.05 --vmax=0.05 --nt=1 \
-        --nsigma=4 --to=-250. --steadyspiralomegas=0.5 \
-        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
-
-# Steady-spiral simulation, different pattern speed
-python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect_omegas0.3.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
-        --vmin=-0.05 --vmax=0.05 --nt=1 \
-        --nsigma=4 --to=-250. --steadyspiralomegas=0.3 \
-        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
-
 # Steady-spiral simulation, different pattern speed, different pitch
 python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect_omegas0.35_alpha-14.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
-        --vmin=-0.05 --vmax=0.05 --nt=1 \
-        --nsigma=4 --to=-250. --steadyspiralomegas=0.35 \
-	--steadyspiralalpha=-14. \
-        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
-
-# Steady-spiral simulation, different pattern speed, different pitch
-python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect_omegas0.33_alpha-14.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
+       --savefile=../sim/spiral_rect_omegas0.33_alpha-14_hivres.sav \
+        --steadyspiral -m 19 -r 19 -g 101 \
         --vmin=-0.05 --vmax=0.05 --nt=1 \
         --nsigma=4 --to=-250. --steadyspiralomegas=0.33 \
 	--steadyspiralalpha=-14. \
@@ -81,8 +32,8 @@ python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
 
 # Steady-spiral simulation, different pattern speed, different angle
 python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect_omegas0.33_gamma0.3.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
+       --savefile=../sim/spiral_rect_omegas0.33_gamma0.3_hivres.sav \
+        --steadyspiral -m 19 -r 19 -g 101 \
         --vmin=-0.05 --vmax=0.05 --nt=1 \
         --nsigma=4 --to=-250. --steadyspiralomegas=0.33 \
 	--steadyspiralgamma=0.3 \
@@ -90,18 +41,10 @@ python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
 
 # Steady-spiral simulation, different pattern speed, different pitch
 python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect_omegas0.33_alpha-7.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
+       --savefile=../sim/spiral_rect_omegas0.33_alpha-7_hivres.sav \
+        --steadyspiral -m 19 -r 19 -g 101 \
         --vmin=-0.05 --vmax=0.05 --nt=1 \
         --nsigma=4 --to=-250. --steadyspiralomegas=0.33 \
 	--steadyspiralalpha=-7. \
         --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
-
-# Steady-spiral simulation, different pitch, fast growth
-python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
-       --savefile=../sim/spiral_rect_alpha-14_fast.sav \
-        --steadyspiral -m 19 -r 19 -g 26 \
-        --vmin=-0.05 --vmax=0.05 --nt=1 \
-        --nsigma=4 --to=-250. --steadyspiralalpha=-14. \
-        --steadyspiraltform=-40. --steadyspiraltsteady=20. #fast growth
 
