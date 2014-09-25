@@ -2,7 +2,7 @@
 # Dehnen bar
 python velocity_field_2014.py ../sim/bar_rect_vr.ps \
        --savefile=../sim/bar_rect_hivres.sav \
-        --bar -m 19 -r 19 -g 10 \
+        --bar -m 19 -r 19 -g 101 \
         --vmin=-0.05 --vmax=0.05 --nt=1 \
         --nsigma=4
 
