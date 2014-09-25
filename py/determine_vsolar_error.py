@@ -10,6 +10,7 @@ from plot_psd import _ADDLLOGGCUT, \
     _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX
 import bovy_psd
 from determine_vsolar import large_scale_power
+import galpy_simulations
 def determine_vsolar_error(spiral=False):
     #Read the APOGEE-RC data and pixelate it
     #APOGEE-RC
@@ -50,14 +51,11 @@ def determine_vsolar_mock(data,dfc,trueVsolar,spiral=False):
 
 def create_mock_sample(data,dfc,trueVsolar,spiral=False):
     if spiral:
-       #Set up galpy spiral
-        m=2
-        alpha= -12.5
-        gamma= 1.2
-        omegas= 0.65
-        potscale= 1.35
-        Delta= 2.-m**2.*(omegas-1.)**2.
-        sp= SteadyLogSpiralPotential(alpha=alpha,m=m,gamma=gamma,omegas=omegas)
+        #Read spiral vlos field
+        spvlos= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14_hivres.sav')
+        potscale= 0.85
+        xgrid= numpy.linspace(_RCXMIN,_RCXMAX-_RCDX,19)
+        ygrid= numpy.linspace(_RCYMIN,_RCYMAX-_RCDX,19)
     ndata= len(data)
     mockvel= numpy.empty(ndata)
     dphil= data['RC_GALPHI']+data['GLON']/180.*numpy.pi
@@ -72,12 +70,14 @@ def create_mock_sample(data,dfc,trueVsolar,spiral=False):
             -10.5*cosl[ii]/220.\
             -(1.+trueVsolar)*sinl[ii]
         if spiral:
-            pot= sp(data['RC_GALR'][ii]/8.,phi=data['RC_GALPHI'][ii])
-            spiraldev= -m*(omegas-1.)/Delta*data['RC_GALR'][ii]/8.*alpha/1.\
-                *pot*cosdphil[ii]\
-                -2.*-0.5/Delta*data['RC_GALR'][ii]/8.*alpha/1.\
-                *pot*sindphil[ii]
-#            print mockvel[ii], spiraldev*potscale, spiraldev*potscale/mockvel[ii]
+            #Find which pixel this sample is in
+            pixIndxX= numpy.argmin(numpy.fabs(data['RC_GALR'][ii]\
+                                                  *numpy.cos(data['RC_GALPHI'][ii])\
+                                                  -xgrid))
+            pixIndxY= numpy.argmin(numpy.fabs(data['RC_GALR'][ii]\
+                                                  *numpy.sin(data['RC_GALPHI'][ii])\
+                                                  -ygrid))
+            spiraldev= spvlos[pixIndxX,pixIndxY]
             mockvel[ii]+= spiraldev*potscale
     data['VHELIO_AVG']= mockvel*220.
     return data
