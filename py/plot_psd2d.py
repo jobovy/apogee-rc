@@ -14,6 +14,7 @@ from plot_2dkinematics import dvlosgal
 import hackGCS
 import readAndHackHoltz
 from simple_spiral_simulation import simulate_vlos_spiral
+import galpy_simulations
 from plot_psd import _ADDLLOGGCUT, _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX
 #Parameters of the pixelizations
 def plot_psd2d(plotfilename):
@@ -52,14 +53,8 @@ def plot_psd2d(plotfilename):
                           ylabel=r'$k_y\,(\mathrm{kpc}^{-1})$')
     bovy_plot.bovy_end_print(plotfilename)
     if True:
-        alpha= -12.5 #-12.5
-        spvlos= simulate_vlos_spiral(alpha=alpha,
-                                     gamma=1.2,
-                                     omegas=.65,
-                                     xmin=_RCXMIN,xmax=_RCXMAX,
-                                     ymin=_RCYMIN,ymax=_RCYMAX,
-                                     dx=_RCDX)
-        potscale= 1.35
+        spvlos= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_hivres.sav')[1::2,1::2]
+        potscale= 1.
         spvlos+= numpy.random.normal(size=spvlos.shape)*resvunc/220./potscale
         simpsd2d= bovy_psd.psd2d(spvlos*220.*potscale)
         bovy_plot.bovy_print()
