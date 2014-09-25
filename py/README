@@ -116,3 +116,12 @@ python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
 	--steadyspiralalpha=-14. \
         --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
 
+python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
+       --savefile=../sim/spiral_rect_m4_alpha-14_gamma0.4.sav \
+        --steadyspiral -m 19 -r 19 -g 26 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --to=-250. --steadyspiralomegas=0.65 \
+	--steadyspiralm=4 --steadyspiralgamma=0.4 \
+	--steadyspiralalpha=-14. \
+        --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
+
