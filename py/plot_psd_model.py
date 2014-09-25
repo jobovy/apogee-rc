@@ -253,7 +253,7 @@ def plot_psd_model(plotfilename,type):
         bovy_plot.bovy_text(r'$\mathrm{Median\ and\ range\ from}$'+'\n'
                             +r'$\mathrm{8\ APOGEE\!-\!like\ volumes}$',
                             top_right=True,size=16.)
-        bovy_plot.bovy_plot([0.4,0.53],[8.,10.],'k-',overplot=True)
+        bovy_plot.bovy_plot([0.4,0.53],[8.2,10.],'k-',overplot=True)
     #Also plot fiducial
     scale= 4.*numpy.pi*220.
     bovy_plot.bovy_plot(tks,
