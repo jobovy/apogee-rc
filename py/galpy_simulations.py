@@ -41,7 +41,7 @@ def vlos(savefile):
     cospl= numpy.cos(phis+l)
     sinpl= numpy.sin(phis+l)
     vlos= -cospl*dvr+sinpl*dvt
-    return vlos[:,:,0]
+    return vlos[:,:]
     
 def vlos_elliptical(res=19,cp=0.05,sp=0.,p=0.,beta=0.,xgrid=None,ygrid=None):
     sr= 31.4
