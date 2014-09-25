@@ -37,6 +37,7 @@ python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
         --vmin=-0.05 --vmax=0.05 --nt=1 \
         --nsigma=4 --to=-250. --steadyspiralomegas=0.33 \
 	--steadyspiralgamma=0.3 \
+	--steadyspiralalpha=-14. \
         --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
 
 # Steady-spiral simulation, different pattern speed, different pitch
