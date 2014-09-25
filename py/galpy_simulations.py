@@ -21,7 +21,7 @@ def read_sim(savefilename):
 
 def read_dmeanvrvt(savefile):
     saved= read_sim(savefile)
-    return (saved[1],saved[2]-saved[8])
+    return (saved[1][:,:,0],saved[2][:,:,0]-saved[8])
 
 def vlos(savefile):
     dvr,dvt= read_dmeanvrvt(savefile)
