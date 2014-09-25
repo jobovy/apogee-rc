@@ -139,7 +139,7 @@ def plot_psd_model(plotfilename,type):
     elif type.lower() == 'spiral':
         vlosfid= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14%s.sav' % _HIVRESSTR)
         vloslpitch= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-7%s.sav' % _HIVRESSTR)
-        vlosdiffgamma= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_gamma0.3%s.sav' % _HIVRESSTR)
+        vlosdiffgamma= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_gamma0.3%s.sav' % '')#_HIVRESSTR)
         vlosdiffomegas= galpy_simulations.vlos('../sim/spiral_rect_alpha-14%s.sav' % _HIVRESSTR)
         potscale= 0.85
         eres= 19
@@ -165,7 +165,7 @@ def plot_psd_model(plotfilename,type):
         line2= bovy_plot.bovy_plot(ks,potscale*scale*numpy.sqrt(psdlpitch[1][1:-3]),
                                    'y-',lw=2.,zorder=1,
                                    overplot=True)
-        potscale= 0.4
+        potscale= 0.5
         line3= bovy_plot.bovy_plot(ks,potscale*scale*numpy.sqrt(psddiffgamma[1][1:-3]),
                                    'r-',lw=2.,zorder=1,
                                    overplot=True)
