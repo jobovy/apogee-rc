@@ -122,7 +122,7 @@ def plot_psd_model(plotfilename,type):
                                    xrange=xrange,
                                    yrange=[0.,11.9],zorder=1)
         line2= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdslowbar[1][1:-3]),
-                                   'y-.',lw=2.,
+                                   'y-',lw=2.,
                                    overplot=True,zorder=1)
         pyplot.annotate(r'$\mathrm{Bar\ perturbation\ (rotating}\ m=2\ \mathrm{mode})$',
                         (0.5,1.08),xycoords='axes fraction',
@@ -162,14 +162,14 @@ def plot_psd_model(plotfilename,type):
                                    yrange=[0.,11.9],zorder=1)
         potscale= 0.25
         line2= bovy_plot.bovy_plot(ks,potscale*scale*numpy.sqrt(psdlpitch[1][1:-3]),
-                                   'y--',lw=2.,zorder=1,
+                                   'y-',lw=2.,zorder=1,
                                    overplot=True)
         potscale= 0.4
         line3= bovy_plot.bovy_plot(ks,potscale*scale*numpy.sqrt(psddiffgamma[1][1:-3]),
-                                   'r:',lw=2.,zorder=1,
+                                   'r-',lw=2.,zorder=1,
                                    overplot=True)
         line4= bovy_plot.bovy_plot(ks,4.*scale*numpy.sqrt(psddiffomegas[1][1:-3]),
-                                   'b-.',lw=2.,zorder=1,
+                                   'b-',lw=2.,zorder=1,
                                    overplot=True)
         pyplot.annotate(r'$\mathrm{Spiral\ perturbation}$',
                         (0.5,1.08),xycoords='axes fraction',
