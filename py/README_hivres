@@ -12,6 +12,18 @@ python velocity_field_2014.py ../sim/bar_rect_vr.ps \
         --vmin=-0.05 --vmax=0.05 --nt=1 \
         --nsigma=4 --bar_tform=-75. --bar_tsteady=68. #slow growth
 
+python velocity_field_2014.py ../sim/bar_rect_vr.ps \
+       --savefile=../sim/bar_rect_alpha0.015_hivres.sav \
+        --bar -m 19 -r 19 -g 101 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --baralpha=0.015
+
+python velocity_field_2014.py ../sim/bar_rect_vr.ps \
+       --savefile=../sim/bar_rect_alpha0.015_slow_hivres.sav \
+        --bar -m 19 -r 19 -g 101 --baralpha=0.015 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --bar_tform=-75. --bar_tsteady=68. #slow growth
+
 
 # Steady-spiral simulation, different pitch
 python velocity_field_2014.py ../sim/spiral_rect_vr.ps \

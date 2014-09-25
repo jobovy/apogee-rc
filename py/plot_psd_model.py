@@ -141,7 +141,7 @@ def plot_psd_model(plotfilename,type):
     elif type.lower() == 'spiral':
         vlosfid= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14%s.sav' % _HIVRESSTR)
         vloslpitch= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-7%s.sav' % _HIVRESSTR)
-        vlosdiffgamma= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_gamma0.3%s.sav' % '')#_HIVRESSTR)
+        vlosdiffgamma= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_gamma0.3%s.sav' % _HIVRESSTR)
         vlosdiffomegas= galpy_simulations.vlos('../sim/spiral_rect_alpha-14%s.sav' % _HIVRESSTR)
         vlosdiffm= galpy_simulations.vlos('../sim/spiral_rect_m4_alpha-14%s.sav' % '')#_HIVRESSTR)
         vlosdiffm2= galpy_simulations.vlos('../sim/spiral_rect_m4_alpha-14_gamma0.4%s.sav' % '')#_HIVRESSTR)
