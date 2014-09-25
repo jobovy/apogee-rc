@@ -2,6 +2,7 @@ import sys
 import numpy
 from galpy.util import bovy_plot
 from matplotlib import pyplot
+from matplotlib.ticker import NullFormatter
 import bovy_psd
 from plot_psd import _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX, \
     _SUBTRACTERRORS, _NNOISE
@@ -49,11 +50,11 @@ def plot_psd_model(plotfilename,type):
         psdcpsppm3= bovy_psd.psd1d(vloscpsppm3,dx,binsize=0.8)
         ks= psdcp[0][1:-3]
         scale= 4.*numpy.pi*220.
-        bovy_plot.bovy_print(fig_width=7.,axes_labelsize=20)
+        bovy_plot.bovy_print(fig_width=8.,fig_height=4.5,axes_labelsize=20)
         line1= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdcp[1][1:-3]),
                                    'k-',lw=2.,
                                    semilogx=True,
-                                   xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
+#                                   xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
                                    ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1})$',
                                    xrange=xrange,
                                    yrange=[0.,11.9],zorder=1)
@@ -115,11 +116,11 @@ def plot_psd_model(plotfilename,type):
         psdslowbar= bovy_psd.psd1d(vlosslowbar,dx,binsize=0.8)
         ks= psdbar[0][1:-3]
         scale= 4.*numpy.pi*220.
-        bovy_plot.bovy_print(fig_width=7.,axes_labelsize=20)
+        bovy_plot.bovy_print(fig_width=8.,fig_height=4.5,axes_labelsize=20)
         line1= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdbar[1][1:-3]),
                                    'r-',lw=2.,
                                    semilogx=True,
-                                   xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
+#                                   xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
                                    ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1})$',
                                    xrange=xrange,
                                    yrange=[0.,11.9],zorder=1)
@@ -158,11 +159,11 @@ def plot_psd_model(plotfilename,type):
         psddiffm2= bovy_psd.psd1d(vlosdiffm2,dx,binsize=0.8)
         ks= psdfid[0][1:-3]
         scale= 4.*numpy.pi*220.
-        bovy_plot.bovy_print(fig_width=7.,axes_labelsize=20)
+        bovy_plot.bovy_print(fig_width=8.,fig_height=4.5,axes_labelsize=20)
         line1= bovy_plot.bovy_plot(ks,potscale*scale*numpy.sqrt(psdfid[1][1:-3]),
                                    'k-',lw=2,
                                    semilogx=True,
-                                   xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
+#                                   xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
                                    ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1})$',
                                    xrange=xrange,
                                    yrange=[0.,11.9],zorder=1)
@@ -200,10 +201,7 @@ def plot_psd_model(plotfilename,type):
                           prop={'size':16},
                           frameon=False)    
     elif type.lower() == 'bird':
-        _birdFile= '../pecvel/pecvel.npz'
         _nSims= 8
-        _PLOTINDIV= True
-        _ADDDATALINE= True
         #Read the Bird data
         birdData= numpy.load('../pecvel/pecvel.npz')
         #Get residuals for all simulations
@@ -234,7 +232,7 @@ def plot_psd_model(plotfilename,type):
             1.4826*scale*numpy.median(numpy.fabs(numpy.sqrt(psds)[1:-3]
                                                  -numpy.tile(medPsd/scale,
                                                              (psds.shape[1],1)).T),axis=1)
-        bovy_plot.bovy_print(fig_width=7.,axes_labelsize=20)
+        bovy_plot.bovy_print(fig_width=8.,fig_height=4.5,axes_labelsize=20)
         line1= bovy_plot.bovy_plot(ks,medPsd,
                                    'k-',lw=2,
                                    semilogx=True,
@@ -253,12 +251,15 @@ def plot_psd_model(plotfilename,type):
         bovy_plot.bovy_text(r'$\mathrm{Median\ and\ range\ from}$'+'\n'
                             +r'$\mathrm{8\ APOGEE\!-\!like\ volumes}$',
                             top_right=True,size=16.)
-        bovy_plot.bovy_plot([0.4,0.53],[8.2,10.],'k-',overplot=True)
+        bovy_plot.bovy_plot([0.4,0.65],[8.2,10.],'k-',overplot=True)
     #Also plot fiducial
     scale= 4.*numpy.pi*220.
     bovy_plot.bovy_plot(tks,
                         scale*numpy.sqrt(simpsd1d[1][1:-3]),
                         '-',color='0.65',lw=2.,overplot=True,zorder=0)
+    if not type.lower() == 'bird':
+        nullfmt   = NullFormatter()         # no labels
+        pyplot.gca().xaxis.set_major_formatter(nullfmt)
     bovy_plot.bovy_end_print(plotfilename)
     return None
 
