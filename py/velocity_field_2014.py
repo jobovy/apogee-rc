@@ -81,6 +81,7 @@ def velocity_field(parser):
                                                 tform=options.steadyspiraltform/ts,
                                                 tsteady=options.steadyspiraltsteady/ts,
                                                 omegas=omegas,
+                                                m=options.steadyspiralm,
                                                 gamma=options.steadyspiralgamma)
         pot.append(steadyspiralp)
     if options.singletransientspiral:
@@ -1198,6 +1199,9 @@ def get_options():
                       help="Pattern speed of the steady spiral")
     parser.add_option("--steadyspiralgamma",dest="steadyspiralgamma",
                       default=1.2,type='float',
+                      help="Gamma parameter of the steady spiral")
+    parser.add_option("--steadyspiralm",dest="steadyspiralm",
+                      default=2,type='int',
                       help="Gamma parameter of the steady spiral")
     parser.add_option("--el_tform",dest="el_tform",
                       default=None,type='float',
