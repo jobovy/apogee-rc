@@ -10,8 +10,9 @@ import galpy_simulations
 _HIVRESSTR= '_hivres'
 def plot_psd_model(plotfilename,type):
     #Load fiducial
-    spvlos= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14%s.sav' % _HIVRESSTR)
-    potscale= 0.85
+#    spvlos= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14%s.sav' % _HIVRESSTR)
+    spvlos= galpy_simulations.vlos('../sim/bar_rect_alpha0.015%s.sav' % _HIVRESSTR)
+    potscale= 1.
     simpsd1d= bovy_psd.psd1d(spvlos*potscale,0.33333333,binsize=0.8)
     tks= simpsd1d[0][1:-3]
     xrange=[.08,4.]
@@ -105,8 +106,8 @@ def plot_psd_model(plotfilename,type):
         pyplot.gca().add_artist(l1)
         pyplot.gca().add_artist(l2)
     elif type.lower() == 'bar':
-        vlosbar= galpy_simulations.vlos('../sim/bar_rect%s.sav' % _HIVRESSTR)
-        vlosslowbar= galpy_simulations.vlos('../sim/bar_rect_slow%s.sav' % _HIVRESSTR)
+        vlosbar= galpy_simulations.vlos('../sim/bar_rect_alpha0.015%s.sav' % _HIVRESSTR)
+        vlosslowbar= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_slow%s.sav' % '')#_HIVRESSTR)
         eres= 19
         xgrid= numpy.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
                               (_RCXMAX-8.)/8.-_RCDX/8./2.,
@@ -190,7 +191,7 @@ def plot_psd_model(plotfilename,type):
                         verticalalignment='top',size=20.)
         l1= pyplot.legend((line1[0],line2[0],line3[0],
                            line4[0],line5[0],line6[0]),
-                          (r'$\mathrm{Fiducial}$',
+                          (r'$\mathrm{Fiducial\ spiral}$',
                            r'$\mathrm{Pitch\ angle} = 16^\circ$',
                            r'$\gamma = 17^\circ$',
                            r'$\Omega_s = 0.65\,\Omega_0$',

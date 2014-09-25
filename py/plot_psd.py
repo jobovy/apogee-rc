@@ -133,12 +133,13 @@ def plot_psd(plotfilename):
                                 scale*numpy.sqrt(simpsd1d[1][1:-3]),
                                 'k--',lw=2.,overplot=True)
         #A better simulation
-        spvlos= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14.sav')
-        potscale= 0.85
+#        spvlos= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14.sav')
+        spvlos= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_hivres.sav')
+        potscale= 1.
         simpsd1d= bovy_psd.psd1d(spvlos*220.*potscale,0.33333333,binsize=binsize)
         tks= simpsd1d[0][1:-3]
-        alpha=-14.
-        print numpy.arctan(2./-14.)/numpy.pi*180., numpy.sqrt(0.075/numpy.fabs(alpha)/2.)*potscale*220., numpy.sqrt(0.075/numpy.fabs(alpha))*potscale*220.
+#        alpha=-14.
+#        print numpy.arctan(2./-14.)/numpy.pi*180., numpy.sqrt(0.075/numpy.fabs(alpha)/2.)*potscale*220., numpy.sqrt(0.075/numpy.fabs(alpha))*potscale*220.
         line1= bovy_plot.bovy_plot(tks,
                                    scale*numpy.sqrt(simpsd1d[1][1:-3]),
                                    'k--',lw=2.,overplot=True)
@@ -149,7 +150,8 @@ def plot_psd(plotfilename):
         #                           scale*numpy.sqrt(simpsd1d[1][1:-3]+4./scale**2.),
         #                           'k-.',lw=2.,overplot=True,dashes=(10,5,3,5))
         pyplot.legend((line1[0],),
-                      (r'$\mathrm{Spiral}:\ \delta \phi_{\mathrm{rms}} = (10\,\mathrm{km\,s}^{-1})^2,$'+'\n'+r'$\mathrm{pitch\ angle} = 8^\circ$'+'\n'+r'$\mathrm{Sun\ near\ 2\!:\!1\ Lindblad\ resonance}$',),
+#                      (r'$\mathrm{Spiral}:\ \delta \phi_{\mathrm{rms}} = (10\,\mathrm{km\,s}^{-1})^2,$'+'\n'+r'$\mathrm{pitch\ angle} = 8^\circ$'+'\n'+r'$\mathrm{Sun\ near\ 2\!:\!1\ Lindblad\ resonance}$',),
+                      (r'$\mathrm{Bar}:\ F_{R,\mathrm{bar}} / F_{R,\mathrm{axi}} = 1.5\%,$'+'\n'+r'$\mathrm{angle} = 25^\circ$'+'\n'+r'$\mathrm{Sun\ near\ 2\!:\!1\ Lindblad\ resonance}$',),
                       loc='upper right',#bbox_to_anchor=(.91,.375),
                       numpoints=8,
                       prop={'size':14},

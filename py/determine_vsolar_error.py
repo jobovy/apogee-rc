@@ -52,7 +52,7 @@ def determine_vsolar_mock(data,dfc,trueVsolar,spiral=False):
 def create_mock_sample(data,dfc,trueVsolar,spiral=False):
     if spiral:
         #Read spiral vlos field
-        spvlos= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14_hivres.sav')
+        spvlos= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_hivres.sav')
         potscale= 0.85
         xgrid= numpy.linspace(_RCXMIN,_RCXMAX-_RCDX,19)
         ygrid= numpy.linspace(_RCYMIN,_RCYMAX-_RCDX,19)
