@@ -47,7 +47,7 @@ def plot_psd_model(plotfilename,type):
         psdcpsppm3= bovy_psd.psd1d(vloscpsppm3,dx,binsize=0.8)
         ks= psdcp[0][1:-3]
         scale= 4.*numpy.pi*220.
-        bovy_plot.bovy_print(fig_width=7.)
+        bovy_plot.bovy_print(fig_width=7.,axes_labelsize=20)
         line1= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdcp[1][1:-3]),
                                    'k-',lw=1.5,
                                    semilogx=True,
@@ -79,19 +79,17 @@ def plot_psd_model(plotfilename,type):
         line9= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdcpsppm3[1][1:-3]),
                                    '-.',lw=1.5,color='r',
                                    overplot=True)
-        #Also plot fiducial
-        bovy_plot.bovy_plot(tks,
-                            scale*numpy.sqrt(simpsd1d[1][1:-3]),
-                            '--',color='0.65',lw=2.,overplot=True)
-        bovy_plot.bovy_text(r'$\mathrm{Elliptical\ perturbation}$',
-                            title=True,size=18.)
+        pyplot.annotate(r'$\mathrm{Elliptical\ perturbation}\ (m=2\ \mathrm{mode})$',
+                        (0.5,1.06),xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=20.)
         l1= pyplot.legend((line1[0],line2[0],line3[0]),
                           (r'$\phi_b = 0^\circ$',
                            r'$\phi_b = 45^\circ$',
                            r'$\phi_b = 90^\circ$'),
                           loc='lower left',#bbox_to_anchor=(.91,.375),
                           numpoints=8,
-                          prop={'size':14},
+                          prop={'size':16},
                           frameon=False)
         l2= pyplot.legend((line1[0],line4[0],line7[0]),
                           (r'$\epsilon(R) = 0.02$',
@@ -99,11 +97,49 @@ def plot_psd_model(plotfilename,type):
                            r'$\epsilon(R) = 0.05\,\left(\frac{R}{R_0}\right)^{-3}$'),
                           loc='upper right',#bbox_to_anchor=(.91,.375),
                           numpoints=8,
-                          prop={'size':14},
+                          prop={'size':16},
                           frameon=False)
         pyplot.gca().add_artist(l1)
         pyplot.gca().add_artist(l2)
-        bovy_plot.bovy_end_print(plotfilename)
+    elif type.lower() == 'bar':
+        vlosbar= galpy_simulations.vlos('../sim/bar_rect.sav')
+        vlosslowbar= galpy_simulations.vlos('../sim/bar_rect_slow.sav')
+        eres= 19
+        xgrid= numpy.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
+                              (_RCXMAX-8.)/8.-_RCDX/8./2.,
+                              eres)
+        dx= (xgrid[1]-xgrid[0])*8.
+        psdbar= bovy_psd.psd1d(vlosbar,dx,binsize=0.8)
+        psdslowbar= bovy_psd.psd1d(vlosslowbar,dx,binsize=0.8)
+        ks= psdbar[0][1:-3]
+        scale= 4.*numpy.pi*220.
+        bovy_plot.bovy_print(fig_width=7.,axes_labelsize=20)
+        line1= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdbar[1][1:-3]),
+                                   'r-',lw=1.5,
+                                   semilogx=True,
+                                   xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
+                                   ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1})$',
+                                   xrange=xrange,
+                                   yrange=[0.,11.9])
+        line2= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdslowbar[1][1:-3]),
+                                   'y--',lw=1.5,
+                                   overplot=True)
+        pyplot.annotate(r'$\mathrm{Bar\ perturbation\ (rotating}\ m=2\ \mathrm{mode})$',
+                        (0.5,1.06),xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=20.)
+        l1= pyplot.legend((line1[0],line2[0]),
+                          (r'$\mathrm{Fast\ bar\ growth}$',
+                           r'$\mathrm{Slow\ bar\ growth}$'),
+                          loc='upper right',#bbox_to_anchor=(.91,.375),
+                          numpoints=8,
+                          prop={'size':16},
+                          frameon=False)    
+    #Also plot fiducial
+    bovy_plot.bovy_plot(tks,
+                        scale*numpy.sqrt(simpsd1d[1][1:-3]),
+                        '--',color='0.65',lw=2.,overplot=True)
+    bovy_plot.bovy_end_print(plotfilename)
     return None
 
 if __name__ == '__main__':
