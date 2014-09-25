@@ -3,7 +3,8 @@ import numpy
 from galpy.util import bovy_plot
 from matplotlib import pyplot
 import bovy_psd
-from plot_psd import _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX
+from plot_psd import _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX, \
+    _SUBTRACTERRORS, _NNOISE
 import galpy_simulations
 _HIVRESSTR= '_hivres'
 def plot_psd_model(plotfilename,type):
@@ -198,7 +199,63 @@ def plot_psd_model(plotfilename,type):
                           numpoints=8,
                           prop={'size':16},
                           frameon=False)    
+    elif type.lower() == 'bird':
+        _birdFile= '../pecvel/pecvel.npz'
+        _nSims= 8
+        _PLOTINDIV= True
+        _ADDDATALINE= True
+        #Read the Bird data
+        birdData= numpy.load('../pecvel/pecvel.npz')
+        #Get residuals for all simulations
+        dx= _RCDX
+        binsize= .8#.765
+        scale= 4.*numpy.pi
+        tmp= bovy_psd.psd1d(birdData['dVlos1'],dx,binsize=binsize) #just to get the size
+        ks= tmp[0][1:-3]
+        psds= numpy.zeros((len(tmp[1]),_nSims))
+        if _SUBTRACTERRORS:
+            for ii in range(_nSims):
+                sim= ii+1
+                tmpPsd= bovy_psd.psd1d(birdData['dVlos%i' % sim],
+                                       dx,binsize=binsize)[1]
+                #Simulations for the noise
+                nnoise= _NNOISE
+                noisepsd= numpy.empty((nnoise,len(tmpPsd)))
+                for jj in range(nnoise):
+                    newresv= \
+                        numpy.random.normal(size=birdData['dVlos%i' % sim].shape)\
+                        *birdData['sig_dVlos%i' % sim].reshape((9,9))\
+                        *(True-birdData['rc_mask'])
+                    noisepsd[jj,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1]
+                psds[:,ii]= tmpPsd-numpy.median(noisepsd,axis=0)
+         #Calculate median PSD and spread around this
+        medPsd= scale*numpy.median(numpy.sqrt(psds),axis=1)[1:-3]
+        flucPsd=\
+            1.4826*scale*numpy.median(numpy.fabs(numpy.sqrt(psds)[1:-3]
+                                                 -numpy.tile(medPsd/scale,
+                                                             (psds.shape[1],1)).T),axis=1)
+        bovy_plot.bovy_print(fig_width=7.,axes_labelsize=20)
+        line1= bovy_plot.bovy_plot(ks,medPsd,
+                                   'k-',lw=2,
+                                   semilogx=True,
+                                   xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
+                                   ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1})$',
+                                   xrange=xrange,
+                                   yrange=[0.,11.9],zorder=1)
+        goodIndx= True-numpy.isnan(flucPsd)
+        pyplot.fill_between(ks[goodIndx],(medPsd-flucPsd)[goodIndx],
+                            y2=(medPsd+flucPsd)[goodIndx],
+                            color='0.45',zorder=-1)       
+        pyplot.annotate(r'$\mathrm{Cosmological\ simulation}$',
+                        (0.5,1.08),xycoords='axes fraction',
+                        horizontalalignment='center',
+                        verticalalignment='top',size=20.)
+        bovy_plot.bovy_text(r'$\mathrm{Median\ and\ range\ from}$'+'\n'
+                            +r'$\mathrm{8\ APOGEE\!-\!like\ volumes}$',
+                            top_right=True,size=16.)
+        bovy_plot.bovy_plot([0.4,0.53],[8.,10.],'k-',overplot=True)
     #Also plot fiducial
+    scale= 4.*numpy.pi*220.
     bovy_plot.bovy_plot(tks,
                         scale*numpy.sqrt(simpsd1d[1][1:-3]),
                         '-',color='0.65',lw=2.,overplot=True,zorder=0)
