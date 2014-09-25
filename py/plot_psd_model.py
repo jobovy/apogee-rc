@@ -12,7 +12,7 @@ def plot_psd_model(plotfilename,type):
     potscale= 0.85
     simpsd1d= bovy_psd.psd1d(spvlos*potscale,0.33333333,binsize=0.8)
     tks= simpsd1d[0][1:-3]
-    xrange=[.08,3.]
+    xrange=[.08,4.]
     if type.lower() == 'elliptical':
         eres= 31
         p= 0.
@@ -141,6 +141,8 @@ def plot_psd_model(plotfilename,type):
         vloslpitch= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-7%s.sav' % _HIVRESSTR)
         vlosdiffgamma= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_gamma0.3%s.sav' % '')#_HIVRESSTR)
         vlosdiffomegas= galpy_simulations.vlos('../sim/spiral_rect_alpha-14%s.sav' % _HIVRESSTR)
+        vlosdiffm= galpy_simulations.vlos('../sim/spiral_rect_m4_alpha-14%s.sav' % '')#_HIVRESSTR)
+        vlosdiffm2= galpy_simulations.vlos('../sim/spiral_rect_m4_alpha-14_gamma0.4%s.sav' % '')#_HIVRESSTR)
         potscale= 0.85
         eres= 19
         xgrid= numpy.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
@@ -151,6 +153,8 @@ def plot_psd_model(plotfilename,type):
         psdlpitch= bovy_psd.psd1d(vloslpitch,dx,binsize=0.8)
         psddiffgamma= bovy_psd.psd1d(vlosdiffgamma,dx,binsize=0.8)
         psddiffomegas= bovy_psd.psd1d(vlosdiffomegas,dx,binsize=0.8)
+        psddiffm= bovy_psd.psd1d(vlosdiffm,dx,binsize=0.8)
+        psddiffm2= bovy_psd.psd1d(vlosdiffm2,dx,binsize=0.8)
         ks= psdfid[0][1:-3]
         scale= 4.*numpy.pi*220.
         bovy_plot.bovy_print(fig_width=7.,axes_labelsize=20)
@@ -172,15 +176,24 @@ def plot_psd_model(plotfilename,type):
         line4= bovy_plot.bovy_plot(ks,4.*scale*numpy.sqrt(psddiffomegas[1][1:-3]),
                                    'b-',lw=2.,zorder=1,
                                    overplot=True)
+        line5= bovy_plot.bovy_plot(ks,10./7.*scale*numpy.sqrt(psddiffm[1][1:-3]),
+                                   'g-',lw=2.,zorder=1,
+                                   overplot=True)
+        line6= bovy_plot.bovy_plot(ks,10./6.*scale*numpy.sqrt(psddiffm2[1][1:-3]),
+                                   'c-',lw=2.,zorder=1,
+                                   overplot=True)
         pyplot.annotate(r'$\mathrm{Spiral\ perturbation}$',
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=20.)
-        l1= pyplot.legend((line1[0],line2[0],line3[0],line4[0]),
+        l1= pyplot.legend((line1[0],line2[0],line3[0],
+                           line4[0],line5[0],line6[0]),
                           (r'$\mathrm{Fiducial}$',
                            r'$\mathrm{Pitch\ angle} = 16^\circ$',
                            r'$\gamma = 17^\circ$',
-                           r'$\Omega_s = 0.65\,\Omega_0$'),
+                           r'$\Omega_s = 0.65\,\Omega_0$',
+                           r'$``\  \&\ m=4$',
+                           r'$``\ \& ``\ \&\ \gamma = 23^\circ$'),
                           loc='upper right',#bbox_to_anchor=(.91,.375),
                           numpoints=8,
                           prop={'size':16},
