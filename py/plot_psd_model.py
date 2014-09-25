@@ -5,9 +5,10 @@ from matplotlib import pyplot
 import bovy_psd
 from plot_psd import _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX
 import galpy_simulations
+_HIVRESSTR= '_hivres'
 def plot_psd_model(plotfilename,type):
     #Load fiducial
-    spvlos= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14.sav')
+    spvlos= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14%s.sav' % _HIVRESSTR)
     potscale= 0.85
     simpsd1d= bovy_psd.psd1d(spvlos*potscale,0.33333333,binsize=0.8)
     tks= simpsd1d[0][1:-3]
@@ -102,8 +103,8 @@ def plot_psd_model(plotfilename,type):
         pyplot.gca().add_artist(l1)
         pyplot.gca().add_artist(l2)
     elif type.lower() == 'bar':
-        vlosbar= galpy_simulations.vlos('../sim/bar_rect.sav')
-        vlosslowbar= galpy_simulations.vlos('../sim/bar_rect_slow.sav')
+        vlosbar= galpy_simulations.vlos('../sim/bar_rect%s.sav' % _HIVRESSTR)
+        vlosslowbar= galpy_simulations.vlos('../sim/bar_rect_slow%s.sav' % _HIVRESSTR)
         eres= 19
         xgrid= numpy.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
                               (_RCXMAX-8.)/8.-_RCDX/8./2.,
@@ -136,10 +137,10 @@ def plot_psd_model(plotfilename,type):
                           prop={'size':16},
                           frameon=False)    
     elif type.lower() == 'spiral':
-        vlosfid= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14.sav')
-        vloslpitch= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-7.sav')
-        vlosdiffgamma= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_gamma0.3.sav')
-        vlosdiffomegas= galpy_simulations.vlos('../sim/spiral_rect_alpha-14.sav')
+        vlosfid= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14%s.sav' % _HIVRESSTR)
+        vloslpitch= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-7%s.sav' % _HIVRESSTR)
+        vlosdiffgamma= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_gamma0.3%s.sav' % _HIVRESSTR)
+        vlosdiffomegas= galpy_simulations.vlos('../sim/spiral_rect_alpha-14%s.sav' % _HIVRESSTR)
         potscale= 0.85
         eres= 19
         xgrid= numpy.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
