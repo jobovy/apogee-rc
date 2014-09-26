@@ -168,7 +168,7 @@ def plot_rckinematics(plotfilename,subsun=False):
     pyplot.rgrids(radii,labels=labels,angle=147.5)
     thetaticks = numpy.arange(0,360,45)
     # set ticklabels location at x times the axes' radius
-    ax.set_thetagrids(thetaticks,frac=1.16)
+    ax.set_thetagrids(thetaticks,frac=1.16,backgroundcolor='w',zorder=3)
     bovy_plot.bovy_text(3.*numpy.pi/4.+0.06,2.095,r'$\mathrm{kpc}$',size=10.)
     pyplot.ylim(0.,2.8)
     #Plot the box
@@ -202,7 +202,7 @@ def plot_rckinematics(plotfilename,subsun=False):
     ys= (ylow-(_RCYMAX+2.25))/(xlow-(_RCXMAX+2.25))*(xs-xlow)+ylow
     rs= numpy.sqrt(xs**2.+ys**2.)/8.
     phis= numpy.arctan2(ys,xs)    
-    line= ax.plot(phis,rs,':',lw=1.,color='k')
+    line= ax.plot(phis,rs,':',lw=1.,color='k',zorder=2)
     line[0].set_clip_on(False)
     xlow=-4.*8.
     ylow= -2.77*8.
@@ -210,7 +210,7 @@ def plot_rckinematics(plotfilename,subsun=False):
     ys= (ylow-(_RCYMIN-2.25))/(xlow-(_RCXMAX+2.25))*(xs-xlow)+ylow
     rs= numpy.sqrt(xs**2.+ys**2.)/8.
     phis= numpy.arctan2(ys,xs)    
-    line= ax.plot(phis,rs,':',lw=1.,color='k')
+    line= ax.plot(phis,rs,':',lw=1.,color='k',zorder=2)
     line[0].set_clip_on(False)
     #Colorbar
     cbaxes = pyplot.axes([0.01+2.*axdx,(1.-tdy)/2.+tdy+0.065,axdx-0.125,0.02])
