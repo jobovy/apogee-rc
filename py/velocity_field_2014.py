@@ -911,7 +911,8 @@ def plot_velocity_field(indx,options,surfmass,meanvr,meanvt,sigmar2,
                              projection='galpolar') #galpolar is in bovy_plot
             #ax= pyplot.subplot(211,projection='galpolar')
         else:
-            ax= pyplot.subplot(111,projection='galpolar')#galpolar is in bovy_plot
+            ax= pyplot.subplot(111,projection='polar')#galpolar is in bovy_plot
+            ax.set_theta_direction(-1) #clockwise
         if not resonance is None:
             for r,corot in resonance:
                 if r < 0.5 or r > 2.:
