@@ -107,7 +107,7 @@ def plot_psd_model(plotfilename,type):
         pyplot.gca().add_artist(l2)
     elif type.lower() == 'bar':
         vlosbar= galpy_simulations.vlos('../sim/bar_rect_alpha0.015%s.sav' % _HIVRESSTR)
-        vlosslowbar= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_slow%s.sav' % '')#_HIVRESSTR)
+        vlosslowbar= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_slow%s.sav' % _HIVRESSTR)
         eres= 19
         xgrid= numpy.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
                               (_RCXMAX-8.)/8.-_RCDX/8./2.,
@@ -144,8 +144,8 @@ def plot_psd_model(plotfilename,type):
         vloslpitch= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-7%s.sav' % _HIVRESSTR)
         vlosdiffgamma= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_gamma0.3%s.sav' % _HIVRESSTR)
         vlosdiffomegas= galpy_simulations.vlos('../sim/spiral_rect_alpha-14%s.sav' % _HIVRESSTR)
-        vlosdiffm= galpy_simulations.vlos('../sim/spiral_rect_m4_alpha-14%s.sav' % '')#_HIVRESSTR)
-        vlosdiffm2= galpy_simulations.vlos('../sim/spiral_rect_m4_alpha-14_gamma0.4%s.sav' % '')#_HIVRESSTR)
+        vlosdiffm= galpy_simulations.vlos('../sim/spiral_rect_m4_alpha-14%s.sav' % _HIVRESSTR)
+        vlosdiffm2= galpy_simulations.vlos('../sim/spiral_rect_m4_alpha-14_gamma0.4%s.sav' % _HIVRESSTR)
         potscale= 0.85
         eres= 19
         xgrid= numpy.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
