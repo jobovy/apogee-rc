@@ -43,6 +43,39 @@ def vlos(savefile):
     vlos= -cospl*dvr+sinpl*dvt
     return vlos[:,:]
     
+def vlos_altrect(savefile):
+    dvr,dvt= read_dmeanvrvt(savefile)
+    resx, resy= dvr.shape[0], dvr.shape[1]
+    #Project onto the line-of-sight
+    from plot_psd import _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX
+    xgrid= numpy.linspace((_RCXMIN-2.25-8.)/8.+_RCDX/8./2.,
+                          (_RCXMAX+2.25-8.)/8.-_RCDX/8./2.,
+                          resx)
+    ygrid= numpy.linspace(_RCYMIN/8.-2.25/8.+_RCDX/8./2.,
+                          _RCYMAX/8.+2.25/8.-_RCDX/8./2.,
+                          resy)
+    xv,yv= numpy.meshgrid(xgrid,ygrid,indexing='ij')
+    rs= numpy.sqrt((1.+xv)**2.+yv**2.)
+    phis= numpy.arctan2(yv,1.+xv)
+    (d,l)= bovy_coords.rphi_to_dl_2d(rs,phis)
+    cospl= numpy.cos(phis+l)
+    sinpl= numpy.sin(phis+l)
+    vlos= -cospl*dvr+sinpl*dvt
+    return vlos[:,:]
+    
+def vlos_polar(savefile):
+    dvr,dvt= read_dmeanvrvt(savefile)
+    resx, resy= dvr.shape[0], dvr.shape[1]
+    #Project onto the line-of-sight
+    xgrid= numpy.linspace(0.,2.*numpy.pi*(1.-1./resy/2.),resx)
+    ygrid= numpy.linspace(0.5,2.,resy)
+    phis,rs= numpy.meshgrid(xgrid,ygrid,indexing='ij')
+    (d,l)= bovy_coords.rphi_to_dl_2d(rs,phis)
+    cospl= numpy.cos(phis+l)
+    sinpl= numpy.sin(phis+l)
+    vlos= -cospl*dvr+sinpl*dvt
+    return vlos[:,:]
+    
 def vlos_elliptical(res=19,cp=0.05,sp=0.,p=0.,beta=0.,xgrid=None,ygrid=None):
     sr= 31.4
     dvramp= 1./(1.-beta)*(1.+0.5*p)*(1.-8.*(sr/220.)**2.)
