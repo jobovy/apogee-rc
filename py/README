@@ -137,3 +137,10 @@ python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
 	--steadyspiralalpha=-14. \
         --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
 
+#elliptical, just one
+python velocity_field_2014.py ../sim/elliptical_rect_vr.ps \
+       --savefile=../sim/elliptical_rect.sav \
+        --elliptical -m 19 -r 19 -g 26 \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --to=-250. --el_tform=-250. --el_tsteady=225. \
+	--el_cp=0.05
