@@ -50,6 +50,14 @@ def velocity_field(parser):
                 xgrid= nu.linspace(0.,2.*m.pi*(1.-1./options.res/2.),
                                    2.*options.res)
             ygrid= nu.linspace(options.rmin,options.rmax,options.res)
+    elif options.altrect:
+        #Grid we do the RC analysis on
+        xgrid= nu.linspace((_RCXMIN-2.25-8.)/8.+_RCDX/8./2.,
+                           (_RCXMAX+2.25-8.)/8.-_RCDX/8./2.,
+                           options.res)
+        ygrid= nu.linspace(_RCYMIN/8.-2.25/8.+_RCDX/8./2.,
+                           _RCYMAX/8.+2.25/8.-_RCDX/8./2.,
+                           options.res)
     else:
         #Grid we do the RC analysis on
         xgrid= nu.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
@@ -1123,6 +1131,9 @@ def get_options():
     parser.add_option("--absolute",action="store_true", 
                       default=False, dest="absolute",
                       help="Plot 'absolute' values, otherwise relative to unevolved DF")
+    parser.add_option("--altrect",action="store_true", 
+                      default=False, dest="altrect",
+                      help="Make the grid in an alternative rectangular grid")
     parser.add_option("--galcoords",action="store_true", 
                       default=False, dest="galcoords",
                       help="Make the grid in (R,azimuth) rather than (X,Y)")
