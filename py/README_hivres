@@ -80,3 +80,11 @@ python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
 	--steadyspiralalpha=-14. \
         --steadyspiraltform=-250. --steadyspiraltsteady=225. #slow growth
 
+#Polar bar
+python velocity_field_2014.py ../sim/bar_polar_vlos.ps \
+       --savefile=../sim/bar_polar_alpha0.015.sav \
+        --bar -m 51 -r 18 -g 101 \
+	--galcoords --plotpolar \
+        --vmin=-0.05 --vmax=0.05 --nt=1 \
+        --nsigma=4 --baralpha=0.015
+
