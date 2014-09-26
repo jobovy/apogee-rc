@@ -82,7 +82,7 @@ python velocity_field_2014.py ../sim/spiral_rect_vr.ps \
 
 #Polar bar
 python velocity_field_2014.py ../sim/bar_polar_vlos.ps \
-       --savefile=../sim/bar_polar_alpha0.015.sav \
+       --savefile=../sim/bar_polar_alpha0.015_hivres.sav \
         --bar -m 51 -r 51 -g 101 \
 	--galcoords --plotpolar \
         --vmin=-0.05 --vmax=0.05 --nt=1 \
