@@ -46,11 +46,14 @@ def determine_vsolar(plotfilename):
     lpowerbetam0p2= large_scale_power(pixrc,vsolars,dx=_RCDX,beta=-0.1)
     line4= bovy_plot.bovy_plot(vsolars,lpowerbetam0p2,
                                '--',dashes=(20,10),
-                               color='0.7',lw=3.,overplot=True)
+                               color='0.6',lw=3.,overplot=True)
     lpowerbetap0p2= large_scale_power(pixrc,vsolars,dx=_RCDX,beta=0.1)
     line5= bovy_plot.bovy_plot(vsolars,lpowerbetap0p2,
                                '--',dashes=(20,10),
-                               color='0.3',lw=3.,overplot=True)
+                               color='0.4',lw=3.,overplot=True)
+    lva= large_scale_power(pixrc,vsolars,vc=220.,dx=_RCDX,hs=6./8.,hR=3./8.)
+    line6= bovy_plot.bovy_plot(vsolars,lva,
+                               '-',color='0.8',lw=5.,overplot=True,zorder=-1)
     #Add legend
     legend1= pyplot.legend((line3[0],line1[0],line2[0]),
                            (r'$V_c = 200\,\mathrm{km\,s}^{-1}$',
@@ -67,19 +70,26 @@ def determine_vsolar(plotfilename):
                            numpoints=2,
                            prop={'size':14},
                            frameon=False)
+    legend3= pyplot.legend((line6[0],),
+                           (r'$\Delta V_a(R_0) =5\,\mathrm{km\,s}^{-1}$',),
+                           loc='lower left',#bbox_to_anchor=(1.,.96),
+                           numpoints=2,
+                           prop={'size':12},
+                           frameon=False)
     pyplot.gca().add_artist(legend1)
     pyplot.gca().add_artist(legend2)
+    pyplot.gca().add_artist(legend3)
     bovy_plot.bovy_end_print(plotfilename)
     return None
 
-def large_scale_power(pix,vsolar,vc=220.,dx=None,beta=0.):
+def large_scale_power(pix,vsolar,vc=220.,dx=None,beta=0.,hs=33.3,hR=3./8.):
     """Determine the power on large scales in the residuals for different solarmotions"""
     out= numpy.empty_like(vsolar)
     binsize= 0.8
     scale= 4.*numpy.pi #0.522677552224
     for ii in range(len(vsolar)):
         resv= pix.plot(lambda x: dvlosgal(x,vc=vc,vtsun=vc+vsolar[ii],
-                                          beta=beta),
+                                          beta=beta,hR=hR,hs=hs),
                        returnz=True,justcalc=True)
         psd1d= bovy_psd.psd1d(resv,dx,binsize=binsize)
         indx= (psd1d[0] > 0.2)*(psd1d[0] < 0.9)
