@@ -204,7 +204,7 @@ def plot_psd_model(plotfilename,type):
     elif type.lower() == 'bird':
         _nSims= 8
         #Read the Bird data
-        birdData= numpy.load('../pecvel/pecvel.npz')
+        birdData= numpy.load('../pecvel/dr12_1_5gyr_8pos.npz')
         #Get residuals for all simulations
         dx= _RCDX
         binsize= .8#.765
@@ -212,6 +212,24 @@ def plot_psd_model(plotfilename,type):
         tmp= bovy_psd.psd1d(birdData['dVlos1'],dx,binsize=binsize) #just to get the size
         ks= tmp[0][1:-3]
         psds= numpy.zeros((len(tmp[1]),_nSims))
+        if True:
+            import apogee.tools.read as apread
+            import pixelize_sample
+            data= apread.rcsample()
+            data= data[data['ADDL_LOGG_CUT'] == 1]
+            #Cut
+            indx= (numpy.fabs(data['RC_GALZ']) < 0.25)*(data['METALS'] > -1000.)
+            print "Using %i stars for low-Z 2D kinematics analysis" % numpy.sum(indx)
+            data= data[indx]
+            #Get residuals
+            dx= _RCDX
+            pix= pixelize_sample.pixelXY(data,
+                                         xmin=_RCXMIN,xmax=_RCXMAX,
+                                         ymin=_RCYMIN,ymax=_RCYMAX,
+                                         dx=dx,dy=dx)
+            resv= pix.plot('VHELIO_AVG',returnz=True,justcalc=True)
+            rc_mask= numpy.ones(resv.shape,dtype='bool')
+            rc_mask[True-numpy.isnan(resv)]= False       
         if _SUBTRACTERRORS:
             for ii in range(_nSims):
                 sim= ii+1
@@ -224,7 +242,8 @@ def plot_psd_model(plotfilename,type):
                     newresv= \
                         numpy.random.normal(size=birdData['dVlos%i' % sim].shape)\
                         *birdData['sig_dVlos%i' % sim].reshape((9,9))\
-                        *(True-birdData['rc_mask'])
+                        *(True-rc_mask)
+#                        *(True-birdData['rc_mask'])
                     noisepsd[jj,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1]
                 psds[:,ii]= tmpPsd-numpy.median(noisepsd,axis=0)
          #Calculate median PSD and spread around this
