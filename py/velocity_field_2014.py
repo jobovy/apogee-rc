@@ -899,7 +899,7 @@ def plot_velocity_field(indx,options,surfmass,meanvr,meanvt,sigmar2,
             vmin, vmax= 1.-20./235.,1+20./235.
             zlabel=r'$\bar{v}_{\mathrm{los}} / v_0$'
         else:
-            plotthis= (meanvt[:,:,indx]-meanvt[:,:,indx])*nu.sin(phis+ls)\
+            plotthis= (meanvt[:,:,indx]-meanvt_init[:,:])*nu.sin(phis+ls)\
                 -meanvr[:,:,indx]*nu.cos(phis+ls)
             vmin, vmax= -20./235.,20./235.
             zlabel=r'$\bar{v}_{\mathrm{los}} / v_0-\bar{v}_{\mathrm{los}}^0 / v_0$'
