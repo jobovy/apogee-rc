@@ -196,7 +196,8 @@ def plot_2dkinematics(basesavefilename,datafilename=None):
     bovy_plot.bovy_end_print(basesavefilename+'_FFTPSD.'+_EXT)
     return None
 
-def dvlosgal(data,beta=0.,vc=220.,vtsun=_VTSUN,vrsun=_VRSUN):
+def dvlosgal(data,beta=0.,vc=220.,vtsun=_VTSUN,vrsun=_VRSUN,
+             hR=3./8.,hs=33.3):
     l= data['GLON']*_DEGTORAD
     sinl= numpy.sin(data['GLON']*_DEGTORAD)
     cosl= numpy.cos(data['GLON']*_DEGTORAD)
@@ -206,8 +207,8 @@ def dvlosgal(data,beta=0.,vc=220.,vtsun=_VTSUN,vrsun=_VRSUN):
         +_VZSUN*sinb/cosb\
         -(vc*(data['RC_GALR']/8.)**beta\
               -asymmetricDriftModel.va(data['RC_GALR']/8.,31.4/vc,
-                                       vc=(data['RC_GALR']/8.)**beta,hR=3./8.,
-                                       hs=33.3)*vc)*numpy.sin(l+data['RC_GALPHI'])
+                                       vc=(data['RC_GALR']/8.)**beta,hR=hR,
+                                       hs=hs)*vc)*numpy.sin(l+data['RC_GALPHI'])
     return vlosgal
 
 def vlosgal(data,vtsun=_VTSUN,vrsun=_VRSUN):
