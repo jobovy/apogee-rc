@@ -6,6 +6,8 @@ _DEBUG= False
 _EXT= 'ps'
 if __name__ == '__main__':
     #Make various selection function figures
+    basefilename= '../dr12-catalog/'
+    basefilename= 'tex-catalog/'
     #Load selection function
     if _DEBUG:
         #Only load a small subset for testing
@@ -18,18 +20,18 @@ if __name__ == '__main__':
     for cohort in cohorts:
         bovy_plot.bovy_print(fig_width=8.,fig_height=4.)
         apo.plot_obs_progress(cohort=cohort,add_cohort_label=True)
-        bovy_plot.bovy_end_print('../tex-catalog/obsprogress-%s.%s' % (cohort,_EXT))
+        bovy_plot.bovy_end_print(basefilename+'obsprogress-%s.%s' % (cohort,_EXT))
     #Now plot the color-magnitude diagram
     bovy_plot.bovy_print()
     apo.plotColorMag(bins=101,specbins=51,onedhistsbins=201,onedhistsspecbins=101,cntrSmooth=.75)
-    bovy_plot.bovy_end_print('../tex-catalog/colorMagSF.%s' % _EXT)
+    bovy_plot.bovy_end_print(basefilename+'colorMagSF.%s' % _EXT)
     #Now plot the selection function in real-space
     bovy_plot.bovy_print(fig_width=6.)
     apo.plot_selfunc_xy(vmax=15.)
-    bovy_plot.bovy_end_print('../tex-catalog/sfxy.%s' % _EXT)
+    bovy_plot.bovy_end_print(basefilename+'sfxy.%s' % _EXT)
     bovy_plot.bovy_print(fig_width=6.)
     apo.plot_selfunc_xy(type='rz',vmax=15.)
-    bovy_plot.bovy_end_print('../tex-catalog/sfrz.%s' % _EXT)
+    bovy_plot.bovy_end_print(basefilename+'sfrz.%s' % _EXT)
     #Now calculate the KS probabilities and plot the histogram
     ksshort= apo.check_consistency('short','short')
     ksmedium= apo.check_consistency('medium','medium')
@@ -63,7 +65,7 @@ if __name__ == '__main__':
                   numpoints=2,
                   prop={'size':16},
                   frameon=False)
-    bovy_plot.bovy_end_print('../tex-catalog/sfks.%s' % _EXT)
+    bovy_plot.bovy_end_print(basefilename+'sfks.%s' % _EXT)
     #Also plot the cumulative distribution
     bovy_plot.bovy_print()
     lineshort= bovy_plot.bovy_plot(sorted(ksshort),
@@ -81,4 +83,4 @@ if __name__ == '__main__':
                                   'k-.',overplot=True,zorder=1)
     bovy_plot.bovy_plot([0.,1.],[0.,1.],'-',color='0.5',lw=2.,overplot=True,
                         zorder=0)
-    bovy_plot.bovy_end_print('../tex-catalog/sfks_cumul.%s' % _EXT)
+    bovy_plot.bovy_end_print(basefilename+'sfks_cumul.%s' % _EXT)
