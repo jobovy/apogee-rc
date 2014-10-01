@@ -151,7 +151,7 @@ def plot_psd(plotfilename):
         #                           'k-.',lw=2.,overplot=True,dashes=(10,5,3,5))
         pyplot.legend((line1[0],),
 #                      (r'$\mathrm{Spiral}:\ \delta \phi_{\mathrm{rms}} = (10\,\mathrm{km\,s}^{-1})^2,$'+'\n'+r'$\mathrm{pitch\ angle} = 8^\circ$'+'\n'+r'$\mathrm{Sun\ near\ 2\!:\!1\ Lindblad\ resonance}$',),
-                      (r'$\mathrm{Bar}:\ F_{R,\mathrm{bar}} / F_{R,\mathrm{axi}} = 1.5\%,$'+'\n'+r'$\mathrm{angle} = 25^\circ$'+'\n'+r'$\mathrm{Sun\ near\ 2\!:\!1\ Lindblad\ resonance}$',),
+                      (r'$\mathrm{Bar}:\ F_{R,\mathrm{bar}} / F_{R,\mathrm{axi}} = 1.5\%,$'+'\n'+r'$\mathrm{angle} = 25^\circ,$'+'\n'+r'$\mathrm{Sun\ near\ 2\!:\!1\ Lindblad\ resonance}$',),
                       loc='upper right',#bbox_to_anchor=(.91,.375),
                       numpoints=8,
                       prop={'size':14},
