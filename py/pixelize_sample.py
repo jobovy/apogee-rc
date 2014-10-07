@@ -182,7 +182,6 @@ class pixelXY:
                                    interpolation='nearest',
                                    xlabel=xlabel,ylabel=ylabel,
                                    xrange=xrange,yrange=yrange,
-                                   contours=False,
                                    **kwargs)
         if returnz:
             return z2d

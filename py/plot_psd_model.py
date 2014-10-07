@@ -66,13 +66,13 @@ def plot_psd_model(plotfilename,type):
                                    'k-.',lw=2.,zorder=1,
                                    overplot=True)
         line4= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdcpp2[1][1:-3]),
-                                   '-',lw=2.,color='y',zorder=1,
+                                   '-',lw=2.,color='c',zorder=1,
                                    overplot=True)
         line5= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdspp2[1][1:-3]),
-                                   '--',lw=2.,color='y',zorder=1,
+                                   '--',lw=2.,color='c',zorder=1,
                                    overplot=True)
         line6= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdcpspp2[1][1:-3]),
-                                   '-.',lw=2.,color='y',zorder=1,
+                                   '-.',lw=2.,color='c',zorder=1,
                                    overplot=True)
         line7= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdcppm3[1][1:-3]),
                                    '-',lw=2.,color='r',zorder=1,
@@ -126,7 +126,7 @@ def plot_psd_model(plotfilename,type):
                                    xrange=xrange,
                                    yrange=[0.,11.9],zorder=1)
         line2= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdslowbar[1][1:-3]),
-                                   'y-',lw=2.,
+                                   'c-',lw=2.,
                                    overplot=True,zorder=1)
         pyplot.annotate(r'$\mathrm{Bar\ perturbation\ (rotating}\ m=2\ \mathrm{mode})$',
                         (0.5,1.08),xycoords='axes fraction',
@@ -170,7 +170,7 @@ def plot_psd_model(plotfilename,type):
                                    yrange=[0.,11.9],zorder=1)
         potscale= 0.25
         line2= bovy_plot.bovy_plot(ks,potscale*scale*numpy.sqrt(psdlpitch[1][1:-3]),
-                                   'y-',lw=2.,zorder=1,
+                                   '-',lw=2.,zorder=1,color='gold',
                                    overplot=True)
         potscale= 0.5
         line3= bovy_plot.bovy_plot(ks,potscale*scale*numpy.sqrt(psddiffgamma[1][1:-3]),
