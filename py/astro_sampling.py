@@ -126,7 +126,9 @@ def astro_sampling(parser):
                                                           plotthis[goodz,ii],
                                                           k=3)
             new_plotthis[:,ii]= tip(fehzs)
-            new_plotthis[fehs < numpy.nanmax(isodist.Z2FEH(zs[True-goodz],zsolar=0.017)),ii]= numpy.nan
+            try:
+                new_plotthis[fehs < numpy.nanmax(isodist.Z2FEH(zs[True-goodz],zsolar=0.017)),ii]= numpy.nan
+            except ValueError: continue
         plotthis= new_plotthis
         xlabel= r'$[\mathrm{Fe/H}]\,(\mathrm{dex})$'
     else:
