@@ -40,12 +40,14 @@ def plot_age(plotfilename,massfile,omegafile):
     plpostage= numpy.exp(postage_spline(numpy.log10(plages)))
     plpostage/= numpy.nansum(plpostage)*(plages[1]-plages[0])
     bovy_plot.bovy_print(fig_width=7.)
+    yrange=[0.,0.4]
+#    yrange=[0.,0.7]
     bovy_plot.bovy_plot(plages,plpostage,
                         'k-',lw=2.,
                         xlabel=r'$\mathrm{Age}\,(\mathrm{Gyr})$',
                         ylabel=r'$p(\mathrm{RC | population\ Age})$',
                         xrange=[0.,10.],
-                        yrange=[0.,0.4],
+                        yrange=yrange,
                         zorder=10,loglog=False)
     #Baseline
     bovy_plot.bovy_plot(plages,1./9.2*numpy.ones(len(plages)),
