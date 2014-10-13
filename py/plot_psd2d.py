@@ -55,7 +55,7 @@ def plot_psd2d(plotfilename):
     if True:
         spvlos= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_hivres.sav')[1::2,1::2]
         potscale= 1.
-        spvlos+= numpy.random.normal(size=spvlos.shape)*resvunc/220./potscale
+k        spvlos+= numpy.random.normal(size=spvlos.shape)*resvunc/220./potscale
         simpsd2d= bovy_psd.psd2d(spvlos*220.*potscale)
         bovy_plot.bovy_print()
         bovy_plot.bovy_dens2d(simpsd2d.T,
