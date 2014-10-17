@@ -27,6 +27,7 @@ _NNOISE= 1000
 _PLOTBAND= False
 _SIGNIF= 0.95
 _SUBTRACTERRORS= 1.
+_PROPOSAL= True
 #Parameters of the pixelizations
 #APOGEE-RC
 _RCXMIN= 5.5
@@ -88,7 +89,10 @@ def plot_psd(plotfilename):
     else:
         xrange= [0.,1.]
     yrange= [0.,11.9]
-    bovy_plot.bovy_print(fig_width=7.5,fig_height=4.5)
+    if _PROPOSAL:
+        bovy_plot.bovy_print(fig_width=7.5,fig_height=2.5)
+    else:
+        bovy_plot.bovy_print(fig_width=7.5,fig_height=4.5)
     bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
                         'ko',lw=2.,
