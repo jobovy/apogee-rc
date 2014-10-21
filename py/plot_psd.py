@@ -27,7 +27,7 @@ _NNOISE= 1000
 _PLOTBAND= False
 _SIGNIF= 0.95
 _SUBTRACTERRORS= 1.
-_PROPOSAL= True
+_PROPOSAL= False
 #Parameters of the pixelizations
 #APOGEE-RC
 _RCXMIN= 5.5
@@ -93,7 +93,7 @@ def plot_psd(plotfilename):
         bovy_plot.bovy_print(fig_width=7.5,fig_height=2.5)
     else:
         bovy_plot.bovy_print(fig_width=7.5,fig_height=4.5)
-    bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
+    apop= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
                         'ko',lw=2.,
                         zorder=12,
@@ -153,7 +153,7 @@ def plot_psd(plotfilename):
         #line2= bovy_plot.bovy_plot(tks,
         #                           scale*numpy.sqrt(simpsd1d[1][1:-3]+4./scale**2.),
         #                           'k-.',lw=2.,overplot=True,dashes=(10,5,3,5))
-        pyplot.legend((line1[0],),
+        l1= pyplot.legend((line1[0],),
 #                      (r'$\mathrm{Spiral}:\ \delta \phi_{\mathrm{rms}} = (10\,\mathrm{km\,s}^{-1})^2,$'+'\n'+r'$\mathrm{pitch\ angle} = 8^\circ$'+'\n'+r'$\mathrm{Sun\ near\ 2\!:\!1\ Lindblad\ resonance}$',),
                       (r'$\mathrm{Bar}:\ F_{R,\mathrm{bar}} / F_{R,\mathrm{axi}} = 1.5\%,$'+'\n'+r'$\mathrm{angle} = 25^\circ,$'+'\n'+r'$\mathrm{Sun\ near\ 2\!:\!1\ Lindblad\ resonance}$',),
                       loc='upper right',#bbox_to_anchor=(.91,.375),
@@ -171,11 +171,21 @@ def plot_psd(plotfilename):
                         marker='d',color='0.6',mec='0.6',
                         mew=1.5,mfc='none')
     if _ADDGCS:
-        ks_gcs, psd_gcs, e_psd_gcs= plot_psd_gcs()
+        ks_gcs, psd_gcs, e_psd_gcs, gcsp= plot_psd_gcs()
     if _ADDRAVE:
-        ks_rave, psd_rave, e_psd_rave= plot_psd_rave()
+        ks_rave, psd_rave, e_psd_rave, ravep= plot_psd_rave()
     if _ADDRED:
         plot_psd_red()
+    l2= pyplot.legend((apop[0],ravep[0],gcsp[0]),
+                      (r'$\mathrm{APOGEE}$',
+                       r'$\mathrm{RAVE}$',
+                       r'$\mathrm{GCS}$'),
+                      loc='upper right',bbox_to_anchor=(.95,.750),
+                      numpoints=1,
+                      prop={'size':14},
+                      frameon=False)
+    pyplot.gca().add_artist(l1)
+    pyplot.gca().add_artist(l2)
     #Plot an estimate of the noise, based on looking at the bands
     nks= numpy.linspace(2.,120.,2)
     if not 'mba23' in socket.gethostname():
@@ -278,7 +288,7 @@ def plot_psd_gcs():
         newresv= numpy.random.normal(size=resv.shape)*resvunc
         noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][1:-3]
     ks= psd1d[0][1:-3]
-    bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
+    gcsp= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),'kx',mew=2.,
                         overplot=True)
     pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
@@ -303,7 +313,8 @@ def plot_psd_gcs():
     return (ks,
             scale*numpy.sqrt(psd1d[1][1:-3]
                              -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-            scale*0.5*psd1d[2][1:-3]/numpy.sqrt(psd1d[1][1:-3]))
+            scale*0.5*psd1d[2][1:-3]/numpy.sqrt(psd1d[1][1:-3]),
+            gcsp)
 
 def plot_psd_rave():
     data= fitsio.read(os.path.join(os.getenv('DATADIR'),'rave','ravedr4_rc.fits'))
@@ -334,7 +345,7 @@ def plot_psd_rave():
         newresv= numpy.random.normal(size=resv.shape)*resvunc
         noisepsd[ii,:]= bovy_psd.psd1d(newresv,dx,binsize=binsize)[1][1:-3]
     ks= psd1d[0][1:-3]
-    bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
+    ravep= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
                                             -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),'k+',mew=2.,
                         overplot=True)
     pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
@@ -370,7 +381,8 @@ def plot_psd_rave():
     return (ks,
             scale*numpy.sqrt(psd1d[1][1:-3]
                              -_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
-            scale*0.5*psd1d[2][1:-3]/numpy.sqrt(psd1d[1][1:-3]))
+            scale*0.5*psd1d[2][1:-3]/numpy.sqrt(psd1d[1][1:-3]),
+            ravep)
 
 def plot_psd_red():
     data= readAndHackHoltz.readAndHackHoltz()
