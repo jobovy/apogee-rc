@@ -193,14 +193,21 @@ def plot_psd_model(plotfilename,type):
                            line4[0],line5[0],line6[0]),
                           (r'$\mathrm{Fiducial\ spiral}$',
                            r'$\mathrm{Pitch\ angle} = 16^\circ$',
-                           r'$\gamma = 17^\circ$',
-                           r'$\Omega_s = 0.65\,\Omega_0$',
-                           r'$``\  \&\ m=4$',
-                           r'$``\ \& ``\ \&\ \gamma = 23^\circ$'),
+                           r'$\gamma = 17^\circ$'),
                           loc='upper right',#bbox_to_anchor=(.91,.375),
                           numpoints=8,
                           prop={'size':16},
                           frameon=False)    
+        l2= pyplot.legend((line4[0],line5[0],line6[0]),
+                          (r'$\Omega_s = 0.65\,\Omega_0$',
+                           r'$\Omega_s = 0.65\,\Omega_0\  \&\ m=4$',
+                           r'$\Omega_s = 0.65\,\Omega_0\ \&\ m=4\ \&\ \gamma = 23^\circ$'),
+                          loc='lower left',#bbox_to_anchor=(.91,.375),
+                          numpoints=8,
+                          prop={'size':16},
+                          frameon=False) 
+        pyplot.gca().add_artist(l1)
+        pyplot.gca().add_artist(l2)
     elif type.lower() == 'bird':
         _nSims= 8
         #Read the Bird data
