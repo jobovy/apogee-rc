@@ -119,14 +119,14 @@ def plot_psd_model(plotfilename,type):
         scale= 4.*numpy.pi*220.
         bovy_plot.bovy_print(fig_width=8.,fig_height=4.5,axes_labelsize=20)
         line1= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdbar[1][1:-3]),
-                                   'r-',lw=2.,
+                                   '-',lw=2.,color='0.65',
                                    semilogx=True,
 #                                   xlabel=r'$k\,(\mathrm{kpc}^{-1})$',
                                    ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1})$',
                                    xrange=xrange,
                                    yrange=[0.,11.9],zorder=1)
         line2= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdslowbar[1][1:-3]),
-                                   'c-',lw=2.,
+                                   'r-',lw=2.,
                                    overplot=True,zorder=1)
         pyplot.annotate(r'$\mathrm{Bar\ perturbation\ (rotating}\ m=2\ \mathrm{mode})$',
                         (0.5,1.08),xycoords='axes fraction',
@@ -283,7 +283,7 @@ def plot_psd_model(plotfilename,type):
     scale= 4.*numpy.pi*220.
     bovy_plot.bovy_plot(tks,
                         scale*numpy.sqrt(simpsd1d[1][1:-3]),
-                        '-',color='0.65',lw=2.,overplot=True,zorder=0)
+                        '-',color='0.65',lw=4.,overplot=True,zorder=0)
     if not type.lower() == 'bird':
         nullfmt   = NullFormatter()         # no labels
         pyplot.gca().xaxis.set_major_formatter(nullfmt)
