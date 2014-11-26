@@ -1,12 +1,12 @@
-# fancy_metallicity_gradient: make a fancy plot a la Fan or Zhu & Menard of spectra as a function of R to illustrate the metallicity gradient
-# python fancy_metallicity_gradient.py fancy_metal.png fancy_metal.sav
+# bovy_metallicity_gradient: make a fancy plot a la Fan or Zhu & Menard of spectra as a function of R to illustrate the metallicity gradient
+# python bovy_metallicity_gradient.py bovy_metal.png bovy_metal.sav
 import os
 import sys
 import pickle
 import numpy
 from galpy.util import bovy_plot, save_pickles
 import apogee.tools.read as apread
-def fancy_metallicity_gradient(plotfilename,savefilename):
+def bovy_metallicity_gradient(plotfilename,savefilename):
     # First read the RC catalog and cut it to stars near the plane
     data= apread.rcsample()
     indx= (numpy.fabs(data['RC_GALZ']) < 0.25)*(data['METALS'] > -1000.)
@@ -73,4 +73,4 @@ def fancy_metallicity_gradient(plotfilename,savefilename):
     return None
 
 if __name__ == '__main__':
-    fancy_metallicity_gradient(sys.argv[1],sys.argv[2])
+    bovy_metallicity_gradient(sys.argv[1],sys.argv[2])
