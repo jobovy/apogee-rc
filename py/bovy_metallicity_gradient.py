@@ -1,5 +1,14 @@
 # bovy_metallicity_gradient: make a fancy plot a la Fan or Zhu & Menard of spectra as a function of R to illustrate the metallicity gradient
+#
+# Use as:
+#
 # python bovy_metallicity_gradient.py bovy_metal.png bovy_metal.sav
+#
+# Requires:
+#
+#   apogee package and associated data (https://github.com/jobovy/apogee; spectra will be downloaded automatically, but slow)
+#   galpy: for plotting (https://github.com/jobovy/galpy)
+#
 import os
 import sys
 import pickle
