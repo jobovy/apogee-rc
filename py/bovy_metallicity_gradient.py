@@ -15,6 +15,7 @@ import pickle
 import numpy
 from galpy.util import bovy_plot, save_pickles
 import apogee.tools.read as apread
+_PLOTMAD= False
 def bovy_metallicity_gradient(plotfilename,savefilename):
     # First read the RC catalog and cut it to stars near the plane
     data= apread.rcsample()
@@ -53,15 +54,21 @@ def bovy_metallicity_gradient(plotfilename,savefilename):
                 allspec[:,jj]= specdata
                 allspec[specerr > 1.,jj]= numpy.nan
             for jj in range(len(spec)):
-                median_spec[jj,ii]= \
-                    numpy.median(allspec[jj,True-numpy.isnan(allspec[jj,:])])
+                if _PLOTMAD:
+                    median_spec[jj,ii]= \
+                        numpy.median(numpy.fabs(allspec[jj,True-numpy.isnan(allspec[jj,:])]-numpy.median(allspec[jj,True-numpy.isnan(allspec[jj,:])])))
+                else:
+                    median_spec[jj,ii]= \
+                        numpy.median(allspec[jj,
+                                             True-numpy.isnan(allspec[jj,:])])
         save_pickles(savefilename,median_spec)
-    # Normalization
-    median_spec[median_spec > .98]= .98 #focus on real absorption lines
-    roindx= numpy.argmin(numpy.fabs(Rs-8.))
-    for jj in range(len(spec)):
-        #Normalize by the solar radius
-        median_spec[jj,:]/= numpy.median(median_spec[jj,roindx-3:roindx+4])
+    if not _PLOTMAD:
+        # Normalization
+        median_spec[median_spec > .98]= .98 #focus on real absorption lines
+        roindx= numpy.argmin(numpy.fabs(Rs-8.))
+        for jj in range(len(spec)):
+            # Normalize by the solar radius
+            median_spec[jj,:]/= numpy.median(median_spec[jj,roindx-3:roindx+4])
     # Now plot
     startindx, endindx= 3652, 4100#3915
     bovy_plot.bovy_print(fig_width=7.,fig_height=4.)
