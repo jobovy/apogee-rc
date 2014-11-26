@@ -1,5 +1,8 @@
 # fancy_metallicity_gradient: make a fancy plot a la Fan or Zhu & Menard of spectra as a function of R to illustrate the metallicity gradient
+# python fancy_metallicity_gradient.py fancy_metal.png fancy_metal.sav
+import os
 import sys
+import pickle
 import numpy
 from galpy.util import bovy_plot, save_pickles
 import apogee.tools.read as apread
@@ -20,11 +23,14 @@ def fancy_metallicity_gradient(plotfilename,savefilename):
         median_spec= pickle.load(savefile)
         savefile.close()
     else:
-        median_spec= numpy.empty((len(spec),nR))
+        median_spec= numpy.zeros((len(spec),nR))
         # Now run through all the spectra and get the median
+        tot= 0
         for ii in range(nR):
             indx= (data['RC_GALR'] >= Rs[ii]-dR/2.)\
                 *(data['RC_GALR'] < Rs[ii]+dR/2.)
+            tot+= numpy.sum(indx)
+            print numpy.sum(indx), tot
             allspec= numpy.empty((len(spec),numpy.sum(indx)))
             for jj in range(numpy.sum(indx)):
                 specdata= \
@@ -37,22 +43,34 @@ def fancy_metallicity_gradient(plotfilename,savefilename):
                                       ext=2,header=False)
                 allspec[:,jj]= specdata
                 allspec[specerr > 1.,jj]= numpy.nan
-            median_spec[:,ii]= numpy.median(allspec[True-numpy.isnan(allspec)],
-                                            axis=1)
+            for jj in range(len(spec)):
+                median_spec[jj,ii]= \
+                    numpy.median(allspec[jj,True-numpy.isnan(allspec[jj,:])])
         save_pickles(savefilename,median_spec)
+    # Normalization
+    median_spec[median_spec > .98]= .98 #focus on real absorption lines
+    roindx= numpy.argmin(numpy.fabs(Rs-8.))
+    for jj in range(len(spec)):
+        #Normalize by the solar radius
+        median_spec[jj,:]/= numpy.median(median_spec[jj,roindx-3:roindx+4])
     # Now plot
-    wave= 10.**(numpy.arange(hdr['CRVAL1'],
-                             hdr['CRVAL1']+len(spec)*hdr['CDELT1'],
-                             hdr['CDELT1']))
-    bovy_plot.bovy_print()
-    bovy_plot.bovy_dens2d(median_spec.T,origin='lower',cmap='afmhot',
-                          vmin=0.5,vmax=1.,
-                          xrange=[wave[0],wave[-1]],
+    startindx, endindx= 3652, 4100#3915
+    bovy_plot.bovy_print(fig_width=7.,fig_height=4.)
+    bovy_plot.bovy_dens2d((1.-(median_spec[startindx:endindx,:]-1.)).T,
+                          origin='lower',cmap='coolwarm',#cmap='afmhot',
+                          vmin=0.965,vmax=1.035,
+                          interpolation='bicubic',
+                          aspect=(hdr['CRVAL1']+(endindx-0.5)*hdr['CDELT1']-hdr['CRVAL1']-(startindx-0.5)*hdr['CDELT1'])/(Rs[-1]+dR/2.-Rs[0]+dR/2.)/2.,
+                          xrange=[hdr['CRVAL1']+(startindx-0.5)*hdr['CDELT1']-numpy.log10(15000.),
+                                  hdr['CRVAL1']+(endindx-0.5)*hdr['CDELT1']-numpy.log10(15000)],
                           yrange=[Rs[0]-dR/2.,Rs[-1]+dR/2.],
-                          xlabel=r'$\lambda\,(\AA)$',
+                          xlabel=r'$\log \lambda / 15,000 \AA$',
                           ylabel=r'$R\,(\mathrm{kpc})$')
+    # Draw solar line
+    bovy_plot.bovy_plot([-1000000000,100000000],[8.,8.],'k--',lw=1.5,
+                        overplot=True)
     bovy_plot.bovy_end_print(plotfilename)
     return None
 
 if __name__ == '__main__':
-    fancy_metallicity_gradient(sys.argv[1],sys.argv[2]))
+    fancy_metallicity_gradient(sys.argv[1],sys.argv[2])
