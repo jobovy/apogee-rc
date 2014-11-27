@@ -15,7 +15,11 @@ import pickle
 import numpy
 from galpy.util import bovy_plot, save_pickles
 import apogee.tools.read as apread
+# Plotting options
 _PLOTMAD= False
+_NORMFE= True
+_HIZ= True
+# Lines
 line_labels= {}
 line_labels['fe']= r'$\mathrm{Fe\ I}$'
 line_labels['mg']= r'$\mathrm{Mg\ I}$'
@@ -42,7 +46,10 @@ _NII_lines= [15609.944,15636.926,16588.970,16593.827,16678.266,16820.064,
 def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     # First read the RC catalog and cut it to stars near the plane
     data= apread.rcsample()
-    indx= (numpy.fabs(data['RC_GALZ']) < 0.25)*(data['METALS'] > -1000.)
+    if _HIZ:
+        indx= (numpy.fabs(data['RC_GALZ']) > 0.6)*(data['METALS'] > -1000.)
+    else:
+        indx= (numpy.fabs(data['RC_GALZ']) < 0.25)*(data['METALS'] > -1000.)
     data= data[indx]
     # Now go through bins in R
     Rmin, Rmax, dR= 5.5, 13., 0.1
@@ -85,13 +92,42 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
                         numpy.median(allspec[jj,
                                              True-numpy.isnan(allspec[jj,:])])
         save_pickles(savefilename,median_spec)
-    if not _PLOTMAD:
-        # Normalization
-        median_spec[median_spec > .98]= .98 #focus on real absorption lines
+    # Wavelengths
+    wave= 10.**(numpy.arange(hdr['CRVAL1'],
+                             hdr['CRVAL1']+len(spec)*hdr['CDELT1'],
+                             hdr['CDELT1']))
+    # Normalization, first calculate the spectrum near Ro
+    absmax= 0.965
+    absindx= median_spec > absmax
+    median_spec[absindx]= absmax #focus on real absorption lines
+    rospec= numpy.zeros(len(spec))
+    roindx= numpy.argmin(numpy.fabs(Rs-8.))
+    for jj in range(len(spec)):
+        rospec[jj]= numpy.median(median_spec[jj,roindx-3:roindx+4])
+    if _NORMFE and not _PLOTMAD:
+        # Normalize by the difference in Fe
+        feindx= numpy.zeros(len(spec),dtype='bool')
+        for line in _FEI_lines:
+            wavindx= numpy.argmin(numpy.fabs(wave-line))
+            feindx[wavindx-2:wavindx+3]= True
+            feindx[wavindx-4:wavindx+5]= True
+        median_spec= numpy.log(median_spec)
+        rospec= numpy.log(rospec)
+        for jj in range(nR):
+            fehdiff= numpy.median(median_spec[feindx,jj]-rospec[feindx])
+#            print fehdiff, numpy.median(numpy.fabs(median_spec[feindx,jj]-rospec[feindx]-fehdiff))
+            median_spec[:,jj]= (median_spec[:,jj]-rospec)-fehdiff
+        median_spec[absindx]= 0.
+        vmin, vmax= -0.02, 0.02
+    elif not _PLOTMAD:
+        # Normalization by spectrum at Ro
         roindx= numpy.argmin(numpy.fabs(Rs-8.))
-        for jj in range(len(spec)):
+        for jj in range(nR):
             # Normalize by the solar radius
-            median_spec[jj,:]/= numpy.median(median_spec[jj,roindx-3:roindx+4])
+            median_spec[:,jj]/= rospec
+        median_spec-= 1. 
+        vmin=-0.035
+        vmax=0.035
     # Now plot
     if False:
         startindx, endindx= 3652, 4100#3915
@@ -100,9 +136,10 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     else:
         startindx, endindx= 2500, 3100
     bovy_plot.bovy_print(fig_width=7.,fig_height=4.)
-    bovy_plot.bovy_dens2d((1.-(median_spec[startindx:endindx,:]-1.)).T,
-                          origin='lower',cmap='coolwarm',#cmap='afmhot',
-                          vmin=0.965,vmax=1.035,
+    bovy_plot.bovy_dens2d(-median_spec[startindx:endindx,:].T,
+                           origin='lower',cmap='coolwarm',#cmap='afmhot',
+                           vmin=vmin,vmax=vmax,
+#                          colorbar=True,shrink=0.78,
                           interpolation='bicubic',
                           aspect=(hdr['CRVAL1']+(endindx-0.5)*hdr['CDELT1']-hdr['CRVAL1']-(startindx-0.5)*hdr['CDELT1'])/(Rs[-1]+dR/2.-Rs[0]+dR/2.)/2.,
                           xrange=[hdr['CRVAL1']+(startindx-0.5)*hdr['CDELT1']-numpy.log10(15000.),
@@ -114,9 +151,6 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     bovy_plot.bovy_plot([-1000000000,100000000],[8.,8.],'k--',lw=1.5,
                         overplot=True)
     # Label the lines
-    wave= 10.**(numpy.arange(hdr['CRVAL1'],
-                             hdr['CRVAL1']+len(spec)*hdr['CDELT1'],
-                             hdr['CDELT1']))
     _label_lines('fe',wave[startindx],wave[endindx])
     _label_lines('mg',wave[startindx],wave[endindx])
     _label_lines('si',wave[startindx],wave[endindx])
