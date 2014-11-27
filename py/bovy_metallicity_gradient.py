@@ -97,7 +97,10 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
                              hdr['CRVAL1']+len(spec)*hdr['CDELT1'],
                              hdr['CDELT1']))
     # Normalization, first calculate the spectrum near Ro
-    absmax= 0.965
+    if _NORMFE:
+        absmax= 0.965
+    else:
+        absmax= 0.98
     absindx= median_spec > absmax
     median_spec[absindx]= absmax #focus on real absorption lines
     rospec= numpy.zeros(len(spec))
