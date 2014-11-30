@@ -23,17 +23,20 @@ _PLOTMAD= False
 _HIZ= False
 # Lines
 line_labels= {}
-line_labels['fe']= r'$\mathrm{Fe\ I}$'
-line_labels['mg']= r'$\mathrm{Mg\ I}$'
-line_labels['al']= r'$\mathrm{Al\ I}$'
-line_labels['si']= r'$\mathrm{Si\ I}$'
-line_labels['k']= r'$\mathrm{K\ I}$'
-line_labels['ca']= r'$\mathrm{Ca\ I}$'
-line_labels['ti']= r'$\mathrm{Ti\ I}$'
-line_labels['cr']= r'$\mathrm{Cr\ I}$'
-line_labels['ni']= r'$\mathrm{Ni\ I}$'
+line_labels['fe']= r'$\mathrm{Fe\kern 0.1em I}$'
+line_labels['mg']= r'$\mathrm{Mg\kern 0.1em I}$'
+line_labels['al']= r'$\mathrm{Al\kern 0.1em I}$'
+line_labels['si']= r'$\mathrm{Si\kern 0.1em I}$'
+line_labels['k']= r'$\mathrm{K\kern 0.1em I}$'
+line_labels['ca']= r'$\mathrm{Ca\kern 0.1em I}$'
+line_labels['ti']= r'$\mathrm{Ti\kern 0.1em I}$'
+line_labels['cr']= r'$\mathrm{Cr\kern 0.1em I}$'
+line_labels['ni']= r'$\mathrm{Ni\kern 0.1em I}$'
+line_labels['mn']= r'$\mathrm{Mn\kern 0.1em I}$'
+line_labels['s']= r'$\mathrm{S\kern 0.1em I}$'
+line_labels['oh']= r'$\mathrm{OH}$'
 _FEI_lines= [15198.644,15211.682,15399.925,15494.572,15652.786,15969.229,
-             16045.040,16157.660,16169.448]
+             16045.040,16157.660,16169.448,16697.635]
 _MGI_lines= [15745.017,15753.203,15770.108,15883.839,15890.541,15893.826,
              15958.836]
 _ALI_lines= [16723.524,16767.938]
@@ -42,9 +45,12 @@ _SII_lines= [15365.359,15381.033,15837.928,15964.424,16064.397,16099.184,
 _KI_lines= [15167.211,15172.521]
 _CAI_lines= [16141.232,16155.176,16159.650,16161.778]
 _TII_lines= [15548.003,15607.106,15703.269,15719.867,16639.705]
-_CRI_lines= [15684.348,15864.548]
+_CRI_lines= [15684.348,15864.548,15470.129]
 _NII_lines= [15609.944,15636.926,16588.970,16593.827,16678.266,16820.064,
              16823.354]
+_MNI_lines= [15677.437,16712.565]
+_SI_lines= [15406.540,15426.490,15474.043,15482.712]
+_OH_lines= []
 def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     # First read the RC catalog and cut it to stars near the plane
     data= apread.rcsample()
@@ -127,8 +133,8 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     bovy_plot.bovy_print(fig_width=8.,fig_height=3.,
                          axes_labelsize=10,text_fontsize=9,legend_fontsize=9,
                          xtick_labelsize=8,ytick_labelsize=8)
-    startindxs= [322,2725,3650,4810,7175]
-    endindxs= [355,2850,3715,4925,7400]
+    startindxs= [322,1784,2707,3665,4810,7178]
+    endindxs= [355,1875,2857,3718,4925,7400]
     nregions= len(startindxs)
     # Calculate the width of the plot
     dx= numpy.array([endindxs[ii]-startindxs[ii] for ii in range(nregions)],
@@ -151,7 +157,7 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
         startindx, endindx= startindxs[ii], endindxs[ii]
         aspect= (hdr['CRVAL1']+(endindx-0.5)*hdr['CDELT1']-hdr['CRVAL1']-(startindx-0.5)*hdr['CDELT1'])\
             /(Rs[-1]+dR/2.-Rs[0]+dR/2.)
-        aspect/= dx[ii]*5.
+        aspect/= dx[ii]*4.5
         yrange= [Rs[0]-dR/2.,Rs[-1]+dR/2.]
         xrange=[hdr['CRVAL1']+(startindx-0.5)*hdr['CDELT1']-numpy.log10(15000.),\
                     hdr['CRVAL1']+(endindx-0.5)*hdr['CDELT1']-numpy.log10(15000)]
@@ -213,7 +219,7 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
         # Label the lines
         _label_all_lines(wave[startindx],wave[endindx])
     # Add the x-axis label
-    thisax= pyplot.axes([0.1,0.2,0.85,0.7])
+    thisax= pyplot.axes([0.1,0.15,0.85,0.7])
     pyplot.gcf().sca(thisax)
     thisax.spines['left'].set_visible(False)
     thisax.spines['right'].set_visible(False)
@@ -240,6 +246,9 @@ def _label_all_lines(wavemin,wavemax):
     _label_lines('ca',wavemin,wavemax)
     _label_lines('ti',wavemin,wavemax)
     _label_lines('ni',wavemin,wavemax)
+    _label_lines('mn',wavemin,wavemax)
+    _label_lines('s',wavemin,wavemax)
+    _label_lines('oh',wavemin,wavemax)
     return None
 
 def _label_lines(elem,wavemin,wavemax):
@@ -261,6 +270,13 @@ def _label_lines(elem,wavemin,wavemax):
         lines= _TII_lines
     elif elem.lower() == 'ni':
         lines= _NII_lines
+    elif elem.lower() == 'mn':
+        lines= _MNI_lines
+    elif elem.lower() == 's':
+        lines= _SI_lines
+    elif elem.lower() == 'oh':
+        lines= _OH_lines
+    fontsize= 5.5
     for line in lines:
         if line > wavemin and line < wavemax:
             bovy_plot.bovy_plot([numpy.log10(line)-numpy.log10(15000.),
@@ -268,12 +284,16 @@ def _label_lines(elem,wavemin,wavemax):
                                 [12.5,13.],'w-',overplot=True)
             if elem == 'ca' and line > 16154. and line < 16160.:
                 bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(15000.),
-                                    13.5,line_labels[elem.lower()],
-                                    size=6.)
+                                    13.4,line_labels[elem.lower()],
+                                    size=fontsize)
+            elif elem == 'mg' and line > 15887. and line < 15891.826:
+                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(15000.),
+                                    13.4,line_labels[elem.lower()],
+                                    size=fontsize)
             else:
                 bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(15000.),
                                     13.1,line_labels[elem.lower()],
-                                    size=6.)
+                                    size=fontsize)
     return None
 
 if __name__ == '__main__':
