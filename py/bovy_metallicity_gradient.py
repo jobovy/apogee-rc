@@ -14,11 +14,13 @@ import sys
 import pickle
 import numpy
 from galpy.util import bovy_plot, save_pickles
+from matplotlib import pyplot
+import matplotlib.ticker as ticker
+from matplotlib.ticker import NullFormatter
 import apogee.tools.read as apread
 # Plotting options
 _PLOTMAD= False
-_NORMFE= True
-_HIZ= True
+_HIZ= False
 # Lines
 line_labels= {}
 line_labels['fe']= r'$\mathrm{Fe\ I}$'
@@ -83,6 +85,7 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
                                       ext=2,header=False)
                 allspec[:,jj]= specdata
                 allspec[specerr > 1.,jj]= numpy.nan
+                allspec[specerr == 0.,jj]= numpy.nan
             for jj in range(len(spec)):
                 if _PLOTMAD:
                     median_spec[jj,ii]= \
@@ -97,32 +100,14 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
                              hdr['CRVAL1']+len(spec)*hdr['CDELT1'],
                              hdr['CDELT1']))
     # Normalization, first calculate the spectrum near Ro
-    if _NORMFE:
-        absmax= 0.965
-    else:
-        absmax= 0.98
+    absmax= 0.98
     absindx= median_spec > absmax
     median_spec[absindx]= absmax #focus on real absorption lines
     rospec= numpy.zeros(len(spec))
     roindx= numpy.argmin(numpy.fabs(Rs-8.))
     for jj in range(len(spec)):
         rospec[jj]= numpy.median(median_spec[jj,roindx-3:roindx+4])
-    if _NORMFE and not _PLOTMAD:
-        # Normalize by the difference in Fe
-        feindx= numpy.zeros(len(spec),dtype='bool')
-        for line in _FEI_lines:
-            wavindx= numpy.argmin(numpy.fabs(wave-line))
-            feindx[wavindx-2:wavindx+3]= True
-            feindx[wavindx-4:wavindx+5]= True
-        median_spec= numpy.log(median_spec)
-        rospec= numpy.log(rospec)
-        for jj in range(nR):
-            fehdiff= numpy.median(median_spec[feindx,jj]-rospec[feindx])
-#            print fehdiff, numpy.median(numpy.fabs(median_spec[feindx,jj]-rospec[feindx]-fehdiff))
-            median_spec[:,jj]= (median_spec[:,jj]-rospec)-fehdiff
-        median_spec[absindx]= 0.
-        vmin, vmax= -0.02, 0.02
-    elif not _PLOTMAD:
+    if not _PLOTMAD:
         # Normalization by spectrum at Ro
         roindx= numpy.argmin(numpy.fabs(Rs-8.))
         for jj in range(nR):
@@ -138,32 +123,123 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
         startindx, endindx= 7000,7600#7375, 7889
     else:
         startindx, endindx= 2500, 3100
-    bovy_plot.bovy_print(fig_width=7.,fig_height=4.)
-    bovy_plot.bovy_dens2d(-median_spec[startindx:endindx,:].T,
-                           origin='lower',cmap='coolwarm',#cmap='afmhot',
-                           vmin=vmin,vmax=vmax,
-#                          colorbar=True,shrink=0.78,
-                          interpolation='bicubic',
-                          aspect=(hdr['CRVAL1']+(endindx-0.5)*hdr['CDELT1']-hdr['CRVAL1']-(startindx-0.5)*hdr['CDELT1'])/(Rs[-1]+dR/2.-Rs[0]+dR/2.)/2.,
-                          xrange=[hdr['CRVAL1']+(startindx-0.5)*hdr['CDELT1']-numpy.log10(15000.),
-                                  hdr['CRVAL1']+(endindx-0.5)*hdr['CDELT1']-numpy.log10(15000)],
-                          yrange=[Rs[0]-dR/2.,Rs[-1]+dR/2.],
-                          xlabel=r'$\log \lambda / 15,000 \AA$',
-                          ylabel=r'$R\,(\mathrm{kpc})$')
-    # Draw solar line
-    bovy_plot.bovy_plot([-1000000000,100000000],[8.,8.],'k--',lw=1.5,
-                        overplot=True)
-    # Label the lines
-    _label_lines('fe',wave[startindx],wave[endindx])
-    _label_lines('mg',wave[startindx],wave[endindx])
-    _label_lines('si',wave[startindx],wave[endindx])
-    _label_lines('al',wave[startindx],wave[endindx])
-    _label_lines('k',wave[startindx],wave[endindx])
-    _label_lines('cr',wave[startindx],wave[endindx])
-    _label_lines('ca',wave[startindx],wave[endindx])
-    _label_lines('ti',wave[startindx],wave[endindx])
-    _label_lines('ni',wave[startindx],wave[endindx])
-    bovy_plot.bovy_end_print(plotfilename)
+    # Make N separate plots showing different wavelength regions
+    bovy_plot.bovy_print(fig_width=8.,fig_height=3.,
+                         axes_labelsize=10,text_fontsize=9,legend_fontsize=9,
+                         xtick_labelsize=8,ytick_labelsize=8)
+    startindxs= [322,2725,3650,4810,7175]
+    endindxs= [355,2850,3715,4925,7400]
+    nregions= len(startindxs)
+    # Calculate the width of the plot
+    dx= numpy.array([endindxs[ii]-startindxs[ii] for ii in range(nregions)],
+                    dtype='float')
+    specdx= numpy.sum(dx) # for later
+    dx/= numpy.sum(dx)
+    totdx= 0.85
+    skipdx= 0.015
+    dx*= (totdx-(nregions-1)*skipdx)
+    for ii in range(nregions):
+        # Setup the axes
+        if ii == 0:
+            left, bottom, width, height= 0.1, 0.1, dx[ii],0.8
+        else:
+            left, bottom, width, height= 0.1+numpy.cumsum(dx)[ii-1]+skipdx*ii,\
+                0.1, dx[ii], 0.8
+        thisax= pyplot.axes([left,bottom,width,height])
+        fig= pyplot.gcf()
+        fig.sca(thisax)
+        startindx, endindx= startindxs[ii], endindxs[ii]
+        aspect= (hdr['CRVAL1']+(endindx-0.5)*hdr['CDELT1']-hdr['CRVAL1']-(startindx-0.5)*hdr['CDELT1'])\
+            /(Rs[-1]+dR/2.-Rs[0]+dR/2.)
+        aspect/= dx[ii]*5.
+        yrange= [Rs[0]-dR/2.,Rs[-1]+dR/2.]
+        xrange=[hdr['CRVAL1']+(startindx-0.5)*hdr['CDELT1']-numpy.log10(15000.),\
+                    hdr['CRVAL1']+(endindx-0.5)*hdr['CDELT1']-numpy.log10(15000)]
+        extent= [xrange[0],xrange[1],yrange[0],yrange[1]]
+        pyplot.imshow(-median_spec[startindx:endindx,:].T,
+                       origin='lower',cmap='coolwarm',
+                       vmin=vmin,vmax=vmax,
+                       extent=extent,
+                       interpolation='nearest',
+                       #interpolation='bicubic',
+                       aspect=aspect)
+        pyplot.axis(extent)
+        pyplot.xlim(xrange[0],xrange[1])
+        pyplot.ylim(yrange[0],yrange[1])
+        thisax.xaxis.set_major_locator(ticker.MultipleLocator(0.0005))
+        bovy_plot._add_ticks()
+        if ii > 0:
+            nullfmt   = NullFormatter()         # no labels
+            thisax.yaxis.set_major_formatter(nullfmt)
+        else:
+            pyplot.ylabel(r'$R\,(\mathrm{kpc})$')
+        # Remove spines between different wavelength regions
+        if ii == 0:
+            thisax.spines['right'].set_visible(False)
+            thisax.tick_params(right=False,which='both')
+        elif ii == (nregions-1):
+            thisax.spines['left'].set_visible(False)
+            thisax.tick_params(labelleft='off')
+            thisax.tick_params(left=False,which='both')
+        else:
+            thisax.spines['left'].set_visible(False)
+            thisax.spines['right'].set_visible(False)
+            thisax.tick_params(labelleft='off')
+            thisax.tick_params(left=False,which='both')
+            thisax.tick_params(right=False,which='both')
+        # Plot cut-out markers
+        d = .015 # how big to make the diagonal lines in axes coordinates
+        kwargs = dict(transform=thisax.transAxes, color='k', clip_on=False)
+        slope= 1./(dx[ii]+0.2*skipdx)/3.
+        if ii == 0:
+            thisax.plot((1-slope*d,1+slope*d),(-d,+d), **kwargs)
+            thisax.plot((1-slope*d,1+slope*d),(1-d,1+d), **kwargs)
+        elif ii == (nregions-1):
+            thisax.plot((-slope*d,+slope*d),(-d,+d), **kwargs)
+            thisax.plot((-slope*d,+slope*d),(1-d,1+d), **kwargs)
+        else:
+            thisax.plot((1-slope*d,1+slope*d),(-d,+d), **kwargs)
+            thisax.plot((1-slope*d,1+slope*d),(1-d,1+d), **kwargs)
+            thisax.plot((-slope*d,+slope*d),(-d,+d), **kwargs)
+            thisax.plot((-slope*d,+slope*d),(1-d,1+d), **kwargs)
+        # Draw solar line
+        if ii == (nregions-1):
+            xend= hdr['CRVAL1']+(endindx-0.5)*hdr['CDELT1']-numpy.log10(15000)
+            # Total wavelength span, incl. skipdx parts
+            totaldx= hdr['CDELT1']*specdx*\
+                (1.+(nregions-1)*skipdx/(totdx-(nregions-1)*skipdx))
+            thisax.plot((xend-totaldx,xend),(8.,8.),
+                        color='k',ls='--',lw=1.5,marker='None',clip_on=False)
+        # Label the lines
+        _label_all_lines(wave[startindx],wave[endindx])
+    # Add the x-axis label
+    thisax= pyplot.axes([0.1,0.2,0.85,0.7])
+    pyplot.gcf().sca(thisax)
+    thisax.spines['left'].set_visible(False)
+    thisax.spines['right'].set_visible(False)
+    thisax.spines['bottom'].set_visible(False)
+    thisax.spines['top'].set_visible(False)
+    thisax.tick_params(labelleft='off')
+    thisax.tick_params(left=False,which='both')
+    thisax.tick_params(right=False,which='both')
+    thisax.tick_params(labelbottom='off')
+    thisax.tick_params(bottom=False,which='both')
+    thisax.tick_params(top=False,which='both')
+    pyplot.xlabel(r'$\log \lambda / 15,000 \AA$')
+    thisax.set_zorder(-1)
+    bovy_plot.bovy_end_print(plotfilename,dpi=300)
+    return None
+
+def _label_all_lines(wavemin,wavemax):
+    _label_lines('fe',wavemin,wavemax)
+    _label_lines('mg',wavemin,wavemax)
+    _label_lines('si',wavemin,wavemax)
+    _label_lines('al',wavemin,wavemax)
+    _label_lines('k',wavemin,wavemax)
+    _label_lines('cr',wavemin,wavemax)
+    _label_lines('ca',wavemin,wavemax)
+    _label_lines('ti',wavemin,wavemax)
+    _label_lines('ni',wavemin,wavemax)
     return None
 
 def _label_lines(elem,wavemin,wavemax):
@@ -190,9 +266,14 @@ def _label_lines(elem,wavemin,wavemax):
             bovy_plot.bovy_plot([numpy.log10(line)-numpy.log10(15000.),
                                  numpy.log10(line)-numpy.log10(15000.)],
                                 [12.5,13.],'w-',overplot=True)
-            bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(15000.),
-                                13.1,line_labels[elem.lower()],
-                                size=10.)
+            if elem == 'ca' and line > 16154. and line < 16160.:
+                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(15000.),
+                                    13.5,line_labels[elem.lower()],
+                                    size=6.)
+            else:
+                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(15000.),
+                                    13.1,line_labels[elem.lower()],
+                                    size=6.)
     return None
 
 if __name__ == '__main__':
