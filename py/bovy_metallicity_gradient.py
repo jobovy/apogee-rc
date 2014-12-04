@@ -32,6 +32,7 @@ line_labels['ca']= r'$\mathrm{Ca\kern 0.1em I}$'
 line_labels['ti']= r'$\mathrm{Ti\kern 0.1em I}$'
 line_labels['cr']= r'$\mathrm{Cr\kern 0.1em I}$'
 line_labels['ni']= r'$\mathrm{Ni\kern 0.1em I}$'
+line_labels['na']= r'$\mathrm{Na\kern 0.1em I}$'
 line_labels['mn']= r'$\mathrm{Mn\kern 0.1em I}$'
 line_labels['s']= r'$\mathrm{S\kern 0.1em I}$'
 line_labels['oh']= r'$\mathrm{OH}$'
@@ -48,9 +49,10 @@ _TII_lines= [15548.003,15607.106,15703.269,15719.867,16639.705]
 _CRI_lines= [15684.348,15864.548,15470.129]
 _NII_lines= [15609.944,15636.926,16588.970,16593.827,16678.266,16820.064,
              16823.354]
+_NAI_lines= [16378.346633274852,16393.340725803333]
 _MNI_lines= [15677.437,16712.565]
 _SI_lines= [15406.540,15426.490,15474.043,15482.712]
-_OH_lines= []
+_OH_lines= [15505.5]
 def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     # First read the RC catalog and cut it to stars near the plane
     data= apread.rcsample()
@@ -133,8 +135,8 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     bovy_plot.bovy_print(fig_width=8.,fig_height=3.,
                          axes_labelsize=10,text_fontsize=9,legend_fontsize=9,
                          xtick_labelsize=8,ytick_labelsize=8)
-    startindxs= [322,1784,2707,3665,4810,7178]
-    endindxs= [355,1875,2857,3718,4925,7400]
+    startindxs= [322,1784,2707,3665,4880,5870,7178]
+    endindxs= [355,1930,2857,3718,4925,5955,7400]
     nregions= len(startindxs)
     # Calculate the width of the plot
     dx= numpy.array([endindxs[ii]-startindxs[ii] for ii in range(nregions)],
@@ -246,6 +248,7 @@ def _label_all_lines(wavemin,wavemax):
     _label_lines('ca',wavemin,wavemax)
     _label_lines('ti',wavemin,wavemax)
     _label_lines('ni',wavemin,wavemax)
+    _label_lines('na',wavemin,wavemax)
     _label_lines('mn',wavemin,wavemax)
     _label_lines('s',wavemin,wavemax)
     _label_lines('oh',wavemin,wavemax)
@@ -270,6 +273,8 @@ def _label_lines(elem,wavemin,wavemax):
         lines= _TII_lines
     elif elem.lower() == 'ni':
         lines= _NII_lines
+    elif elem.lower() == 'na':
+        lines= _NAI_lines
     elif elem.lower() == 'mn':
         lines= _MNI_lines
     elif elem.lower() == 's':
