@@ -36,6 +36,7 @@ line_labels['na']= r'$\mathrm{Na\kern 0.1em I}$'
 line_labels['mn']= r'$\mathrm{Mn\kern 0.1em I}$'
 line_labels['s']= r'$\mathrm{S\kern 0.1em I}$'
 line_labels['oh']= r'$\mathrm{OH}$'
+line_labels['dib']= r'$\mathrm{DIB}$'
 _FEI_lines= [15198.644,15211.682,15399.925,15494.572,15652.786,15969.229,
              16045.040,16157.660,16169.448,16697.635]
 _MGI_lines= [15745.017,15753.203,15770.108,15883.839,15890.541,15893.826,
@@ -53,6 +54,7 @@ _NAI_lines= [16378.346633274852,16393.340725803333]
 _MNI_lines= [15677.437,16712.565]
 _SI_lines= [15406.540,15426.490,15474.043,15482.712]
 _OH_lines= [15505.5]
+_DIB_lines= [15272.42] #from Zasowski et al. (2014)
 def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     # First read the RC catalog and cut it to stars near the plane
     data= apread.rcsample()
@@ -135,7 +137,7 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     bovy_plot.bovy_print(fig_width=8.,fig_height=3.,
                          axes_labelsize=10,text_fontsize=9,legend_fontsize=9,
                          xtick_labelsize=8,ytick_labelsize=8)
-    startindxs= [322,1784,2707,3665,4880,5870,7178]
+    startindxs= [322,1784,2707,3665,4880,5870,7178] #DIB is at 818
     endindxs= [355,1930,2857,3718,4925,5955,7400]
     nregions= len(startindxs)
     # Calculate the width of the plot
@@ -252,6 +254,7 @@ def _label_all_lines(wavemin,wavemax):
     _label_lines('mn',wavemin,wavemax)
     _label_lines('s',wavemin,wavemax)
     _label_lines('oh',wavemin,wavemax)
+    _label_lines('dib',wavemin,wavemax)
     return None
 
 def _label_lines(elem,wavemin,wavemax):
@@ -281,6 +284,8 @@ def _label_lines(elem,wavemin,wavemax):
         lines= _SI_lines
     elif elem.lower() == 'oh':
         lines= _OH_lines
+    elif elem.lower() == 'dib':
+        lines= _DIB_lines
     fontsize= 5.5
     for line in lines:
         if line > wavemin and line < wavemax:
