@@ -10,6 +10,7 @@
 #   galpy: for plotting (https://github.com/jobovy/galpy)
 #
 import os
+import re
 import sys
 import pickle
 import numpy
@@ -315,7 +316,7 @@ def _label_lines(elem,wavemin,wavemax):
     elif elem.lower() == 'dib':
         lines= _DIB_lines
     fontsize= 5.5
-    labely= 13.13
+    labely= 13.22 #13.13 for png
     for line in lines:
         linelabel= r'(\lambda\kern 0.1em%i)$' % int(line)
         if line > wavemin and line < wavemax:
