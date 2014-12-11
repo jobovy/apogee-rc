@@ -332,7 +332,7 @@ def _label_lines(elem,wavemin,wavemax):
                                     labely,line_labels[elem.lower()]+linelabel,
                                     size=fontsize,rotation='vertical',va='bottom',ha='center')
             elif elem == 'ca' and line > 16160. and line < 16162.:
-                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)+0.00005,
+                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)+0.000075,
                                     labely,line_labels[elem.lower()]+linelabel,
                                     size=fontsize,rotation='vertical',va='bottom',ha='center')
             elif elem == 'fe' and line > 16156. and line < 16158.:
