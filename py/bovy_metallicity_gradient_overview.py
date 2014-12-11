@@ -25,23 +25,23 @@ _HIZ= False
 _LAMBDANORM= 15000. #also manually adjust the label
 # Lines
 line_labels= {}
-line_labels['fe']= r'$\mathrm{Fe\kern 0.1em I}$'
-line_labels['mg']= r'$\mathrm{Mg\kern 0.1em I}$'
-line_labels['al']= r'$\mathrm{Al\kern 0.1em I}$'
-line_labels['si']= r'$\mathrm{Si\kern 0.1em I}$'
-line_labels['k']= r'$\mathrm{K\kern 0.1em I}$'
-line_labels['ca']= r'$\mathrm{Ca\kern 0.1em I}$'
-line_labels['ti']= r'$\mathrm{Ti\kern 0.1em I}$'
-line_labels['cr']= r'$\mathrm{Cr\kern 0.1em I}$'
-line_labels['ni']= r'$\mathrm{Ni\kern 0.1em I}$'
-line_labels['na']= r'$\mathrm{Na\kern 0.1em I}$'
-line_labels['mn']= r'$\mathrm{Mn\kern 0.1em I}$'
-line_labels['s']= r'$\mathrm{S\kern 0.1em I}$'
-line_labels['v']= r'$\mathrm{V\kern 0.1em I}$'
-line_labels['oh']= r'$\mathrm{OH}$'
-line_labels['co']= r'$^{12}\!\mathrm{CO}$'
-line_labels['cn']= r'$\mathrm{CN}$'
-line_labels['13co']= r'$^{13}\!\mathrm{CO}$'
+line_labels['fe']= r'$\mathrm{Fe}'
+line_labels['mg']= r'$\mathrm{Mg}'
+line_labels['al']= r'$\mathrm{Al}'
+line_labels['si']= r'$\mathrm{Si}'
+line_labels['k']= r'$\mathrm{K}'
+line_labels['ca']= r'$\mathrm{Ca}'
+line_labels['ti']= r'$\mathrm{Ti}'
+line_labels['cr']= r'$\mathrm{Cr}'
+line_labels['ni']= r'$\mathrm{Ni}'
+line_labels['na']= r'$\mathrm{Na}'
+line_labels['mn']= r'$\mathrm{Mn}'
+line_labels['s']= r'$\mathrm{S}'
+line_labels['v']= r'$\mathrm{V}'
+line_labels['oh']= r'$\mathrm{OH}'
+line_labels['co']= r'$^{12}\!\mathrm{CO}'
+line_labels['cn']= r'$\mathrm{CN}'
+line_labels['13co']= r'$^{13}\!\mathrm{CO}'
 line_labels['dib']= r'$\mathrm{DIB}$'
 _FEI_lines= [15198.644,15211.682,15399.925,15494.572,15652.786,15969.229,
              16045.040,16157.660,16169.448,16697.635]
@@ -139,6 +139,8 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
         median_spec-= 1. 
         vmin=-0.035
         vmax=0.035
+        vmin=-0.04
+        vmax=0.04
     # Now plot
     if False:
         startindx, endindx= 3652, 4100#3915
@@ -150,8 +152,8 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     bovy_plot.bovy_print(fig_width=8.4,fig_height=3.,
                          axes_labelsize=10,text_fontsize=9,legend_fontsize=9,
                          xtick_labelsize=8,ytick_labelsize=8)
-    startindxs= [322,1794,2707,3850,4740,5820,7185] #DIB is at 818
-    endindxs= [590,1940,2857,4025,5070,5955,7400]
+    startindxs= [322,1790,2707,3852,4738,5820,7187] #DIB is at 818
+    endindxs= [590,1940,2857,4021,5068,5955,7400]
     nregions= len(startindxs)
     # Calculate the width of the plot
     dx= numpy.array([endindxs[ii]-startindxs[ii] for ii in range(nregions)],
@@ -249,7 +251,7 @@ def bovy_metallicity_gradient(plotfilename,savefilename,largewave=False):
     thisax.tick_params(labelbottom='off')
     thisax.tick_params(bottom=False,which='both')
     thisax.tick_params(top=False,which='both')
-    pyplot.xlabel(r'$\log \lambda / 15,000 \AA$')
+    pyplot.xlabel(r'$\log \big(\lambda / 15,000 \AA\big)$')
     thisax.set_zorder(-1)
     bovy_plot.bovy_end_print(plotfilename,dpi=600)
     return None
@@ -313,51 +315,54 @@ def _label_lines(elem,wavemin,wavemax):
     elif elem.lower() == 'dib':
         lines= _DIB_lines
     fontsize= 5.5
+    labely= 13.13
     for line in lines:
+        linelabel= r'(\lambda\kern 0.1em%i)$' % int(line)
         if line > wavemin and line < wavemax:
             bovy_plot.bovy_plot([numpy.log10(line)-numpy.log10(_LAMBDANORM),
                                  numpy.log10(line)-numpy.log10(_LAMBDANORM)],
                                 [12.5,13.],'w-',overplot=True)
             if elem == 'ca' and line > 16154. and line < 16156.:
                 bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)-0.000075,
-                                    13.46,line_labels[elem.lower()],
-                                    size=fontsize)
+                                    labely,line_labels[elem.lower()]+linelabel,
+                                    size=fontsize,rotation='vertical',
+                                    va='bottom',ha='center')
             elif elem == 'ca' and line > 16156. and line < 16160.:
-                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)+0.00005,
-                                    13.46,line_labels[elem.lower()],
-                                    size=fontsize)
-            elif elem == 'ca' and line > 16160. and line < 16162.:
                 bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)+0.000025,
-                                    13.16,line_labels[elem.lower()],
-                                    size=fontsize)
+                                    labely,line_labels[elem.lower()]+linelabel,
+                                    size=fontsize,rotation='vertical',va='bottom',ha='center')
+            elif elem == 'ca' and line > 16160. and line < 16162.:
+                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)+0.00005,
+                                    labely,line_labels[elem.lower()]+linelabel,
+                                    size=fontsize,rotation='vertical',va='bottom',ha='center')
             elif elem == 'fe' and line > 16156. and line < 16158.:
-                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)-0.000075,
-                                    13.16,line_labels[elem.lower()],
-                                    size=fontsize)
+                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)-0.000025,
+                                    labely,line_labels[elem.lower()]+linelabel,
+                                    size=fontsize,rotation='vertical',va='bottom',ha='center')
             elif elem == 'fe' and line > 16169. and line < 16170.:
                 bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)+0.00005,
-                                    13.16,line_labels[elem.lower()],
-                                    size=fontsize)
+                                    labely,line_labels[elem.lower()]+linelabel,
+                                    size=fontsize,rotation='vertical',va='bottom',ha='center')
             elif elem == 'mg' and line > 15887. and line < 15891.826:
                 bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM),
-                                    13.46,line_labels[elem.lower()],
-                                    size=fontsize)
+                                    labely,line_labels[elem.lower()]+linelabel,
+                                    size=fontsize,rotation='vertical',va='bottom',ha='center')
             elif elem == 's' and line > 15482. and line < 15483.:
-                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)-0.000025,
-                                    13.16,line_labels[elem.lower()],
-                                    size=fontsize)
+                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM),
+                                    labely,line_labels[elem.lower()]+linelabel,
+                                    size=fontsize,rotation='vertical',va='bottom',ha='center')
             elif elem == 'cn' and line > 15485. and line < 15488.:
-                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)+0.000025,
-                                    13.16,line_labels[elem.lower()],
-                                    size=fontsize)
+                bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM),
+                                    labely,line_labels[elem.lower()]+linelabel,
+                                    size=fontsize,rotation='vertical',va='bottom',ha='center')
             elif elem == 'si' and line > 16680. and line < 16690.:
                 bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM)+0.00004,
-                                    13.16,line_labels[elem.lower()],
-                                    size=fontsize)
+                                    labely,line_labels[elem.lower()]+linelabel,
+                                    size=fontsize,rotation='vertical',va='bottom',ha='center')
             else:
                 bovy_plot.bovy_text(numpy.log10(line)-numpy.log10(_LAMBDANORM),
-                                    13.16,line_labels[elem.lower()],
-                                    size=fontsize)
+                                    labely,line_labels[elem.lower()]+linelabel,
+                                    size=fontsize,rotation='vertical',va='bottom',ha='center')
     return None
 
 if __name__ == '__main__':
