@@ -108,6 +108,10 @@ def plot_psd_model(plotfilename,type):
     elif type.lower() == 'bar':
         vlosbar= galpy_simulations.vlos('../sim/bar_rect_alpha0.015%s.sav' % _HIVRESSTR)
         vlosslowbar= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_slow%s.sav' % _HIVRESSTR)
+        vlosbarsmallangle= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_angle10%s.sav' % _HIVRESSTR)
+        vlosbarlargeangle= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_angle40%s.sav' % _HIVRESSTR)
+        vlosbarsmallrolr= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_rolr0.85%s.sav' % _HIVRESSTR)
+        vlosbarlargerolr= galpy_simulations.vlos('../sim/bar_rect_alpha0.015_rolr0.95%s.sav' % _HIVRESSTR)
         eres= 19
         xgrid= numpy.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
                               (_RCXMAX-8.)/8.-_RCDX/8./2.,
@@ -115,6 +119,10 @@ def plot_psd_model(plotfilename,type):
         dx= (xgrid[1]-xgrid[0])*8.
         psdbar= bovy_psd.psd1d(vlosbar,dx,binsize=0.8)
         psdslowbar= bovy_psd.psd1d(vlosslowbar,dx,binsize=0.8)
+        psdsbarsmallangle= bovy_psd.psd1d(vlosbarsmallangle,dx,binsize=0.8)
+        psdsbarlargeangle= bovy_psd.psd1d(vlosbarlargeangle,dx,binsize=0.8)
+        psdsbarsmallrolr= bovy_psd.psd1d(vlosbarsmallrolr,dx,binsize=0.8)
+        psdsbarlargerolr= bovy_psd.psd1d(vlosbarlargerolr,dx,binsize=0.8)
         ks= psdbar[0][1:-3]
         scale= 4.*numpy.pi*220.
         bovy_plot.bovy_print(fig_width=8.,fig_height=4.5,axes_labelsize=20)
@@ -128,6 +136,18 @@ def plot_psd_model(plotfilename,type):
         line2= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdslowbar[1][1:-3]),
                                    'r-',lw=2.,
                                    overplot=True,zorder=1)
+        line3= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdsbarsmallangle[1][1:-3])*0.9,
+                                   '-',lw=2.,color='gold',
+                                   overplot=True,zorder=1)
+        line4= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdsbarlargeangle[1][1:-3])*1.1,
+                                   'b-',lw=2.,
+                                   overplot=True,zorder=1)
+        line5= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdsbarsmallrolr[1][1:-3])*0.9,
+                                   'g-',lw=2.,
+                                   overplot=True,zorder=1)
+        line6= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psdsbarlargerolr[1][1:-3]),
+                                   'c-',lw=2.,
+                                   overplot=True,zorder=1)
         pyplot.annotate(r'$\mathrm{Bar\ perturbation\ (rotating}\ m=2\ \mathrm{mode})$',
                         (0.5,1.08),xycoords='axes fraction',
                         horizontalalignment='center',
@@ -139,6 +159,17 @@ def plot_psd_model(plotfilename,type):
                           numpoints=8,
                           prop={'size':16},
                           frameon=False)    
+        l2= pyplot.legend((line3[0],line4[0],line5[0],line6[0]),
+                          (r'$\mathrm{Fast}\ \&\ \mathrm{bar\ angle} = 10^\circ$',
+                           r'$\mathrm{Fast}\ \&\ \mathrm{bar\ angle} = 40^\circ$',
+                           r'$\mathrm{Fast}\ \&\ R_{\mathrm{OLR}} = 0.85\,R_0$',
+                           r'$\mathrm{Fast}\ \&\ R_{\mathrm{OLR}} = 0.95\,R_0$'),
+                          loc='lower left',#bbox_to_anchor=(.91,.375),
+                          numpoints=8,
+                          prop={'size':16},
+                          frameon=False)    
+        pyplot.gca().add_artist(l1)
+        pyplot.gca().add_artist(l2)
     elif type.lower() == 'spiral':
         vlosfid= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-14%s.sav' % _HIVRESSTR)
         vloslpitch= galpy_simulations.vlos('../sim/spiral_rect_omegas0.33_alpha-7%s.sav' % _HIVRESSTR)
