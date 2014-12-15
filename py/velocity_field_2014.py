@@ -79,7 +79,8 @@ def velocity_field(parser):
                                  tform=options.bar_tform,
                                  tsteady=options.bar_tsteady,
                                  beta=options.beta,
-                                 rolr=options.bar_olr)
+                                 rolr=options.bar_olr,
+                                 barphi=options.bar_angle/180.*nu.pi)
         pot.append(barp)
     if options.steadyspiral:
         omegas= options.steadyspiralomegas
@@ -1161,6 +1162,9 @@ def get_options():
     parser.add_option("--bar_olr",dest="bar_olr",type='float',
                       default=.9,
                       help="Bar radius of OLR")
+    parser.add_option("--bar_angle",dest="bar_angle",type='float',
+                      default=25.,
+                      help="Angle between Sun--GC line and bar semi-major axis (deg)")
     parser.add_option("--el_cp",dest="el_cp",type='float',
                       default=0.05,
                       help="EllipticalDiskPotential cp")
