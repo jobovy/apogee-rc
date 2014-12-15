@@ -110,7 +110,7 @@ def plot_rckinematics(plotfilename,subsun=False):
                          arrowstyle='->', 
                          connectionstyle='arc3,rad=%4.2f' % (numpy.pi/8.-0.05),
                          shrinkA=2.0, shrinkB=2.0, mutation_scale=20.0, 
-                         mutation_aspect=None,fc='k')
+                         mutation_aspect=None,fc='k',zorder=10)
     ax.add_patch(arr)
     bovy_plot.bovy_text(numpy.pi+0.17,1.7,r'$\mathrm{Galactic\ rotation}$',
                         rotation=-30.,size=9.)
@@ -126,6 +126,15 @@ def plot_rckinematics(plotfilename,subsun=False):
     ax.set_thetagrids(thetaticks,frac=1.16,backgroundcolor='w',zorder=3)
     bovy_plot.bovy_text(3.*numpy.pi/4.+0.06,2.095,r'$\mathrm{kpc}$',size=10.)
     pyplot.ylim(0.,2.8)
+    # Plot the bar position
+    ets= numpy.linspace(0.,2.*numpy.pi,501,)
+    a= 0.421766
+    b= a*0.4
+    dtr= numpy.pi/180.
+    ax.plot(ets,
+            a*b/numpy.sqrt((b*numpy.cos(ets-25.*dtr))**2.
+                           +(a*numpy.sin(ets-25.*dtr))**2.),
+            zorder=1,lw=1.5,color='w')
     #Plot the box
     xs= numpy.linspace(_RCXMIN-2.25,_RCXMAX+2.25,101)
     ys= numpy.ones(101)*(_RCYMIN-2.25)
