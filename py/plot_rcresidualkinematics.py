@@ -28,7 +28,7 @@ def plot_rcresidualkinematics(plotfilename,sbd10=False,vc=220.):
         pixrc.plot(lambda x: dvlosgal(x,vc=vc,vtsun=vc+12.),
                    zlabel=r'$\mathrm{median}\ \Delta V_{\mathrm{los,rot}}\,(\mathrm{km\,s}^{-1})$',
                    vmin=vmin,vmax=vmax)
-        pyplot.annotate(r'$V_c = %i\,\mathrm{km\,s}^{-1}, V_\odot= 12\,\mathrm{km\,s}^{-1}$' % vc,
+        pyplot.annotate(r'$V_c = %i\,\mathrm{km\,s}^{-1}, V_{\odot-c}= 12\,\mathrm{km\,s}^{-1}$' % vc,
                         (0.5,1.1),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=18.)
@@ -42,7 +42,7 @@ def plot_rcresidualkinematics(plotfilename,sbd10=False,vc=220.):
         print 1.4826*numpy.median(numpy.fabs(resv[notNan]-numpy.median(resv[notNan])))
         print numpy.mean(resv[notNan])
         print numpy.std(resv[notNan])
-        pyplot.annotate(r'$V_c = %i\,\mathrm{km\,s}^{-1}, V_\odot= 24\,\mathrm{km\,s}^{-1}$' % vc,
+        pyplot.annotate(r'$V_c = %i\,\mathrm{km\,s}^{-1}, V_{\odot-c}= 24\,\mathrm{km\,s}^{-1}$' % vc,
                         (0.5,1.1),xycoords='axes fraction',
                         horizontalalignment='center',
                         verticalalignment='top',size=18.)

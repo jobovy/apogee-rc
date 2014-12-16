@@ -29,7 +29,7 @@ def determine_vsolar(plotfilename):
     line1= bovy_plot.bovy_plot(vsolars,lpower,'k-',lw=2.,
                                xrange=[vsolars[0],vsolars[-1]],
                                yrange=[0.,22.9],
-                               xlabel=r'$V_\odot\,(\mathrm{km\,s}^{-1})$',
+                               xlabel=r'$V_{\odot-c}\,(\mathrm{km\,s}^{-1})$',
                                ylabel=r'$\sqrt\langle P_k(0.2 < k / (\mathrm{kpc}^{-1}) < 0.9)\rangle\,(\mathrm{km\,s}^{-1})$')
     #Find the minimum by fitting a second order polynomial
     p= numpy.polyfit(vsolars,lpower,2)
@@ -37,7 +37,7 @@ def determine_vsolar(plotfilename):
     bovy_plot.bovy_plot([minvsolar,minvsolar],[-10.,100.],'k-',lw=0.8,
                         overplot=True)
     bovy_plot.bovy_text(24.25,1.,
-                        r'$V_\odot=%.1f\,\mathrm{km\,s}^{-1}$' % minvsolar,
+                        r'$V_{\odot-c}=%.1f\,\mathrm{km\,s}^{-1}$' % minvsolar,
                         size=15.)
     lpower240= large_scale_power(pixrc,vsolars,vc=240.,dx=_RCDX)
     line2= bovy_plot.bovy_plot(vsolars,lpower240,'k--',lw=2.,overplot=True)
