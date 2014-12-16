@@ -36,7 +36,7 @@ def determine_vsolar(plotfilename):
     minvsolar= -0.5*p[1]/p[0]
     bovy_plot.bovy_plot([minvsolar,minvsolar],[-10.,100.],'k-',lw=0.8,
                         overplot=True)
-    bovy_plot.bovy_text(24.25,1.,
+    bovy_plot.bovy_text(22.65,1.,
                         r'$V_{\odot-c}=%.1f\,\mathrm{km\,s}^{-1}$' % minvsolar,
                         size=15.)
     lpower240= large_scale_power(pixrc,vsolars,vc=240.,dx=_RCDX)
