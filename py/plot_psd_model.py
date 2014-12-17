@@ -2,7 +2,7 @@ import sys
 import numpy
 from galpy.util import bovy_plot
 from matplotlib import pyplot
-from matplotlib.ticker import NullFormatter
+from matplotlib.ticker import NullFormatter, FuncFormatter
 import bovy_psd
 from plot_psd import _RCXMIN, _RCXMAX, _RCYMIN, _RCYMAX, _RCDX, \
     _SUBTRACTERRORS, _NNOISE
@@ -291,6 +291,9 @@ def plot_psd_model(plotfilename,type):
                                                  -numpy.tile(medPsd/scale,
                                                              (psds.shape[1],1)).T),axis=1)
         bovy_plot.bovy_print(fig_width=8.,fig_height=4.5,axes_labelsize=20)
+        def my_formatter(x, pos):
+            return r'$%g$' % x
+        major_formatter = FuncFormatter(my_formatter)
         line1= bovy_plot.bovy_plot(ks,medPsd,
                                    'k-',lw=2,
                                    semilogx=True,
@@ -298,6 +301,7 @@ def plot_psd_model(plotfilename,type):
                                    ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1})$',
                                    xrange=xrange,
                                    yrange=[0.,11.9],zorder=1)
+        pyplot.gca().xaxis.set_major_formatter(major_formatter)
         goodIndx= True-numpy.isnan(flucPsd)
         pyplot.fill_between(ks[goodIndx],(medPsd-flucPsd)[goodIndx],
                             y2=(medPsd+flucPsd)[goodIndx],
