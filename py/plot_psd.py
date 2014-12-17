@@ -90,7 +90,7 @@ def plot_psd(plotfilename):
         xrange= [0.,1.]
     yrange= [0.,11.9]
     if _PROPOSAL:
-        bovy_plot.bovy_print(fig_width=7.5,fig_height=2.5)
+        bovy_plot.bovy_print(fig_width=7.5,fig_height=3.)
     else:
         bovy_plot.bovy_print(fig_width=7.5,fig_height=4.5)
     apop= bovy_plot.bovy_plot(ks,scale*numpy.sqrt(psd1d[1][1:-3]
@@ -101,6 +101,8 @@ def plot_psd(plotfilename):
                         ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1})$',
                         semilogx=_ADDGCS,
                         xrange=xrange,yrange=yrange)
+    if _PROPOSAL:
+        pyplot.gcf().subplots_adjust(bottom=0.15)
     pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
                     yerr=scale*0.5*(psd1d[2][1:-3]**2.
                                     +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]),
@@ -249,13 +251,14 @@ def plot_psd(plotfilename):
     major_formatter2 = FuncFormatter(my_formatter2)
     ax= pyplot.gca()
     ax.xaxis.set_major_formatter(major_formatter)
-    ax2= pyplot.twiny()
-    xmin, xmax= ax.xaxis.get_view_interval()
-    ax2.set_xscale('log')
-    ax2.xaxis.set_view_interval(xmin,xmax,ignore=True)
-    ax2.set_xlabel('$\mathrm{Approximate\ scale}\,(\mathrm{kpc})$',
-                   fontsize=12.,ha='center',x=0.5)
-    ax2.xaxis.set_major_formatter(major_formatter2)
+    if not _PROPOSAL:
+        ax2= pyplot.twiny()
+        xmin, xmax= ax.xaxis.get_view_interval()
+        ax2.set_xscale('log')
+        ax2.xaxis.set_view_interval(1./xmin,1./xmax,ignore=True)
+        ax2.set_xlabel('$\mathrm{Approximate\ scale}\,(\mathrm{kpc})$',
+                       fontsize=12.,ha='center',x=0.5)
+        ax2.xaxis.set_major_formatter(major_formatter)
     bovy_plot.bovy_end_print(plotfilename,dpi=300)
     return None
 
