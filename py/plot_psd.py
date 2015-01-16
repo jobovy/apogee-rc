@@ -49,7 +49,7 @@ _GCSYMIN= -0.0625
 _GCSYMAX= 0.0625
 _GCSDX= 0.025
 # output to file
-_DUMP2FILE= True
+_DUMP2FILE= False
 def plot_psd(plotfilename):
     data= apread.rcsample()
     if _ADDLLOGGCUT:
