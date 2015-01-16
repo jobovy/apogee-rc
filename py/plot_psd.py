@@ -1,5 +1,6 @@
 import sys
 import os, os.path
+import csv
 import socket
 import numpy
 from scipy import interpolate
@@ -47,6 +48,8 @@ _GCSXMAX= 0.0625
 _GCSYMIN= -0.0625
 _GCSYMAX= 0.0625
 _GCSDX= 0.025
+# output to file
+_DUMP2FILE= True
 def plot_psd(plotfilename):
     data= apread.rcsample()
     if _ADDLLOGGCUT:
@@ -101,6 +104,15 @@ def plot_psd(plotfilename):
                         ylabel=r'$\sqrt{P_k}\,(\mathrm{km\,s}^{-1})$',
                         semilogx=_ADDGCS,
                         xrange=xrange,yrange=yrange)
+    if _DUMP2FILE:
+        with open('bovy-apogee-psd.dat','w') as csvfile:
+            writer= csv.writer(csvfile, delimiter=',',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            csvfile.write('#APOGEE\n')
+            for ii in range(len(ks)):
+                writer.writerow([ks[ii],
+                                 (scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)))[ii],
+                                 (scale*0.5*(psd1d[2][1:-3]**2.+_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]))[ii]])
     if _PROPOSAL:
         pyplot.gcf().subplots_adjust(bottom=0.15)
     pyplot.errorbar(ks,scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)),
@@ -149,6 +161,12 @@ def plot_psd(plotfilename):
         line1= bovy_plot.bovy_plot(tks,
                                    scale*numpy.sqrt(simpsd1d[1][1:-3]),
                                    'k--',lw=2.,overplot=True)
+        if _DUMP2FILE:
+            with open('bovy-bar-psd.dat','w') as csvfile:
+                writer= csv.writer(csvfile, delimiter=',',
+                                   quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                for ii in range(len(ks)):
+                    writer.writerow([tks[ii],(scale*numpy.sqrt(simpsd1d[1][1:-3]))[ii]])
         #bovy_plot.bovy_plot(tks[tks > 0.7],
         #                    scale*numpy.sqrt(simpsd1d[1][1:-3][tks > 0.7]+4./scale**2.*(1.-numpy.tanh(-(tks[tks > 0.7]-0.9)/0.1))/2.),
         #                    'k-.',lw=2.,overplot=True)
@@ -298,6 +316,15 @@ def plot_psd_gcs():
                     yerr=scale*0.5*(psd1d[2][1:-3]**2.
                                     +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]),
                     marker='None',ls='none',color='k')#,lolims=True)
+    if _DUMP2FILE:
+        with open('bovy-apogee-psd.dat','a') as csvfile:
+            writer= csv.writer(csvfile, delimiter=',',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            csvfile.write('#GCS\n')
+            for ii in range(len(ks)):
+                writer.writerow([ks[ii],
+                                 (scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)))[ii],
+                                 (scale*0.5*(psd1d[2][1:-3]**2.+_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]))[ii]])
     if _PLOTBAND:
 #        bovy_plot.bovy_plot(ks,
 #                            scale*numpy.median(numpy.sqrt(noisepsd),axis=0),
@@ -355,6 +382,15 @@ def plot_psd_rave():
                     yerr=scale*0.5*(psd1d[2][1:-3]**2.
                                     +_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]),
                     marker='None',ls='none',color='k')
+    if _DUMP2FILE:
+        with open('bovy-apogee-psd.dat','a') as csvfile:
+            writer= csv.writer(csvfile, delimiter=',',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            csvfile.write('#RAVE\n')
+            for ii in range(len(ks)):
+                writer.writerow([ks[ii],
+                                 (scale*numpy.sqrt(psd1d[1][1:-3]-_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)))[ii],
+                                 (scale*0.5*(psd1d[2][1:-3]**2.+_SUBTRACTERRORS*numpy.median(noisepsd,axis=0)**2.)**0.5/numpy.sqrt(psd1d[1][1:-3]))[ii]])
     if False:
         interpindx= True-numpy.isnan(psd1d[1][1:-3])
         interpspec= interpolate.InterpolatedUnivariateSpline(ks[interpindx],
