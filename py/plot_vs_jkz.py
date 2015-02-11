@@ -67,8 +67,10 @@ def plot_vs_jkz(parser):
                 zlabel= r'$\Delta\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|[J-K_s]_0)}$'
             else:
                 vmin, vmax= -1.8, -1.5
-        #zlabel= r'$\mathrm{argmax}_{K_s}{p(M_{K_s}|J-K_s)}\ [\mathrm{mag}]$'
-                zlabel= r'$\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|[J-K_s]_0)}$'
+                if options.band.lower() == 'h':
+                    zlabel= r'$\displaystyle\arg\!\max_{\substack{H}}{p(M_{H}|[J-K_s]_0)}$'
+                else:
+                    zlabel= r'$\displaystyle\arg\!\max_{\substack{K_s}}{p(M_{K_s}|[J-K_s]_0)}$'
     if options.basti:#Remap the Zs
         zs= numpy.array([0.004,0.008,0.01,0.0198,0.03,0.04])
         regularzs= numpy.arange(0.0005,0.04005,0.0005)
