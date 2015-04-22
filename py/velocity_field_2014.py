@@ -58,6 +58,22 @@ def velocity_field(parser):
         ygrid= nu.linspace(_RCYMIN/8.-2.25/8.+_RCDX/8./2.,
                            _RCYMAX/8.+2.25/8.-_RCDX/8./2.,
                            options.res)
+    elif options.diskrect:
+        #Grid for the whole disk for Rob Grand's paper
+        xgrid= nu.linspace(-32./8.+0.8/8./2.,
+                           16./8.-0.8/8./2.,
+                           options.res)
+        ygrid= nu.linspace(-24./8.+0.8/8./2.,
+                            24./8.-0.8/8./2.,
+                            options.res)
+    elif options.centraldiskrect:
+        #Grid for the central disk for Rob Grand's paper
+        xgrid= nu.linspace(-16./8.+0.8/8./2.,
+                           0./8.-0.8/8./2.,
+                           options.res)
+        ygrid= nu.linspace(-8./8.+0.8/8./2.,
+                            8./8.-0.8/8./2.,
+                            options.res)
     else:
         #Grid we do the RC analysis on
         xgrid= nu.linspace((_RCXMIN-8.)/8.+_RCDX/8./2.,
@@ -66,6 +82,7 @@ def velocity_field(parser):
         ygrid= nu.linspace(_RCYMIN/8.+_RCDX/8./2.,
                            _RCYMAX/8.-_RCDX/8./2.,
                            options.res)
+    print xgrid, ygrid
     nx= len(xgrid)
     ny= len(ygrid)
     #Set up potential
@@ -1135,6 +1152,12 @@ def get_options():
     parser.add_option("--altrect",action="store_true", 
                       default=False, dest="altrect",
                       help="Make the grid in an alternative rectangular grid")
+    parser.add_option("--diskrect",action="store_true", 
+                      default=False, dest="diskrect",
+                      help="Make the grid over the full disk for Rob Grand's paper")
+    parser.add_option("--centraldiskrect",action="store_true", 
+                      default=False, dest="centraldiskrect",
+                      help="Make the grid over the central region of the disk for Rob Grand's paper")
     parser.add_option("--galcoords",action="store_true", 
                       default=False, dest="galcoords",
                       help="Make the grid in (R,azimuth) rather than (X,Y)")
