@@ -63,6 +63,44 @@ def vlos_altrect(savefile):
     vlos= -cospl*dvr+sinpl*dvt
     return vlos[:,:]
     
+def vlos_diskrect(savefile):
+    dvr,dvt= read_dmeanvrvt(savefile)
+    resx, resy= dvr.shape[0], dvr.shape[1]
+    #Project onto the line-of-sight
+    xgrid= numpy.linspace(-32./8.+0.8/8./2.,
+                           16./8.-0.8/8./2.,
+                           resx)
+    ygrid= numpy.linspace(-24./8.+0.8/8./2.,
+                           24./8.-0.8/8./2.,
+                           resy)
+    xv,yv= numpy.meshgrid(xgrid,ygrid,indexing='ij')
+    rs= numpy.sqrt((1.+xv)**2.+yv**2.)
+    phis= numpy.arctan2(yv,1.+xv)
+    (d,l)= bovy_coords.rphi_to_dl_2d(rs,phis)
+    cospl= numpy.cos(phis+l)
+    sinpl= numpy.sin(phis+l)
+    vlos= -cospl*dvr+sinpl*dvt
+    return vlos[:,:]
+    
+def vlos_centraldiskrect(savefile):
+    dvr,dvt= read_dmeanvrvt(savefile)
+    resx, resy= dvr.shape[0], dvr.shape[1]
+    #Project onto the line-of-sight
+    xgrid= numpy.linspace(-16./8.+0.8/8./2.,
+                           0./8.-0.8/8./2.,
+                           resx)
+    ygrid= numpy.linspace(-8./8.+0.8/8./2.,
+                           8./8.-0.8/8./2.,
+                           resy)
+    xv,yv= numpy.meshgrid(xgrid,ygrid,indexing='ij')
+    rs= numpy.sqrt((1.+xv)**2.+yv**2.)
+    phis= numpy.arctan2(yv,1.+xv)
+    (d,l)= bovy_coords.rphi_to_dl_2d(rs,phis)
+    cospl= numpy.cos(phis+l)
+    sinpl= numpy.sin(phis+l)
+    vlos= -cospl*dvr+sinpl*dvt
+    return vlos[:,:]
+    
 def vlos_polar(savefile):
     dvr,dvt= read_dmeanvrvt(savefile)
     resx, resy= dvr.shape[0], dvr.shape[1]
