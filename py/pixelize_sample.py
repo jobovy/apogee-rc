@@ -155,7 +155,7 @@ class pixelXY:
                     else:
                         z2d[ii,jj]= func(tdata[quant])
             if submediany:
-                z2d[ii,:]-= numpy.median(z2d[ii,True-numpy.isnan(z2d[ii,:])])
+                z2d[ii]-= numpy.nanmedian(z2d[ii])
         if justcalc:
             if returnz:
                 return z2d
