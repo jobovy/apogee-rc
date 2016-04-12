@@ -7,7 +7,7 @@ from extreme_deconvolution import extreme_deconvolution
 import monoAbundanceMW as maps
 import apogee.tools.read as apread
 _EXT='png'
-_ADDLLOGGCUT= True
+_ADDLLOGGCUT= False
 _SCATTERPLOT= False
 _ADDBOVYRIX= False
 _NOLINE= False

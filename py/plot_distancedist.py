@@ -3,8 +3,8 @@ import numpy
 from galpy.util import bovy_plot
 from matplotlib import pyplot
 import apogee.tools.read as apread
-_EXT='ps'
-_ADDLLOGGCUT= True
+_EXT='png'
+_ADDLLOGGCUT= False
 def plot_distancedist(basesavefilename):
     #First read the sample
     data= apread.rcsample()

@@ -7,8 +7,8 @@ from matplotlib import pyplot
 import apogee.tools.read as apread
 import apogee.tools.path as appath
 import pixelize_sample
-_EXT='ps'
-_ADDLLOGGCUT= True
+_EXT='png'
+_ADDLLOGGCUT= False
 _JACKERRS= True
 def plot_metallicity(basesavefilename,datafilename=None):
     #First read the sample
@@ -95,7 +95,10 @@ def plot_metallicity(basesavefilename,datafilename=None):
     pix.plot('METALS',
              zlabel=r'$\mathrm{median\ [Fe/H]}\,(\mathrm{dex})$',
              vmin=-0.4,vmax=0.3)
-    if int(appath._APOGEE_REDUX[1:]) > 600:
+    if 'l30' in appath._APOGEE_REDUX:
+        bovy_plot.bovy_text(r'$\mathrm{typical\ uncertainty\!:}\ 0.015\,\mathrm{dex}$',
+                            bottom_left=True,size=17.)
+    elif 'v6' in appath._APOGEE_REDUX and int(appath._APOGEE_REDUX[1:]) > 600:
         bovy_plot.bovy_text(r'$\mathrm{typical\ uncertainty\!:}\ 0.015\,\mathrm{dex}$',
                             bottom_left=True,size=17.)
     else:
